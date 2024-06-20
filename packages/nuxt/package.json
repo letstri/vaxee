@@ -1,0 +1,65 @@
+{
+  "name": "@vaxee/nuxt",
+  "version": "0.0.1",
+  "description": "Nuxt Module for pinia",
+  "keywords": [
+    "pinia",
+    "nuxt",
+    "vue",
+    "vuex",
+    "store"
+  ],
+  "homepage": "https://github.com/vuejs/pinia/tree/v2/packages/nuxt#readme",
+  "bugs": {
+    "url": "https://github.com/vuejs/pinia/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuejs/pinia.git"
+  },
+  "funding": "https://github.com/sponsors/posva",
+  "license": "MIT",
+  "author": {
+    "name": "Eduardo San Martin Morote",
+    "email": "posva13@gmail.com"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/module.mjs",
+      "require": "./dist/module.cjs"
+    }
+  },
+  "main": "./dist/module.cjs",
+  "types": "./dist/types.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm run dev:prepare && nuxt-module-build build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub . && nuxi prepare playground",
+    "test:types": "pnpm dev:prepare && nuxi typecheck"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.11.2",
+    "vaxee": "workspace:*"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^0.5.5",
+    "@nuxt/schema": "^3.11.2",
+    "@nuxt/test-utils": "^3.12.1",
+    "nuxt": "^3.11.2",
+    "typescript": "^5.4.3",
+    "vue-tsc": "^2.0.13"
+  },
+  "peerDependencies": {
+    "vue": ">3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

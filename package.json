@@ -1,0 +1,11 @@
+{
+  "name": "@vaxee/core",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r --filter='./packages/*' run build",
+    "test": "pnpm -r --filter='./packages/*' run test"
+  },
+  "packageManager": "pnpm@9.4.0"
+}

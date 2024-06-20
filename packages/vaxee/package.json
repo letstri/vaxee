@@ -1,0 +1,43 @@
+{
+  "name": "vaxee",
+  "version": "0.0.1",
+  "description": "Store for Vue 3",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "dev": "vite",
+    "build": "vite build && tsc",
+    "test": "vitest run"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/vaxee.es.js",
+  "module": "dist/vaxee.es.js",
+  "unpkg": "dist/vaxee.iife.js",
+  "jsdelivr": "dist/vaxee.iife.js",
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "vaxee"
+  ],
+  "license": "MIT",
+  "homepage": "https://vaxee.letstri.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/letstri/vaxee.git",
+    "directory": "packages/vaxee"
+  },
+  "bugs": {
+    "url": "https://github.com/letstri/vaxee/issues"
+  },
+  "author": "Valerii Strilets <valerii.strilets@gmail.com>",
+  "devDependencies": {
+    "@vue/test-utils": "^2",
+    "typescript": "^5",
+    "vite": "^5",
+    "vitest": "^1"
+  },
+  "peerDependencies": {
+    "vue": ">3.0.0"
+  }
+}
