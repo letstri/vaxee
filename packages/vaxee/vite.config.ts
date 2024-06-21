@@ -1,11 +1,7 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      "~": "./src",
-    },
-  },
   build: {
     minify: false,
     lib: {
@@ -16,6 +12,19 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ["vue"],
+    },
+  },
+  define: {
+    __TEST__: true,
+  },
+  test: {
+    browser: {
+      enabled: true,
+      headless: true,
+      name: "chrome",
+    },
+    alias: {
+      vue: "vue/dist/vue.esm-bundler.js",
     },
   },
 });

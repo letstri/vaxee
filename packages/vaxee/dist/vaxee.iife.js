@@ -1,17 +1,18 @@
 var vaxee = function(exports, vue2) {
   "use strict";
+  const IS_DEV = process.env.NODE_ENV !== "production";
+  const vaxeeSymbol = Symbol("vaxee");
   let vaxeeInstance = null;
   function setVaxeeInstance(instance) {
     vaxeeInstance = instance;
   }
   const getVaxeeInstance = () => vaxeeInstance;
-  function vaxeePlugin() {
+  function createVaxee() {
     const vaxee2 = {
       install(app) {
         setVaxeeInstance(vaxee2);
-        app.config.globalProperties.$vaxee = vaxee2.state;
-        app.provide("vaxee", vaxee2.state);
-        if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+        app.provide(vaxeeSymbol, vaxee2);
+        if (IS_DEV && typeof window !== "undefined") {
           console.log(
             "[🌱 vaxee]: Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
           );
@@ -19,85 +20,114 @@ var vaxee = function(exports, vue2) {
         }
       },
       state: vue2.ref({}),
-      _actions: {},
       _stores: {}
     };
     return vaxee2;
   }
+  function parseStore(store, context) {
+    return Object.entries(store).reduce(
+      (acc, [key, value]) => {
+        if (typeof value === "function") {
+          acc.actions[key] = context ? value.bind(context) : value;
+        } else {
+          acc.state[key] = value;
+        }
+        return acc;
+      },
+      {
+        state: {},
+        actions: {}
+      }
+    );
+  }
   function defineStore(name, store) {
     const vaxee2 = getVaxeeInstance();
     if (vaxee2 == null ? void 0 : vaxee2._stores[name]) {
-      console.log(
-        `[🌱 vaxee]: Store with name "${name}" already exists. Reusing..`
-      );
-      return vaxee2._stores[name];
+      if (IS_DEV) {
+        console.warn(
+          `[🌱 vaxee]: The store with name ${name} already exists. This warning appears only in dev mode.`
+        );
+      }
     }
     function useStore(getterOrNameOrToRefs) {
       var _a, _b;
-      const vaxee22 = getVaxeeInstance();
+      const hasContext = vue2.hasInjectionContext();
+      const vaxee22 = hasContext ? vue2.inject(vaxeeSymbol) : getVaxeeInstance();
       if (!vaxee22) {
         throw new Error(
           "[🌱 vaxee]: Seems like you forgot to install the plugin"
         );
       }
-      const initialStore = store();
-      const { initialState, actions } = Object.entries(initialStore).reduce(
-        (acc, [key, value]) => {
-          if (typeof value === "function") {
-            acc.actions[key] = value.bind(
-              vaxee22.state.value[name]
-            );
-          } else {
-            acc.initialState[key] = value;
-          }
-          return acc;
-        },
-        {
-          initialState: {},
-          actions: {}
-        }
-      );
-      (_a = vaxee22.state.value)[name] || (_a[name] = initialState);
-      (_b = vaxee22._actions)[name] || (_b[name] = actions);
-      const _state = vaxee22.state.value[name];
-      const _stateAndActions = { ...vue2.toRefs(_state), ...actions };
       const getter = typeof getterOrNameOrToRefs === "function" ? getterOrNameOrToRefs : void 0;
-      const getterSetter = typeof getterOrNameOrToRefs === "object" ? getterOrNameOrToRefs : void 0;
+      const getterSetter = typeof getterOrNameOrToRefs === "object" && "get" in getterOrNameOrToRefs && "set" in getterOrNameOrToRefs ? getterOrNameOrToRefs : void 0;
       const propName = typeof getterOrNameOrToRefs === "string" ? getterOrNameOrToRefs : void 0;
       const refs = getterOrNameOrToRefs === true;
+      const { state: initialState, actions } = parseStore(
+        store(),
+        vaxee22.state.value[name]
+      );
+      (_a = vaxee22.state.value)[name] || (_a[name] = initialState);
+      const $state = vaxee22.state.value[name];
+      (_b = vaxee22._stores)[name] || (_b[name] = {
+        ...vue2.toRefs(vaxee22.state.value[name]),
+        ...actions,
+        $state,
+        $actions: actions,
+        $reset() {
+          this.$state = parseStore(store(), null).state;
+        }
+      });
+      Object.defineProperty(vaxee22._stores[name], "$state", {
+        get: () => vaxee22.state.value[name],
+        set: (state) => {
+          Object.assign($state, state);
+        }
+      });
+      const _store = vaxee22._stores[name];
       if (getter) {
-        const _getter = vue2.toRef(() => getter(vue2.reactive(_stateAndActions)));
-        return typeof _getter.value === "function" ? vue2.unref(_getter).bind(_state) : _getter;
+        const _getter = vue2.toRef(() => getter(vue2.reactive(_store)));
+        return typeof _getter.value === "function" ? _getter.value.bind(_store) : _getter;
       }
       if (getterSetter) {
         return vue2.computed({
-          get: () => getterSetter.get(_state),
-          set: (value) => getterSetter.set(_state, value)
+          get: () => getterSetter.get(_store.$state),
+          set: (value) => getterSetter.set(_store.$state, value)
         });
       }
       if (propName) {
-        if (typeof _state[propName] === "function") {
-          return _state[propName].bind(_state);
+        if (typeof _store[propName] === "function") {
+          return _store[propName].bind(_store);
         }
         return vue2.computed({
-          // @ts-ignore
-          get: () => _state[propName],
+          get: () => $state[propName],
           set: (value) => {
-            _state[propName] = value;
+            $state[propName] = value;
           }
         });
       }
       if (refs) {
-        return _stateAndActions;
+        return _store;
       }
-      vaxee22._stores[name] = useStore;
-      return vue2.reactive(_stateAndActions);
+      return vue2.reactive(_store);
     }
     return useStore;
   }
+  const exclude = (obj, fields) => Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !fields.includes(key))
+  );
+  function useVaxeeDebug() {
+    const vaxee2 = vue2.inject(vaxeeSymbol);
+    if (!vaxee2) {
+      throw new Error(
+        "[🌱 vaxee]: `useVaxeeDebug` must be used after Vaxee plugin installation."
+      );
+    }
+    return exclude(vaxee2, ["install"]);
+  }
+  exports.createVaxee = createVaxee;
   exports.defineStore = defineStore;
   exports.setVaxeeInstance = setVaxeeInstance;
-  exports.vaxeePlugin = vaxeePlugin;
+  exports.useVaxeeDebug = useVaxeeDebug;
   Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
   return exports;
 }({}, vue);

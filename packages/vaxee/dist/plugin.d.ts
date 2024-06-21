@@ -1,17 +1,17 @@
 import { type App, type Ref } from "vue";
-import type { FunctionProperties, NonFunctionProperties } from "./models/helpers";
-import type { BaseStore, UseVaxeeStore } from "./defineStore";
+import type { NonFunctionProperties } from "./models/helpers";
+import type { BaseStore, VaxeeStore } from "./store/defineStore";
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
-        $vaxee: Vaxee["state"];
+        $vaxee: Vaxee;
     }
 }
+export declare const vaxeeSymbol: unique symbol;
 export interface Vaxee {
     install(app: App): void;
     state: Ref<Record<string, NonFunctionProperties<BaseStore>>>;
-    _actions: Record<string, FunctionProperties<BaseStore>>;
-    _stores: Record<string, UseVaxeeStore<any, any, any>>;
+    _stores: Record<string, VaxeeStore<unknown, unknown>>;
 }
 export declare function setVaxeeInstance(instance: Vaxee): void;
 export declare const getVaxeeInstance: () => Vaxee | null;
-export declare function vaxeePlugin(): Vaxee;
+export declare function createVaxee(): Vaxee;
