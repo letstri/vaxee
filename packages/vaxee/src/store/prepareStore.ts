@@ -14,6 +14,10 @@ export function prepareStore<
 >(store: () => Store, name: string) {
   const vaxee = getVaxeeInstance()!;
 
+  if (vaxee._stores[name]) {
+    return;
+  }
+
   const { state: initialState, actions: initialActions } = parseStore(store());
 
   vaxee.state.value[name] ||= initialState;
@@ -25,8 +29,7 @@ export function prepareStore<
     ])
   ) as Actions;
 
-  // Recreate the store if doesn't exist
-  vaxee._stores[name] ||= {
+  vaxee._stores[name] = {
     ...toRefs(vaxee.state.value[name] as State),
     ...actions,
     $state: vaxee.state.value[name] as State,
