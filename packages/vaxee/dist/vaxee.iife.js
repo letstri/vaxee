@@ -13,9 +13,6 @@ var vaxee = function(exports, vue2) {
         setVaxeeInstance(vaxee2);
         app.provide(vaxeeSymbol, vaxee2);
         if (IS_DEV && typeof window !== "undefined") {
-          console.log(
-            "[🌱 vaxee]: Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
-          );
           window.$vaxee = vaxee2.state;
         }
       },
@@ -24,11 +21,11 @@ var vaxee = function(exports, vue2) {
     };
     return vaxee2;
   }
-  function parseStore(store, context) {
+  function parseStore(store) {
     return Object.entries(store).reduce(
       (acc, [key, value]) => {
         if (typeof value === "function") {
-          acc.actions[key] = context ? value.bind(context) : value;
+          acc.actions[key] = value;
         } else {
           acc.state[key] = value;
         }
@@ -40,20 +37,44 @@ var vaxee = function(exports, vue2) {
       }
     );
   }
-  function defineStore(name, store) {
+  function prepareStore(store, name) {
+    var _a, _b;
     const vaxee2 = getVaxeeInstance();
-    if (vaxee2 == null ? void 0 : vaxee2._stores[name]) {
+    const { state: initialState, actions: initialActions } = parseStore(store());
+    (_a = vaxee2.state.value)[name] || (_a[name] = initialState);
+    const actions = Object.fromEntries(
+      Object.entries(initialActions).map(([key, func]) => [
+        key,
+        func.bind(vaxee2.state.value[name])
+      ])
+    );
+    (_b = vaxee2._stores)[name] || (_b[name] = {
+      ...vue2.toRefs(vaxee2.state.value[name]),
+      ...actions,
+      $state: vaxee2.state.value[name],
+      $actions: actions,
+      $reset() {
+        this.$state = parseStore(store()).state;
+      }
+    });
+    Object.defineProperty(vaxee2._stores[name], "$state", {
+      get: () => vaxee2.state.value[name],
+      set: (state) => {
+        Object.assign(vaxee2.state.value[name], state);
+      }
+    });
+  }
+  function defineStore(name, store) {
+    var _a;
+    if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
       if (IS_DEV) {
-        console.warn(
-          `[🌱 vaxee]: The store with name ${name} already exists. This warning appears only in dev mode.`
-        );
+        console.warn(`[🌱 vaxee]: The store with name ${name} already exists.`);
       }
     }
     function useStore(getterOrNameOrToRefs) {
-      var _a, _b;
       const hasContext = vue2.hasInjectionContext();
-      const vaxee22 = hasContext ? vue2.inject(vaxeeSymbol) : getVaxeeInstance();
-      if (!vaxee22) {
+      const vaxee2 = hasContext ? vue2.inject(vaxeeSymbol) : getVaxeeInstance();
+      if (!vaxee2) {
         throw new Error(
           "[🌱 vaxee]: Seems like you forgot to install the plugin"
         );
@@ -62,28 +83,9 @@ var vaxee = function(exports, vue2) {
       const getterSetter = typeof getterOrNameOrToRefs === "object" && "get" in getterOrNameOrToRefs && "set" in getterOrNameOrToRefs ? getterOrNameOrToRefs : void 0;
       const propName = typeof getterOrNameOrToRefs === "string" ? getterOrNameOrToRefs : void 0;
       const refs = getterOrNameOrToRefs === true;
-      const { state: initialState, actions } = parseStore(
-        store(),
-        vaxee22.state.value[name]
-      );
-      (_a = vaxee22.state.value)[name] || (_a[name] = initialState);
-      const $state = vaxee22.state.value[name];
-      (_b = vaxee22._stores)[name] || (_b[name] = {
-        ...vue2.toRefs(vaxee22.state.value[name]),
-        ...actions,
-        $state,
-        $actions: actions,
-        $reset() {
-          this.$state = parseStore(store(), null).state;
-        }
-      });
-      Object.defineProperty(vaxee22._stores[name], "$state", {
-        get: () => vaxee22.state.value[name],
-        set: (state) => {
-          Object.assign($state, state);
-        }
-      });
-      const _store = vaxee22._stores[name];
+      prepareStore(store, name);
+      const _state = vaxee2.state.value[name];
+      const _store = vaxee2._stores[name];
       if (getter) {
         const _getter = vue2.toRef(() => getter(vue2.reactive(_store)));
         return typeof _getter.value === "function" ? _getter.value.bind(_store) : _getter;
@@ -99,9 +101,9 @@ var vaxee = function(exports, vue2) {
           return _store[propName].bind(_store);
         }
         return vue2.computed({
-          get: () => $state[propName],
+          get: () => _state[propName],
           set: (value) => {
-            $state[propName] = value;
+            _state[propName] = value;
           }
         });
       }

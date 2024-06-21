@@ -14,7 +14,7 @@ import type {
   NonFunctionProperties,
 } from "../models/helpers";
 import { IS_DEV } from "../constants";
-import { parseStore } from "./parseStore";
+import { prepareStore } from "./prepareStore";
 
 // function isComputed<T>(
 //   value: ComputedRef<T> | unknown
@@ -71,13 +71,9 @@ export function defineStore<
   State extends NonFunctionProperties<Store>,
   Actions extends FunctionProperties<Store>
 >(name: string, store: () => Store): UseVaxeeStore<Store, State, Actions> {
-  const vaxee = getVaxeeInstance();
-
-  if (vaxee?._stores[name]) {
+  if (getVaxeeInstance()?._stores[name]) {
     if (IS_DEV) {
-      console.warn(
-        `[🌱 vaxee]: The store with name ${name} already exists. This warning appears only in dev mode.`
-      );
+      console.warn(`[🌱 vaxee]: The store with name ${name} already exists.`);
     }
   }
 
@@ -113,34 +109,9 @@ export function defineStore<
         : undefined;
     const refs = getterOrNameOrToRefs === true;
 
-    const { state: initialState, actions } = parseStore<Store>(
-      store(),
-      vaxee.state.value[name]
-    );
-
-    vaxee.state.value[name] ||= initialState;
+    prepareStore(store, name);
 
     const _state = vaxee.state.value[name] as State;
-
-    // Recreate the store if doesn't exist
-    vaxee._stores[name] ||= {
-      ...toRefs(vaxee.state.value[name] as State),
-      ...(actions as Actions),
-      $state: _state,
-      $actions: actions as Actions,
-      $reset() {
-        this.$state = parseStore(store(), null).state as State;
-      },
-    } satisfies VaxeeStore<State, Actions, true>;
-
-    // To use the state directly by $state = { ... } instead of computed get and set
-    Object.defineProperty(vaxee._stores[name], "$state", {
-      get: () => vaxee.state.value[name],
-      set: (state) => {
-        Object.assign(_state, state);
-      },
-    });
-
     const _store = vaxee._stores[name] as VaxeeStore<State, Actions, true>;
 
     if (getter) {

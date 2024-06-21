@@ -32,7 +32,6 @@ export function createVaxee() {
       app.provide(vaxeeSymbol, vaxee);
 
       if (IS_DEV && typeof window !== "undefined") {
-        // @ts-expect-error
         if (!__TEST__) {
           console.log(
             "[🌱 vaxee]: Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."

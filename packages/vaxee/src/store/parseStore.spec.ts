@@ -14,7 +14,7 @@ describe("parseStore", () => {
   });
 
   it("split store into state and actions", () => {
-    const { state, actions } = parseStore(baseStore, null);
+    const { state, actions } = parseStore(baseStore);
 
     expect(state).toEqual({
       count: 0,
@@ -25,21 +25,21 @@ describe("parseStore", () => {
   });
 
   it("save actions from the original object", () => {
-    const { actions } = parseStore(baseStore, null);
+    const { actions } = parseStore(baseStore);
 
     expect(actions.increment).toBe(baseStore.increment);
   });
 
   it("save context in actions", () => {
-    const { actions, state } = parseStore(baseStore, baseStore);
+    const { actions, state } = parseStore(baseStore);
 
-    actions.increment();
+    actions.increment.call(baseStore);
 
     expect(baseStore.count).toBe(1);
 
-    const { actions: actions2 } = parseStore(baseStore, state);
+    const { actions: actions2 } = parseStore(baseStore);
 
-    actions2.increment();
+    actions2.increment.call(state);
 
     expect(state.count).toBe(1);
   });

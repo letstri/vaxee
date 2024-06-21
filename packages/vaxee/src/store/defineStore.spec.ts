@@ -4,6 +4,12 @@ import { mount } from "@vue/test-utils";
 import { defineComponent, getCurrentInstance, nextTick, watch } from "vue";
 import { getVaxeeInstance } from "../plugin";
 
+/**
+ * Some test was taken from pinia to better quality of the code.
+ *
+ * @see https://github.com/vuejs/pinia/blob/v2/packages/pinia/__tests__/store.spec.ts
+ */
+
 describe("defineStore", () => {
   beforeEach(() => {
     setVaxeeInstance(createVaxee());
@@ -62,7 +68,7 @@ describe("defineStore", () => {
     expect(component2.text()).toBe("0");
 
     component1.vm.store.count++;
-    await component1.vm.$nextTick();
+    await nextTick();
 
     expect(component1.text()).toBe("1");
     expect(component2.text()).toBe("1");

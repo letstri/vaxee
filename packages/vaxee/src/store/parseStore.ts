@@ -5,8 +5,7 @@ import type {
 import type { BaseStore } from "./defineStore";
 
 export function parseStore<Store extends BaseStore>(
-  store: Store,
-  context: BaseStore | null
+  store: Store
 ): {
   state: NonFunctionProperties<Store>;
   actions: FunctionProperties<Store>;
@@ -14,7 +13,7 @@ export function parseStore<Store extends BaseStore>(
   return Object.entries(store).reduce(
     (acc, [key, value]) => {
       if (typeof value === "function") {
-        (acc.actions as any)[key] = context ? value.bind(context) : value;
+        (acc.actions as any)[key] = value;
       } else {
         (acc.state as any)[key] = value;
       }
