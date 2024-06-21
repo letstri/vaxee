@@ -38,8 +38,11 @@ var vaxee = function(exports, vue2) {
     );
   }
   function prepareStore(store, name) {
-    var _a, _b;
+    var _a;
     const vaxee2 = getVaxeeInstance();
+    if (vaxee2._stores[name]) {
+      return;
+    }
     const { state: initialState, actions: initialActions } = parseStore(store());
     (_a = vaxee2.state.value)[name] || (_a[name] = initialState);
     const actions = Object.fromEntries(
@@ -48,7 +51,7 @@ var vaxee = function(exports, vue2) {
         func.bind(vaxee2.state.value[name])
       ])
     );
-    (_b = vaxee2._stores)[name] || (_b[name] = {
+    vaxee2._stores[name] = {
       ...vue2.toRefs(vaxee2.state.value[name]),
       ...actions,
       $state: vaxee2.state.value[name],
@@ -56,7 +59,7 @@ var vaxee = function(exports, vue2) {
       $reset() {
         this.$state = parseStore(store()).state;
       }
-    });
+    };
     Object.defineProperty(vaxee2._stores[name], "$state", {
       get: () => vaxee2.state.value[name],
       set: (state) => {
