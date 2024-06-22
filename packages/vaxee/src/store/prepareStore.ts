@@ -1,10 +1,10 @@
-import { toRefs } from "vue";
+import { computed, toRef, toRefs, type ComputedRef } from "vue";
 import type {
   FunctionProperties,
   NonFunctionProperties,
 } from "../models/helpers";
 import { getVaxeeInstance } from "../plugin";
-import type { BaseStore, VaxeeStore } from "./defineStore";
+import { type BaseStore, type VaxeeStore } from "./defineStore";
 import { parseStore } from "./parseStore";
 
 export function prepareStore<

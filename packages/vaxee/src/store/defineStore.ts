@@ -1,20 +1,19 @@
 import {
   computed,
-  hasInjectionContext,
-  inject,
   reactive,
   toRef,
-  toRefs,
+  type ComputedRef,
   type Ref,
   type ToRefs,
 } from "vue";
-import { getVaxeeInstance, vaxeeSymbol, type Vaxee } from "../plugin";
+import { getVaxeeInstance } from "../plugin";
 import type {
   FunctionProperties,
   NonFunctionProperties,
 } from "../models/helpers";
 import { IS_DEV } from "../constants";
 import { prepareStore } from "./prepareStore";
+import { useVaxee } from "../composables/useVaxee";
 
 // function isComputed<T>(
 //   value: ComputedRef<T> | unknown
@@ -24,10 +23,7 @@ import { prepareStore } from "./prepareStore";
 
 export type BaseStore = Record<string | number | symbol, unknown>;
 type BaseGetter<Store extends BaseStore> = (state: Store) => any;
-type BaseGetterSetter<
-  State extends NonFunctionProperties<BaseStore>,
-  Value extends any
-> = {
+type BaseGetterSetter<State, Value> = {
   get: (state: State) => Value;
   set: (state: State, value: Value) => void;
 };
@@ -43,11 +39,7 @@ export type VaxeeStore<
     $reset: () => void;
   };
 
-export interface UseVaxeeStore<
-  Store extends BaseStore,
-  State extends NonFunctionProperties<Store>,
-  Actions extends FunctionProperties<Store>
-> {
+export interface UseVaxeeStore<State, Actions> {
   (): VaxeeStore<State, Actions>;
   <R extends boolean>(refs: R): R extends true
     ? VaxeeStore<State, Actions, true>
@@ -64,13 +56,14 @@ export interface UseVaxeeStore<
   >[Name] extends (...args: any) => any
     ? VaxeeStore<State, Actions>[Name]
     : Ref<VaxeeStore<State, Actions>[Name]>;
+  _store: string;
 }
 
 export function defineStore<
   Store extends BaseStore,
   State extends NonFunctionProperties<Store>,
   Actions extends FunctionProperties<Store>
->(name: string, store: () => Store): UseVaxeeStore<Store, State, Actions> {
+>(name: string, store: () => Store): UseVaxeeStore<State, Actions> {
   if (getVaxeeInstance()?._stores[name]) {
     if (IS_DEV) {
       console.warn(`[🌱 vaxee]: The store with name ${name} already exists.`);
@@ -84,14 +77,7 @@ export function defineStore<
       | keyof VaxeeStore<State, Actions>
       | boolean
   ) {
-    const hasContext = hasInjectionContext();
-    const vaxee = hasContext ? inject<Vaxee>(vaxeeSymbol) : getVaxeeInstance();
-
-    if (!vaxee) {
-      throw new Error(
-        "[🌱 vaxee]: Seems like you forgot to install the plugin"
-      );
-    }
+    const vaxee = useVaxee();
 
     const getter =
       typeof getterOrNameOrToRefs === "function"
@@ -150,6 +136,8 @@ export function defineStore<
 
     return reactive(_store);
   }
+
+  useStore._store = name;
 
   return useStore;
 }

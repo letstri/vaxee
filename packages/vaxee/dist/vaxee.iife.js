@@ -43,7 +43,13 @@ var vaxee = function(exports, vue2) {
     if (vaxee2._stores[name]) {
       return;
     }
-    const { state: initialState, actions: initialActions } = parseStore(store());
+    const getter = (callback) => vue2.computed(() => callback(vaxee2.state.value[name]));
+    const options = {
+      getter
+    };
+    const { state: initialState, actions: initialActions } = parseStore(
+      store(options)
+    );
     (_a = vaxee2.state.value)[name] || (_a[name] = initialState);
     const actions = Object.fromEntries(
       Object.entries(initialActions).map(([key, func]) => [
@@ -57,7 +63,7 @@ var vaxee = function(exports, vue2) {
       $state: vaxee2.state.value[name],
       $actions: actions,
       $reset() {
-        this.$state = parseStore(store()).state;
+        this.$state = parseStore(store(options)).state;
       }
     };
     Object.defineProperty(vaxee2._stores[name], "$state", {
@@ -67,6 +73,14 @@ var vaxee = function(exports, vue2) {
       }
     });
   }
+  function useVaxee() {
+    const hasContext = vue2.hasInjectionContext();
+    const vaxee2 = hasContext ? vue2.inject(vaxeeSymbol) : getVaxeeInstance();
+    if (!vaxee2) {
+      throw new Error("[🌱 vaxee]: Seems like you forgot to install the plugin");
+    }
+    return vaxee2;
+  }
   function defineStore(name, store) {
     var _a;
     if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
@@ -75,13 +89,7 @@ var vaxee = function(exports, vue2) {
       }
     }
     function useStore(getterOrNameOrToRefs) {
-      const hasContext = vue2.hasInjectionContext();
-      const vaxee2 = hasContext ? vue2.inject(vaxeeSymbol) : getVaxeeInstance();
-      if (!vaxee2) {
-        throw new Error(
-          "[🌱 vaxee]: Seems like you forgot to install the plugin"
-        );
-      }
+      const vaxee2 = useVaxee();
       const getter = typeof getterOrNameOrToRefs === "function" ? getterOrNameOrToRefs : void 0;
       const getterSetter = typeof getterOrNameOrToRefs === "object" && "get" in getterOrNameOrToRefs && "set" in getterOrNameOrToRefs ? getterOrNameOrToRefs : void 0;
       const propName = typeof getterOrNameOrToRefs === "string" ? getterOrNameOrToRefs : void 0;
@@ -115,24 +123,13 @@ var vaxee = function(exports, vue2) {
       }
       return vue2.reactive(_store);
     }
+    useStore._store = name;
     return useStore;
-  }
-  const exclude = (obj, fields) => Object.fromEntries(
-    Object.entries(obj).filter(([key]) => !fields.includes(key))
-  );
-  function useVaxeeDebug() {
-    const vaxee2 = vue2.inject(vaxeeSymbol);
-    if (!vaxee2) {
-      throw new Error(
-        "[🌱 vaxee]: `useVaxeeDebug` must be used after Vaxee plugin installation."
-      );
-    }
-    return exclude(vaxee2, ["install"]);
   }
   exports.createVaxee = createVaxee;
   exports.defineStore = defineStore;
   exports.setVaxeeInstance = setVaxeeInstance;
-  exports.useVaxeeDebug = useVaxeeDebug;
+  exports.useVaxee = useVaxee;
   Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
   return exports;
 }({}, vue);

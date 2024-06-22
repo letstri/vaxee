@@ -2,7 +2,7 @@ import { beforeEach, describe, it, expect, vi } from "vitest";
 import { createVaxee, defineStore, setVaxeeInstance } from "..";
 import { mount } from "@vue/test-utils";
 import { defineComponent, getCurrentInstance, nextTick, watch } from "vue";
-import { getVaxeeInstance } from "../plugin";
+import { useVaxee } from "../composables/useVaxee";
 
 /**
  * Some test was taken from pinia to better quality of the code.
@@ -58,10 +58,10 @@ describe("defineStore", () => {
       },
     });
     const component1 = mount(TestComponent, {
-      global: { plugins: [getVaxeeInstance()!] },
+      global: { plugins: [useVaxee()] },
     });
     const component2 = mount(TestComponent, {
-      global: { plugins: [getVaxeeInstance()!] },
+      global: { plugins: [useVaxee()] },
     });
 
     expect(component1.text()).toBe("0");
@@ -75,7 +75,7 @@ describe("defineStore", () => {
   });
 
   it("can hydrate the state", () => {
-    const vaxee = getVaxeeInstance()!;
+    const vaxee = useVaxee();
     const useStore = defineStore("store", () => ({
       a: true,
       nested: {
@@ -160,7 +160,6 @@ describe("defineStore", () => {
   });
 
   it("should outlive components", async () => {
-    const vaxee = createVaxee();
     const useStore = defineStore("store", () => ({
       n: 0,
     }));
@@ -177,7 +176,7 @@ describe("defineStore", () => {
       },
       {
         global: {
-          plugins: [vaxee],
+          plugins: [useVaxee()],
         },
       }
     );
@@ -224,7 +223,7 @@ describe("defineStore", () => {
       },
       {
         global: {
-          plugins: [createVaxee()],
+          plugins: [useVaxee()],
         },
       }
     );
@@ -239,8 +238,6 @@ describe("defineStore", () => {
     const useStore = defineStore("store", () => ({
       n: 0,
     }));
-    const vaxee = createVaxee();
-
     const Child = defineComponent({
       setup() {
         s2 = useStore();
@@ -257,18 +254,17 @@ describe("defineStore", () => {
         components: { Child },
         template: `<child/>`,
       },
-      { global: { plugins: [vaxee] } }
+      { global: { plugins: [useVaxee()] } }
     );
 
     expect(s1).toBeDefined();
     expect(s1 === s2).toBe(true);
   });
 
-  it("can share the same pinia in two completely different instances", async () => {
+  it("can share the same vaxee in two completely different instances", async () => {
     const useStore = defineStore("store", () => ({
       n: 0,
     }));
-    const vaxee = createVaxee();
 
     const Comp = defineComponent({
       setup() {
@@ -280,13 +276,13 @@ describe("defineStore", () => {
 
     const One = mount(Comp, {
       global: {
-        plugins: [vaxee],
+        plugins: [useVaxee()],
       },
     });
 
     const Two = mount(Comp, {
       global: {
-        plugins: [vaxee],
+        plugins: [useVaxee()],
       },
     });
 
