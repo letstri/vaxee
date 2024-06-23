@@ -14,7 +14,7 @@ export const vaxeeSymbol = Symbol("vaxee");
 export interface Vaxee {
   install(app: App): void;
   state: Ref<Record<string, VaxeeStoreState<any>>>;
-  _stores: Record<string, VaxeeStore<any, any>>;
+  _stores: Record<string, VaxeeStore<any>>;
 }
 
 let vaxeeInstance: Vaxee | null = null;

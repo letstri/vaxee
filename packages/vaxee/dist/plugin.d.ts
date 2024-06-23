@@ -10,7 +10,7 @@ export declare const vaxeeSymbol: unique symbol;
 export interface Vaxee {
     install(app: App): void;
     state: Ref<Record<string, VaxeeStoreState<any>>>;
-    _stores: Record<string, VaxeeStore<any, any>>;
+    _stores: Record<string, VaxeeStore<any>>;
 }
 export declare function setVaxeeInstance(instance: Vaxee): void;
 export declare const getVaxeeInstance: () => Vaxee | null;

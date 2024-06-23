@@ -25,51 +25,48 @@ type BaseGetterSetter<State, Value> = {
 };
 
 export type VaxeeStore<
-  State extends VaxeeStoreState<any>,
-  Actions extends VaxeeStoreActions<any>,
+  Store extends BaseStore,
   Refs extends boolean = true
-> = (Refs extends true ? ToRefs<State> : State) &
-  Actions & {
-    $state: State;
-    $actions: Actions;
+> = (Refs extends true
+  ? ToRefs<VaxeeStoreState<Store>>
+  : VaxeeStoreState<Store>) &
+  VaxeeStoreActions<Store> & {
+    $state: VaxeeStoreState<Store>;
+    $actions: VaxeeStoreActions<Store>;
     $reset: () => void;
   };
 
-export interface UseVaxeeStore<
-  State extends VaxeeStoreState<any>,
-  Actions extends VaxeeStoreActions<any>
-> {
-  (): VaxeeStore<State, Actions, false>;
+interface UseVaxeeStore<Store extends BaseStore> {
+  (): VaxeeStore<Store, false>;
   <R extends boolean>(refs: R): R extends true
-    ? VaxeeStore<State, Actions>
-    : VaxeeStore<State, Actions, false>;
-  <Getter extends BaseGetter<VaxeeStore<State, Actions, false>>>(
+    ? VaxeeStore<Store>
+    : VaxeeStore<Store, false>;
+  <Getter extends BaseGetter<VaxeeStore<Store, false>>>(
     getter: Getter
-  ): ReturnType<Getter> extends (...args: any) => any
+  ): ReturnType<Getter> extends Function
     ? ReturnType<Getter>
     : Ref<ReturnType<Getter>>;
-  <Value extends any>(getterSetter: BaseGetterSetter<State, Value>): Ref<Value>;
-  <Name extends keyof VaxeeStore<State, Actions>>(name: Name): VaxeeStore<
-    State,
-    Actions,
+  <Value extends any>(
+    getterSetter: BaseGetterSetter<VaxeeStoreState<Store>, Value>
+  ): Ref<Value>;
+  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<
+    Store,
     false
-  >[Name] extends (...args: any) => any
-    ? VaxeeStore<State, Actions, false>[Name]
-    : Ref<VaxeeStore<State, Actions, false>[Name]>;
+  >[Name] extends Function
+    ? VaxeeStore<Store, false>[Name]
+    : Ref<VaxeeStore<Store, false>[Name]>;
   _store: string;
 }
+type CreateVaxeeStore = <Store extends BaseStore>(
+  name: string,
+  store: () => Store
+) => UseVaxeeStore<Store>;
 
-type VaxeeStoreFunction = (options: {
-  getter<Value>(
-    callback: (store: ReturnType<VaxeeStoreFunction>) => Value
-  ): ComputedRef<Value>;
-}) => BaseStore;
+export const createStore: CreateVaxeeStore = (name, store) => {
+  type Store = ReturnType<typeof store>;
+  type State = VaxeeStoreState<Store>;
+  type Actions = VaxeeStoreActions<Store>;
 
-export function createStore<
-  Store extends BaseStore,
-  State extends VaxeeStoreState<Store>,
-  Actions extends VaxeeStoreActions<Store>
->(name: string, store: () => Store): UseVaxeeStore<State, Actions> {
   if (getVaxeeInstance()?._stores[name]) {
     if (IS_DEV) {
       console.warn(
@@ -82,7 +79,7 @@ export function createStore<
     getterOrNameOrToRefs?:
       | BaseGetter<State>
       | BaseGetterSetter<State, Value>
-      | keyof VaxeeStore<State, Actions>
+      | keyof VaxeeStore<Store>
       | boolean
   ) {
     const getter =
@@ -106,9 +103,7 @@ export function createStore<
     if (getter) {
       const _getter = toRef(() => getter(reactive(_store) as Store));
 
-      return typeof _getter.value === "function"
-        ? _getter.value.bind(_store.$state)
-        : _getter;
+      return typeof _getter.value === "function" ? _getter.value : _getter;
     }
 
     if (getterSetter) {
@@ -119,18 +114,14 @@ export function createStore<
     }
 
     if (propName) {
-      // @ts-ignore
-      if (typeof _store[propName] === "function") {
-        // @ts-ignore
-        return _store[propName].bind(_store.$state);
+      if (typeof _store[propName as keyof Actions] === "function") {
+        return _store[propName as keyof Actions];
       }
 
       return computed({
-        // @ts-ignore
-        get: () => _store.$state[propName],
+        get: () => _store.$state[propName as keyof State],
         set: (value) => {
-          // @ts-ignore
-          _store.$state[propName] = value;
+          _store.$state[propName as keyof State] = value;
         },
       });
     }
@@ -145,4 +136,4 @@ export function createStore<
   useStore._store = name;
 
   return useStore;
-}
+};

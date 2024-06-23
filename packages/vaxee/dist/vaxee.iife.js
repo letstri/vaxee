@@ -59,16 +59,8 @@ var vaxee = function(exports, vue2) {
     const options = {
       getter
     };
-    const { state: initialState, actions: initialActions } = parseStore(
-      store(options)
-    );
+    const { state: initialState, actions } = parseStore(store(options));
     (_a = vaxee2.state.value)[name] || (_a[name] = initialState);
-    const actions = Object.fromEntries(
-      Object.entries(initialActions).map(([key, func]) => [
-        key,
-        func.bind(vaxee2.state.value[name])
-      ])
-    );
     vaxee2._stores[name] = {
       ...vue2.toRefs(vaxee2.state.value[name]),
       ...actions,
@@ -86,7 +78,7 @@ var vaxee = function(exports, vue2) {
     });
     return vaxee2._stores[name];
   }
-  function createStore(name, store) {
+  const createStore = (name, store) => {
     var _a;
     if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
       if (IS_DEV) {
@@ -103,7 +95,7 @@ var vaxee = function(exports, vue2) {
       const _store = prepareStore(store, name);
       if (getter) {
         const _getter = vue2.toRef(() => getter(vue2.reactive(_store)));
-        return typeof _getter.value === "function" ? _getter.value.bind(_store.$state) : _getter;
+        return typeof _getter.value === "function" ? _getter.value : _getter;
       }
       if (getterSetter) {
         return vue2.computed({
@@ -113,10 +105,9 @@ var vaxee = function(exports, vue2) {
       }
       if (propName) {
         if (typeof _store[propName] === "function") {
-          return _store[propName].bind(_store.$state);
+          return _store[propName];
         }
         return vue2.computed({
-          // @ts-ignore
           get: () => _store.$state[propName],
           set: (value) => {
             _store.$state[propName] = value;
@@ -130,7 +121,7 @@ var vaxee = function(exports, vue2) {
     }
     useStore._store = name;
     return useStore;
-  }
+  };
   exports.createStore = createStore;
   exports.createVaxeePlugin = createVaxeePlugin;
   exports.setVaxeeInstance = setVaxeeInstance;

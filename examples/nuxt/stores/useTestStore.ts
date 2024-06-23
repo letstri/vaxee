@@ -1,6 +1,7 @@
 export const useTestStore = createStore("test", () => ({
   count: 0,
   increment() {
-    this.count++;
+    // set({ test: 1 });
   },
 }));
+// useTestStore()

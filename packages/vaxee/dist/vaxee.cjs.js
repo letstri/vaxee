@@ -60,16 +60,8 @@ function prepareStore(store, name) {
   const options = {
     getter
   };
-  const { state: initialState, actions: initialActions } = parseStore(
-    store(options)
-  );
+  const { state: initialState, actions } = parseStore(store(options));
   (_a = vaxee.state.value)[name] || (_a[name] = initialState);
-  const actions = Object.fromEntries(
-    Object.entries(initialActions).map(([key, func]) => [
-      key,
-      func.bind(vaxee.state.value[name])
-    ])
-  );
   vaxee._stores[name] = {
     ...vue.toRefs(vaxee.state.value[name]),
     ...actions,
@@ -87,7 +79,7 @@ function prepareStore(store, name) {
   });
   return vaxee._stores[name];
 }
-function createStore(name, store) {
+const createStore = (name, store) => {
   var _a;
   if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
     if (IS_DEV) {
@@ -104,7 +96,7 @@ function createStore(name, store) {
     const _store = prepareStore(store, name);
     if (getter) {
       const _getter = vue.toRef(() => getter(vue.reactive(_store)));
-      return typeof _getter.value === "function" ? _getter.value.bind(_store.$state) : _getter;
+      return typeof _getter.value === "function" ? _getter.value : _getter;
     }
     if (getterSetter) {
       return vue.computed({
@@ -114,10 +106,9 @@ function createStore(name, store) {
     }
     if (propName) {
       if (typeof _store[propName] === "function") {
-        return _store[propName].bind(_store.$state);
+        return _store[propName];
       }
       return vue.computed({
-        // @ts-ignore
         get: () => _store.$state[propName],
         set: (value) => {
           _store.$state[propName] = value;
@@ -131,7 +122,7 @@ function createStore(name, store) {
   }
   useStore._store = name;
   return useStore;
-}
+};
 exports.createStore = createStore;
 exports.createVaxeePlugin = createVaxeePlugin;
 exports.setVaxeeInstance = setVaxeeInstance;
