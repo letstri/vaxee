@@ -1,5 +1,5 @@
 import { type App, type Ref } from "vue";
-import type { NonFunctionProperties } from "./models/helpers";
+import type { VaxeeStoreState } from "./helpers";
 import type { BaseStore, VaxeeStore } from "./store/defineStore";
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
@@ -9,8 +9,8 @@ declare module "@vue/runtime-core" {
 export declare const vaxeeSymbol: unique symbol;
 export interface Vaxee {
     install(app: App): void;
-    state: Ref<Record<string, NonFunctionProperties<BaseStore>>>;
-    _stores: Record<string, VaxeeStore<unknown, unknown>>;
+    state: Ref<Record<string, VaxeeStoreState<BaseStore>>>;
+    _stores: Record<string, VaxeeStore<any, any>>;
 }
 export declare function setVaxeeInstance(instance: Vaxee): void;
 export declare const getVaxeeInstance: () => Vaxee | null;

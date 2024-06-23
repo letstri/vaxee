@@ -1,7 +1,7 @@
-export const useTestStore = defineStore("test", ({ getter }) => ({
+export const useTestStore = defineStore("test", () => ({
   count: 0,
   increment() {
     this.count++;
   },
-  test: getter((state) => state.count),
+  // $getter: () => this.count,
 }));

@@ -1,31 +1,37 @@
-import { computed, toRef, toRefs, type ComputedRef } from "vue";
-import type {
-  FunctionProperties,
-  NonFunctionProperties,
-} from "../models/helpers";
-import { getVaxeeInstance } from "../plugin";
+import { computed, toRefs } from "vue";
+import type { VaxeeStoreState, VaxeeStoreActions } from "../helpers";
 import { type BaseStore, type VaxeeStore } from "./defineStore";
 import { parseStore } from "./parseStore";
+import { useVaxee } from "../composables/useVaxee";
 
 export function prepareStore<
   Store extends BaseStore,
-  State extends NonFunctionProperties<Store>,
-  Actions extends FunctionProperties<Store>
->(store: () => Store, name: string) {
-  const vaxee = getVaxeeInstance()!;
+  State extends VaxeeStoreState<Store>,
+  Actions extends VaxeeStoreActions<Store>
+>(store: (options: any) => Store, name: string): VaxeeStore<State, Actions> {
+  const vaxee = useVaxee();
 
   if (vaxee._stores[name]) {
-    return;
+    return vaxee._stores[name] as VaxeeStore<State, Actions>;
   }
 
-  const { state: initialState, actions: initialActions } = parseStore(store());
+  const getter = <Value>(callback: (state: State) => Value) =>
+    computed(() => callback(vaxee.state.value[name] as State));
+
+  const options = {
+    getter,
+  };
+
+  const { state: initialState, actions: initialActions } = parseStore(
+    store(options)
+  );
 
   vaxee.state.value[name] ||= initialState;
 
   const actions = Object.fromEntries(
     Object.entries(initialActions).map(([key, func]) => [
       key,
-      (func as () => {}).bind(vaxee.state.value[name]),
+      (func as any).bind(vaxee.state.value[name]),
     ])
   ) as Actions;
 
@@ -35,9 +41,9 @@ export function prepareStore<
     $state: vaxee.state.value[name] as State,
     $actions: actions,
     $reset() {
-      this.$state = parseStore(store()).state as State;
+      this.$state = parseStore(store(options)).state as State;
     },
-  } satisfies VaxeeStore<State, Actions, true>;
+  } satisfies VaxeeStore<State, Actions>;
 
   // To use the state directly by $state = { ... } instead of computed get and set
   Object.defineProperty(vaxee._stores[name], "$state", {
@@ -46,4 +52,6 @@ export function prepareStore<
       Object.assign(vaxee.state.value[name], state);
     },
   });
+
+  return vaxee._stores[name];
 }

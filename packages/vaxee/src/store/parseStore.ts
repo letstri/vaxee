@@ -1,14 +1,11 @@
-import type {
-  FunctionProperties,
-  NonFunctionProperties,
-} from "../models/helpers";
+import type { VaxeeStoreState, VaxeeStoreActions } from "../helpers";
 import type { BaseStore } from "./defineStore";
 
 export function parseStore<Store extends BaseStore>(
   store: Store
 ): {
-  state: NonFunctionProperties<Store>;
-  actions: FunctionProperties<Store>;
+  state: VaxeeStoreState<Store>;
+  actions: VaxeeStoreActions<Store>;
 } {
   return Object.entries(store).reduce(
     (acc, [key, value]) => {
@@ -23,8 +20,8 @@ export function parseStore<Store extends BaseStore>(
       state: {},
       actions: {},
     } as {
-      state: NonFunctionProperties<Store>;
-      actions: FunctionProperties<Store>;
+      state: VaxeeStoreState<Store>;
+      actions: VaxeeStoreActions<Store>;
     }
   );
 }

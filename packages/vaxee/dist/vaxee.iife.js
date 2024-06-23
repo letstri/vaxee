@@ -1,6 +1,7 @@
 var vaxee = function(exports, vue2) {
   "use strict";
   const IS_DEV = process.env.NODE_ENV !== "production";
+  const IS_CLIENT = typeof window !== "undefined";
   const vaxeeSymbol = Symbol("vaxee");
   let vaxeeInstance = null;
   function setVaxeeInstance(instance) {
@@ -12,12 +13,12 @@ var vaxee = function(exports, vue2) {
       install(app) {
         setVaxeeInstance(vaxee2);
         app.provide(vaxeeSymbol, vaxee2);
-        if (IS_DEV && typeof window !== "undefined") {
+        if (IS_DEV && IS_CLIENT) {
           window.$vaxee = vaxee2.state;
         }
       },
       state: vue2.ref({}),
-      _stores: {}
+      _stores: vue2.ref({})
     };
     return vaxee2;
   }
@@ -37,11 +38,19 @@ var vaxee = function(exports, vue2) {
       }
     );
   }
+  function useVaxee() {
+    const hasContext = vue2.hasInjectionContext();
+    const vaxee2 = hasContext ? vue2.inject(vaxeeSymbol) : getVaxeeInstance();
+    if (!vaxee2) {
+      throw new Error("[🌱 vaxee]: Seems like you forgot to install the plugin");
+    }
+    return vaxee2;
+  }
   function prepareStore(store, name) {
     var _a;
-    const vaxee2 = getVaxeeInstance();
+    const vaxee2 = useVaxee();
     if (vaxee2._stores[name]) {
-      return;
+      return vaxee2._stores[name];
     }
     const getter = (callback) => vue2.computed(() => callback(vaxee2.state.value[name]));
     const options = {
@@ -72,14 +81,7 @@ var vaxee = function(exports, vue2) {
         Object.assign(vaxee2.state.value[name], state);
       }
     });
-  }
-  function useVaxee() {
-    const hasContext = vue2.hasInjectionContext();
-    const vaxee2 = hasContext ? vue2.inject(vaxeeSymbol) : getVaxeeInstance();
-    if (!vaxee2) {
-      throw new Error("[🌱 vaxee]: Seems like you forgot to install the plugin");
-    }
-    return vaxee2;
+    return vaxee2._stores[name];
   }
   function defineStore(name, store) {
     var _a;
@@ -89,17 +91,14 @@ var vaxee = function(exports, vue2) {
       }
     }
     function useStore(getterOrNameOrToRefs) {
-      const vaxee2 = useVaxee();
       const getter = typeof getterOrNameOrToRefs === "function" ? getterOrNameOrToRefs : void 0;
       const getterSetter = typeof getterOrNameOrToRefs === "object" && "get" in getterOrNameOrToRefs && "set" in getterOrNameOrToRefs ? getterOrNameOrToRefs : void 0;
       const propName = typeof getterOrNameOrToRefs === "string" ? getterOrNameOrToRefs : void 0;
       const refs = getterOrNameOrToRefs === true;
-      prepareStore(store, name);
-      const _state = vaxee2.state.value[name];
-      const _store = vaxee2._stores[name];
+      const _store = prepareStore(store, name);
       if (getter) {
         const _getter = vue2.toRef(() => getter(vue2.reactive(_store)));
-        return typeof _getter.value === "function" ? _getter.value.bind(_store) : _getter;
+        return typeof _getter.value === "function" ? _getter.value.bind(_store.$state) : _getter;
       }
       if (getterSetter) {
         return vue2.computed({
@@ -109,12 +108,12 @@ var vaxee = function(exports, vue2) {
       }
       if (propName) {
         if (typeof _store[propName] === "function") {
-          return _store[propName].bind(_store);
+          return _store[propName].bind(_store.$state);
         }
         return vue2.computed({
-          get: () => _state[propName],
+          get: () => _store.$state[propName],
           set: (value) => {
-            _state[propName] = value;
+            _store.$state[propName] = value;
           }
         });
       }

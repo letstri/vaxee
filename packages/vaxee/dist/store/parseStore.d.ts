@@ -1,6 +1,6 @@
-import type { FunctionProperties, NonFunctionProperties } from "../models/helpers";
+import type { VaxeeStoreState, VaxeeStoreActions } from "../helpers";
 import type { BaseStore } from "./defineStore";
 export declare function parseStore<Store extends BaseStore>(store: Store): {
-    state: NonFunctionProperties<Store>;
-    actions: FunctionProperties<Store>;
+    state: VaxeeStoreState<Store>;
+    actions: VaxeeStoreActions<Store>;
 };

@@ -20,11 +20,8 @@ describe("prepareStore", () => {
     prepareStore(store, name);
 
     expect(vaxee.state.value[name].count).toBe(0);
-    // @ts-expect-error
     expect(vaxee._stores[name].increment).toBeDefined();
-    // @ts-expect-error
     expect(vaxee._stores[name].$state.count).toBe(0);
-    // @ts-expect-error
     expect(vaxee._stores[name].$actions.increment).toBeDefined();
   });
 
@@ -44,13 +41,10 @@ describe("prepareStore", () => {
 
     prepareStore(store, name);
 
-    // @ts-expect-error
-    vaxee._stores[name].increment.call(vaxee.state.value[name]);
-    // @ts-expect-error
+    vaxee._stores[name].increment.call(vaxee._stores[name]);
     expect(vaxee._stores[name].$state.count).toBe(1);
 
     vaxee._stores[name].$reset();
-    // @ts-expect-error
     expect(vaxee._stores[name].$state.count).toBe(0);
   });
 });
