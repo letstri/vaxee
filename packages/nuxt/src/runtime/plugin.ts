@@ -1,10 +1,10 @@
-import { createVaxee, type Vaxee } from "vaxee";
+import { createVaxeePlugin, type Vaxee } from "vaxee";
 import { defineNuxtPlugin } from "#app";
 
 export default defineNuxtPlugin<{ vaxee: Vaxee }>({
   name: "vaxee",
   setup(nuxtApp) {
-    const vaxee = createVaxee();
+    const vaxee = createVaxeePlugin();
 
     nuxtApp.vueApp.use(vaxee);
 

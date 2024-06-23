@@ -1,12 +1,12 @@
 import { beforeEach, describe, it, expect } from "vitest";
-import { createVaxee, defineStore, setVaxeeInstance } from "..";
+import { createVaxeePlugin, createStore, setVaxeeInstance } from "..";
 
 describe("useStore", () => {
   beforeEach(() => {
-    setVaxeeInstance(createVaxee());
+    setVaxeeInstance(createVaxeePlugin());
   });
 
-  const useStore = defineStore("store", () => ({
+  const useStore = createStore("store", () => ({
     count: 0,
     increment(count?: number) {
       this.count += count || 1;

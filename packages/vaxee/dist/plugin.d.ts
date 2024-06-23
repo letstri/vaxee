@@ -1,6 +1,6 @@
 import { type App, type Ref } from "vue";
 import type { VaxeeStoreState } from "./helpers";
-import type { VaxeeStore } from "./store/defineStore";
+import type { VaxeeStore } from "./store/createStore";
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         $vaxee: Vaxee;
@@ -14,4 +14,4 @@ export interface Vaxee {
 }
 export declare function setVaxeeInstance(instance: Vaxee): void;
 export declare const getVaxeeInstance: () => Vaxee | null;
-export declare function createVaxee(): Vaxee;
+export declare function createVaxeePlugin(): Vaxee;

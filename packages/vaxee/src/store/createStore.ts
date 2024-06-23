@@ -18,7 +18,7 @@ import { prepareStore } from "./prepareStore";
 // }
 
 export type BaseStore = Record<string | number | symbol, any>;
-type BaseGetter<Store extends BaseStore> = (state: Store) => any;
+type BaseGetter<State> = (state: State) => any;
 type BaseGetterSetter<State, Value> = {
   get: (state: State) => Value;
   set: (state: State, value: Value) => void;
@@ -65,7 +65,7 @@ type VaxeeStoreFunction = (options: {
   ): ComputedRef<Value>;
 }) => BaseStore;
 
-export function defineStore<
+export function createStore<
   Store extends BaseStore,
   State extends VaxeeStoreState<Store>,
   Actions extends VaxeeStoreActions<Store>
@@ -80,7 +80,7 @@ export function defineStore<
 
   function useStore<Value extends any>(
     getterOrNameOrToRefs?:
-      | BaseGetter<Store>
+      | BaseGetter<State>
       | BaseGetterSetter<State, Value>
       | keyof VaxeeStore<State, Actions>
       | boolean

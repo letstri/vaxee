@@ -1,4 +1,4 @@
-export { createVaxee, setVaxeeInstance } from "./plugin";
+export { createVaxeePlugin, setVaxeeInstance } from "./plugin";
 export type { Vaxee } from "./plugin";
-export { defineStore } from "./store/defineStore";
+export { createStore } from "./store/createStore";
 export { useVaxee } from "./composables/useVaxee";

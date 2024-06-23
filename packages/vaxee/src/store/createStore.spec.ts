@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from "vitest";
-import { createVaxee, defineStore, setVaxeeInstance } from "..";
+import { createVaxeePlugin, createStore, setVaxeeInstance } from "..";
 import { mount } from "@vue/test-utils";
 import { defineComponent, getCurrentInstance, nextTick, watch } from "vue";
 import { useVaxee } from "../composables/useVaxee";
@@ -10,20 +10,20 @@ import { useVaxee } from "../composables/useVaxee";
  * @see https://github.com/vuejs/pinia/blob/v2/packages/pinia/__tests__/store.spec.ts
  */
 
-describe("defineStore", () => {
+describe("createStore", () => {
   beforeEach(() => {
-    setVaxeeInstance(createVaxee());
+    setVaxeeInstance(createVaxeePlugin());
   });
 
   it("can create an empty store", () => {
-    const store = defineStore("store", () => ({}))();
+    const store = createStore("store", () => ({}))();
 
     expect(store.$state).toEqual({});
     expect(store.$actions).toEqual({});
   });
 
   it("reuses the same store", () => {
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       test: 123,
     }));
 
@@ -31,7 +31,7 @@ describe("defineStore", () => {
   });
 
   it("the same as the original store", () => {
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       test: {
         a: 123,
       },
@@ -47,7 +47,7 @@ describe("defineStore", () => {
   });
 
   it("render and increment count in components", async () => {
-    const useStore = defineStore("main", () => ({
+    const useStore = createStore("main", () => ({
       count: 0,
     }));
     const TestComponent = defineComponent({
@@ -76,7 +76,7 @@ describe("defineStore", () => {
 
   it("can hydrate the state", () => {
     const vaxee = useVaxee();
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       a: true,
       nested: {
         foo: "foo",
@@ -104,7 +104,7 @@ describe("defineStore", () => {
   });
 
   it("can reassign $state", () => {
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       a: true,
       nested: {
         foo: "foo",
@@ -142,7 +142,7 @@ describe("defineStore", () => {
   });
 
   it("can be reset", () => {
-    const useStore = defineStore("main", () => ({
+    const useStore = createStore("main", () => ({
       count: 0,
       count2: 10,
     }));
@@ -160,7 +160,7 @@ describe("defineStore", () => {
   });
 
   it("should outlive components", async () => {
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       n: 0,
     }));
 
@@ -202,7 +202,7 @@ describe("defineStore", () => {
   });
 
   it("should not break getCurrentInstance", () => {
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       n: 0,
     }));
     let store: any;
@@ -235,7 +235,7 @@ describe("defineStore", () => {
 
   it("reuses stores from parent components", () => {
     let s1, s2;
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       n: 0,
     }));
     const Child = defineComponent({
@@ -262,7 +262,7 @@ describe("defineStore", () => {
   });
 
   it("can share the same vaxee in two completely different instances", async () => {
-    const useStore = defineStore("store", () => ({
+    const useStore = createStore("store", () => ({
       n: 0,
     }));
 

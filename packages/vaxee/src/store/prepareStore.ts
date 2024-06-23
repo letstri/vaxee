@@ -1,6 +1,6 @@
 import { computed, toRefs } from "vue";
 import type { VaxeeStoreState, VaxeeStoreActions } from "../helpers";
-import { type BaseStore, type VaxeeStore } from "./defineStore";
+import { type BaseStore, type VaxeeStore } from "./createStore";
 import { parseStore } from "./parseStore";
 import { useVaxee } from "../composables/useVaxee";
 

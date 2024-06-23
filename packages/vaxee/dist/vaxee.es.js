@@ -8,7 +8,7 @@ function setVaxeeInstance(instance) {
   vaxeeInstance = instance;
 }
 const getVaxeeInstance = () => vaxeeInstance;
-function createVaxee() {
+function createVaxeePlugin() {
   const vaxee = {
     install(app) {
       setVaxeeInstance(vaxee);
@@ -85,7 +85,7 @@ function prepareStore(store, name) {
   });
   return vaxee._stores[name];
 }
-function defineStore(name, store) {
+function createStore(name, store) {
   var _a;
   if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
     if (IS_DEV) {
@@ -131,8 +131,8 @@ function defineStore(name, store) {
   return useStore;
 }
 export {
-  createVaxee,
-  defineStore,
+  createStore,
+  createVaxeePlugin,
   setVaxeeInstance,
   useVaxee
 };

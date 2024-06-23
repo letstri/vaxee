@@ -21,7 +21,7 @@ const module = defineNuxtModule({
       addPlugin(resolver.resolve("./runtime/plugin"));
     });
     const composables = resolver.resolve("./runtime/composables");
-    addImports([{ from: composables, name: "defineStore" }]);
+    addImports([{ from: composables, name: "createStore" }]);
     if (!options.storesDirs) {
       options.storesDirs = [resolver.resolve(nuxt.options.srcDir, "stores")];
     }

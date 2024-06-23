@@ -1,6 +1,6 @@
 import { ref, type App, type Ref } from "vue";
 import type { VaxeeStoreState } from "./helpers";
-import type { VaxeeStore } from "./store/defineStore";
+import type { VaxeeStore } from "./store/createStore";
 import { IS_CLIENT, IS_DEV, VAXEE_LOG_START } from "./constants";
 
 declare module "@vue/runtime-core" {
@@ -25,7 +25,7 @@ export function setVaxeeInstance(instance: Vaxee) {
 
 export const getVaxeeInstance = () => vaxeeInstance;
 
-export function createVaxee() {
+export function createVaxeePlugin() {
   const vaxee: Vaxee = {
     install(app: App) {
       setVaxeeInstance(vaxee);
