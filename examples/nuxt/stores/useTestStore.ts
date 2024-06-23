@@ -3,5 +3,4 @@ export const useTestStore = defineStore("test", () => ({
   increment() {
     this.count++;
   },
-  // $getter: () => this.count,
 }));

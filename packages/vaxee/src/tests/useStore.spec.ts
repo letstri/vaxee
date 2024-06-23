@@ -67,4 +67,17 @@ describe("useStore", () => {
     count.value++;
     expect(count.value).toEqual(1);
   });
+
+  it("check $state and $actions", () => {
+    const store = useStore();
+
+    expect(store.$state.count).toEqual(0);
+    store.$actions.increment();
+    expect(store.$state.count).toEqual(1);
+    expect(store.count).toEqual(1);
+    // @ts-expect-error
+    expect(store.$actions.count).not.toBeDefined();
+    // @ts-expect-error
+    expect(store.$state.increment).not.toBeDefined();
+  });
 });

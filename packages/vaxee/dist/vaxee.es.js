@@ -1,6 +1,7 @@
 import { ref, hasInjectionContext, inject, toRefs, computed, toRef, reactive } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
+const VAXEE_LOG_START = "[🌱 vaxee]: ";
 const vaxeeSymbol = Symbol("vaxee");
 let vaxeeInstance = null;
 function setVaxeeInstance(instance) {
@@ -17,7 +18,7 @@ function createVaxee() {
       }
     },
     state: ref({}),
-    _stores: ref({})
+    _stores: {}
   };
   return vaxee;
 }
@@ -41,7 +42,9 @@ function useVaxee() {
   const hasContext = hasInjectionContext();
   const vaxee = hasContext ? inject(vaxeeSymbol) : getVaxeeInstance();
   if (!vaxee) {
-    throw new Error("[🌱 vaxee]: Seems like you forgot to install the plugin");
+    throw new Error(
+      VAXEE_LOG_START + "Seems like you forgot to install the plugin"
+    );
   }
   return vaxee;
 }
@@ -86,7 +89,9 @@ function defineStore(name, store) {
   var _a;
   if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
     if (IS_DEV) {
-      console.warn(`[🌱 vaxee]: The store with name ${name} already exists.`);
+      console.warn(
+        VAXEE_LOG_START + `The store with name ${name} already exists.`
+      );
     }
   }
   function useStore(getterOrNameOrToRefs) {
@@ -110,6 +115,7 @@ function defineStore(name, store) {
         return _store[propName].bind(_store.$state);
       }
       return computed({
+        // @ts-ignore
         get: () => _store.$state[propName],
         set: (value) => {
           _store.$state[propName] = value;

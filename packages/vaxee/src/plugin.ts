@@ -1,7 +1,7 @@
 import { ref, type App, type Ref } from "vue";
 import type { VaxeeStoreState } from "./helpers";
-import type { BaseStore, VaxeeStore } from "./store/defineStore";
-import { IS_CLIENT, IS_DEV } from "./constants";
+import type { VaxeeStore } from "./store/defineStore";
+import { IS_CLIENT, IS_DEV, VAXEE_LOG_START } from "./constants";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
@@ -13,7 +13,7 @@ export const vaxeeSymbol = Symbol("vaxee");
 
 export interface Vaxee {
   install(app: App): void;
-  state: Ref<Record<string, VaxeeStoreState<BaseStore>>>;
+  state: Ref<Record<string, VaxeeStoreState<any>>>;
   _stores: Record<string, VaxeeStore<any, any>>;
 }
 
@@ -34,7 +34,8 @@ export function createVaxee() {
       if (IS_DEV && IS_CLIENT) {
         if (!__TEST__) {
           console.log(
-            "[🌱 vaxee]: Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
+            VAXEE_LOG_START +
+              "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
           );
         }
         // @ts-ignore
@@ -42,7 +43,7 @@ export function createVaxee() {
       }
     },
     state: ref({}),
-    _stores: ref({}),
+    _stores: {},
   };
 
   return vaxee;

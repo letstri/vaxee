@@ -8,6 +8,10 @@ const { count: countDestructure, increment: incrementDestructure } =
 const testStore = useTestStore();
 const count = useTestStore("count");
 const countGetter = useTestStore((c) => c.count);
+const countGetterSetter = useTestStore({
+  get: (state) => state.count,
+  set: (state, value) => (state.count = value),
+});
 
 const increment = useTestStore("increment");
 const incrementGetter = useTestStore((c) => c.increment);
@@ -24,14 +28,17 @@ watch(
     console.log("() => count.value", count.value);
   }
 );
+watch(countDestructure, () => {
+  console.log("countDestructure", countDestructure.value);
+});
+watch(countGetterSetter, () => {
+  console.log("countGetterSetter", countGetterSetter.value);
+});
 watch(count, () => {
   console.log("count", count.value);
   setTimeout(() => {
     console.log("---");
   }, 0);
-});
-watch(countDestructure, () => {
-  console.log("countDestructure", countDestructure);
 });
 </script>
 
@@ -83,6 +90,16 @@ const useTestStore = defineStore("test", () => ({
           <button @click="incrementDestructure">
             <code>increment()</code>
           </button>
+          <hr />
+          <pre>
+const count = useTestStore({
+  get: (state) => state.count,
+  set: (state, value) => (state.count = value),
+});</pre
+          >
+          <button @click="countGetterSetter++">
+            <code>count++</code>
+          </button>
         </td>
         <td>
           <pre>const testStore = useTestStore();</pre>
@@ -96,6 +113,14 @@ const useTestStore = defineStore("test", () => ({
           <hr />
           <pre>const { count } = useTestStore(true);</pre>
           <code>count: {{ countDestructure }}</code>
+          <hr />
+          <pre>
+const count = useTestStore({
+  get: (state) => state.count,
+  set: (state, value) => (state.count = value),
+});</pre
+          >
+          <code>count: {{ countGetterSetter }}</code>
         </td>
       </tr>
     </tbody>

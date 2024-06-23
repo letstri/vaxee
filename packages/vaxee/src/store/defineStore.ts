@@ -8,7 +8,7 @@ import {
 } from "vue";
 import { getVaxeeInstance } from "../plugin";
 import type { VaxeeStoreState, VaxeeStoreActions } from "../helpers";
-import { IS_DEV } from "../constants";
+import { IS_DEV, VAXEE_LOG_START } from "../constants";
 import { prepareStore } from "./prepareStore";
 
 // function isComputed<T>(
@@ -72,7 +72,9 @@ export function defineStore<
 >(name: string, store: () => Store): UseVaxeeStore<State, Actions> {
   if (getVaxeeInstance()?._stores[name]) {
     if (IS_DEV) {
-      console.warn(`[🌱 vaxee]: The store with name ${name} already exists.`);
+      console.warn(
+        VAXEE_LOG_START + `The store with name ${name} already exists.`
+      );
     }
   }
 
@@ -124,9 +126,11 @@ export function defineStore<
       }
 
       return computed({
-        get: () => _store.$state[propName as keyof VaxeeStoreState<Store>],
+        // @ts-ignore
+        get: () => _store.$state[propName],
         set: (value) => {
-          _store.$state[propName as keyof VaxeeStoreState<Store>] = value;
+          // @ts-ignore
+          _store.$state[propName] = value;
         },
       });
     }
