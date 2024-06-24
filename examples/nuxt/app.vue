@@ -80,6 +80,7 @@ const useTestStore = createStore("test", {
     <tbody>
       <tr>
         <th>count actions</th>
+        <th>count state</th>
         <th>count getters</th>
       </tr>
       <tr>
