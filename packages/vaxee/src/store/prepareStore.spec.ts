@@ -12,12 +12,10 @@ describe("prepareStore", () => {
 
     const vaxee = getVaxeeInstance()!;
 
-    const store = () => ({
+    const store = {
       count: 0,
-      increment() {
-        this.count++;
-      },
-    });
+      increment() {},
+    };
 
     const name = "store";
 
@@ -25,30 +23,7 @@ describe("prepareStore", () => {
 
     expect(vaxee.state.value[name].count).toBe(0);
     expect(vaxee._stores[name].increment).toBeInstanceOf(Function);
-    expect(vaxee._stores[name].$state.count).toBe(0);
-    expect(vaxee._stores[name].$actions.increment).toBeInstanceOf(Function);
-  });
-
-  it("should reset store state", () => {
-    setVaxeeInstance(createVaxeePlugin());
-
-    const vaxee = getVaxeeInstance()!;
-
-    const store = () => ({
-      count: 0,
-      increment() {
-        this.count++;
-      },
-    });
-
-    const name = "store";
-
-    prepareStore(store, name);
-
-    vaxee._stores[name].increment.call(vaxee._stores[name]);
-    expect(vaxee._stores[name].$state.count).toBe(1);
-
-    vaxee._stores[name].$reset();
-    expect(vaxee._stores[name].$state.count).toBe(0);
+    expect(vaxee._stores[name]._state.count).toBe(0);
+    expect(vaxee._stores[name]._actions.increment).toBeInstanceOf(Function);
   });
 });

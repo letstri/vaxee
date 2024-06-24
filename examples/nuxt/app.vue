@@ -3,11 +3,16 @@ onServerPrefetch(() => {
   testStore.count = 10;
 });
 
-const { count: countDestructure, increment: incrementDestructure } =
-  useTestStore(true);
-const testStore = useTestStore();
+const {
+  count: countDestructure,
+  increment: incrementDestructure,
+  double: doubleDestructure,
+} = useTestStore();
+const testStore = useTestStore(false);
 const count = useTestStore("count");
+const double = useTestStore("double");
 const countGetter = useTestStore((c) => c.count);
+const doubleGetter = useTestStore((c) => c.double);
 const countGetterSetter = useTestStore({
   get: (state) => state.count,
   set: (state, value) => (state.count = value),
@@ -31,8 +36,17 @@ watch(
 watch(countDestructure, () => {
   console.log("countDestructure", countDestructure.value);
 });
+watch(doubleDestructure, () => {
+  console.log("doubleDestructure", doubleDestructure.value);
+});
+watch(double, () => {
+  console.log("double", double.value);
+});
 watch(countGetterSetter, () => {
   console.log("countGetterSetter", countGetterSetter.value);
+});
+watch(doubleGetter, () => {
+  console.log("doubleGetter", doubleGetter.value);
 });
 watch(count, () => {
   console.log("count", count.value);
@@ -44,20 +58,23 @@ watch(count, () => {
 
 <template>
   <pre>
-const useTestStore = defineStore("test", () => ({
+const useTestStore = createStore("test", {
   count: 0,
   increment() {
     this.count++;
   },
-}));</pre
+  $double() {
+    return this.count * 2;
+  },
+});
+</pre
   >
-  <button @click="testStore.$reset"><code>testStore.$reset()</code></button
+  <button @click="testStore.reset"><code>testStore.reset()</code></button><br />
+  <button @click="testStore._state.count++">
+    <code>testStore._state.count++</code></button
   ><br />
-  <button @click="testStore.$state.count++">
-    <code>testStore.$state.count++</code></button
-  ><br />
-  <button @click="testStore.$actions.increment">
-    <code>testStore.$actions.increment()</code>
+  <button @click="testStore._actions.increment">
+    <code>testStore._actions.increment()</code>
   </button>
   <table>
     <tbody>
@@ -121,6 +138,17 @@ const count = useTestStore({
 });</pre
           >
           <code>count: {{ countGetterSetter }}</code>
+        </td>
+        <td>
+          <pre>const { double } = useTestStore();</pre>
+          <code>double: {{ doubleDestructure }}</code>
+          <hr />
+          <pre>const double = useTestStore('double');</pre>
+          <code>double: {{ double }}</code>
+          <hr />
+          <pre>const double = useTestStore((c) => c.double);</pre>
+          <code>double: {{ doubleGetter }}</code>
+          <hr />
         </td>
       </tr>
     </tbody>

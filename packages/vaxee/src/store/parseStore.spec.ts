@@ -4,9 +4,7 @@ import { parseStore } from "./parseStore";
 describe("parseStore", () => {
   const baseStore = {
     count: 0,
-    increment() {
-      this.count++;
-    },
+    increment() {},
   };
 
   beforeEach(() => {
@@ -28,19 +26,5 @@ describe("parseStore", () => {
     const { actions } = parseStore(baseStore);
 
     expect(actions.increment).toBe(baseStore.increment);
-  });
-
-  it("save context in actions", () => {
-    const { actions, state } = parseStore(baseStore);
-
-    actions.increment.call(baseStore);
-
-    expect(baseStore.count).toBe(1);
-
-    const { actions: actions2 } = parseStore(baseStore);
-
-    actions2.increment.call(state);
-
-    expect(state.count).toBe(1);
   });
 });

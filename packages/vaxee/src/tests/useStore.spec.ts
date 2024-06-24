@@ -6,15 +6,18 @@ describe("useStore", () => {
     setVaxeeInstance(createVaxeePlugin());
   });
 
-  const useStore = createStore("store", () => ({
+  const useMainStore = createStore("main", {
     count: 0,
     increment(count?: number) {
       this.count += count || 1;
     },
-  }));
+    $double() {
+      return this.count * 2;
+    },
+  });
 
   it("can use simple store", () => {
-    const store = useStore();
+    const store = useMainStore(false);
 
     expect(store.count).toEqual(0);
     store.increment();
@@ -23,21 +26,23 @@ describe("useStore", () => {
     expect(store.count).toEqual(3);
     store.count++;
     expect(store.count).toEqual(4);
+    expect(store.double).toEqual(8);
   });
 
   it("can use store with destructuring", () => {
-    const { count, increment } = useStore(true);
+    const { count, increment, double } = useMainStore();
 
     expect(count.value).toEqual(0);
     count.value++;
     expect(count.value).toEqual(1);
     increment();
     expect(count.value).toEqual(2);
+    expect(double.value).toEqual(4);
   });
 
   it("can use store with named getter", () => {
-    const count = useStore("count");
-    const increment = useStore("increment");
+    const count = useMainStore("count");
+    const increment = useMainStore("increment");
 
     expect(count.value).toEqual(0);
     count.value++;
@@ -47,8 +52,8 @@ describe("useStore", () => {
   });
 
   it("can use store with getter functions", () => {
-    const count = useStore((c) => c.count);
-    const increment = useStore((c) => c.increment);
+    const count = useMainStore((c) => c.count);
+    const increment = useMainStore((c) => c.increment);
 
     expect(count.value).toEqual(0);
     expect(() => count.value++).toThrowError();
@@ -58,7 +63,7 @@ describe("useStore", () => {
   });
 
   it("can use store with getter and setter", () => {
-    const count = useStore({
+    const count = useMainStore({
       get: (c) => c.count,
       set: (c, v) => (c.count = v),
     });
@@ -68,16 +73,16 @@ describe("useStore", () => {
     expect(count.value).toEqual(1);
   });
 
-  it("check $state and $actions", () => {
-    const store = useStore();
+  it("check _state and _actions", () => {
+    const store = useMainStore(false);
 
-    expect(store.$state.count).toEqual(0);
-    store.$actions.increment();
-    expect(store.$state.count).toEqual(1);
+    expect(store._state.count).toEqual(0);
+    store._actions.increment();
+    expect(store._state.count).toEqual(1);
     expect(store.count).toEqual(1);
     // @ts-expect-error
-    expect(store.$actions.count).not.toBeDefined();
+    expect(store._actions.count).not.toBeDefined();
     // @ts-expect-error
-    expect(store.$state.increment).not.toBeDefined();
+    expect(store._state.increment).not.toBeDefined();
   });
 });

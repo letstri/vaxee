@@ -16,30 +16,33 @@ describe("createStore", () => {
   });
 
   it("can create an empty store", () => {
-    const store = createStore("store", () => ({}))();
+    const store = createStore("store", {})();
 
-    expect(store.$state).toEqual({});
-    expect(store.$actions).toEqual({});
+    expect(store._state).toEqual({});
+    expect(store._actions).toEqual({});
   });
 
   it("reuses the same store", () => {
-    const useStore = createStore("store", () => ({
+    const useStore = createStore("store", {
       test: 123,
-    }));
+      increment() {
+        this.test;
+      },
+    });
 
     expect(useStore()).toBe(useStore());
   });
 
   it("the same as the original store", () => {
-    const useStore = createStore("store", () => ({
+    const useStore = createStore("store", {
       test: {
         a: 123,
       },
-    }));
+    });
 
     const store = useStore();
 
-    expect(store.$state).toEqual({
+    expect(store._state).toEqual({
       test: {
         a: 123,
       },
@@ -47,13 +50,13 @@ describe("createStore", () => {
   });
 
   it("render and increment count in components", async () => {
-    const useStore = createStore("main", () => ({
+    const useStore = createStore("main", {
       count: 0,
-    }));
+    });
     const TestComponent = defineComponent({
       template: `<div>{{ store.count }}</div>`,
       setup() {
-        const store = useStore();
+        const store = useStore(false);
         return { store };
       },
     });
@@ -76,13 +79,13 @@ describe("createStore", () => {
 
   it("can hydrate the state", () => {
     const vaxee = useVaxee();
-    const useStore = createStore("store", () => ({
+    const useStore = createStore("store", {
       a: true,
       nested: {
         foo: "foo",
         a: { b: "string" },
       },
-    }));
+    });
 
     vaxee.state.value.store = {
       a: false,
@@ -94,7 +97,7 @@ describe("createStore", () => {
 
     const store = useStore();
 
-    expect(store.$state).toEqual({
+    expect(store._state).toEqual({
       a: false,
       nested: {
         foo: "bar",
@@ -103,23 +106,23 @@ describe("createStore", () => {
     });
   });
 
-  it("can reassign $state", () => {
-    const useStore = createStore("store", () => ({
+  it("can reassign _state", () => {
+    const useStore = createStore("store", {
       a: true,
       nested: {
         foo: "foo",
         a: { b: "string" },
       },
-    }));
+    });
 
-    const store = useStore();
+    const store = useStore(false);
     const spy = vi.fn();
     watch(() => store.a, spy, { flush: "sync" });
     expect(store.a).toBe(true);
 
     expect(spy).toHaveBeenCalledTimes(0);
 
-    store.$state = {
+    store._state = {
       a: false,
       nested: {
         foo: "bar",
@@ -131,7 +134,7 @@ describe("createStore", () => {
 
     expect(spy).toHaveBeenCalledTimes(1);
 
-    expect(store.$state).toEqual({
+    expect(store._state).toEqual({
       a: false,
       nested: {
         foo: "bar",
@@ -142,27 +145,27 @@ describe("createStore", () => {
   });
 
   it("can be reset", () => {
-    const useStore = createStore("main", () => ({
+    const useStore = createStore("main", {
       count: 0,
       count2: 10,
-    }));
-    const store = useStore();
+    });
+    const { count, count2, reset, _state } = useStore();
 
-    store.count = 1;
-    store.$reset();
-    expect(store.count).toBe(0);
+    count.value = 1;
+    reset();
+    expect(count.value).toBe(0);
 
-    store.count2 = 20;
-    expect(store.$state).toEqual({
+    count2.value = 20;
+    expect(_state).toEqual({
       count: 0,
       count2: 20,
     });
   });
 
   it("should outlive components", async () => {
-    const useStore = createStore("store", () => ({
+    const useStore = createStore("store", {
       n: 0,
-    }));
+    });
 
     const wrapper = mount(
       {
@@ -183,28 +186,28 @@ describe("createStore", () => {
 
     expect(wrapper.html()).toBe("n: 0");
 
-    const store = useStore();
+    const { n } = useStore();
 
     const spy = vi.fn();
-    watch(() => store.n, spy);
+    watch(n, spy);
 
     expect(spy).toHaveBeenCalledTimes(0);
-    store.n++;
+    n.value++;
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);
     expect(wrapper.html()).toBe("n: 1");
 
     wrapper.unmount();
     await nextTick();
-    store.n++;
+    n.value++;
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
   it("should not break getCurrentInstance", () => {
-    const useStore = createStore("store", () => ({
+    const useStore = createStore("store", {
       n: 0,
-    }));
+    });
     let store: any;
 
     let i1: any = {};
@@ -235,9 +238,9 @@ describe("createStore", () => {
 
   it("reuses stores from parent components", () => {
     let s1, s2;
-    const useStore = createStore("store", () => ({
+    const useStore = createStore("store", {
       n: 0,
-    }));
+    });
     const Child = defineComponent({
       setup() {
         s2 = useStore();
@@ -262,9 +265,9 @@ describe("createStore", () => {
   });
 
   it("can share the same vaxee in two completely different instances", async () => {
-    const useStore = createStore("store", () => ({
+    const useStore = createStore("store", {
       n: 0,
-    }));
+    });
 
     const Comp = defineComponent({
       setup() {
@@ -286,12 +289,12 @@ describe("createStore", () => {
       },
     });
 
-    const store = useStore();
+    const { n } = useStore();
 
     expect(One.text()).toBe("0");
     expect(Two.text()).toBe("0");
 
-    store.n++;
+    n.value++;
     await nextTick();
 
     expect(One.text()).toBe("1");

@@ -1,21 +1,12 @@
-import {
-  computed,
-  reactive,
-  toRef,
-  type ComputedRef,
-  type Ref,
-  type ToRefs,
-} from "vue";
+import { computed, reactive, type Ref, type ToRefs } from "vue";
 import { getVaxeeInstance } from "../plugin";
-import type { VaxeeStoreState, VaxeeStoreActions } from "../helpers";
+import type {
+  VaxeeStoreState,
+  VaxeeStoreActions,
+  VaxeeStoreGetters,
+} from "../helpers";
 import { IS_DEV, VAXEE_LOG_START } from "../constants";
 import { prepareStore } from "./prepareStore";
-
-// function isComputed<T>(
-//   value: ComputedRef<T> | unknown
-// ): value is ComputedRef<T> {
-//   return !!(isRef(value) && (value as any)?.effect);
-// }
 
 export type BaseStore = Record<string | number | symbol, any>;
 type BaseGetter<State> = (state: State) => any;
@@ -30,14 +21,21 @@ export type VaxeeStore<
 > = (Refs extends true
   ? ToRefs<VaxeeStoreState<Store>>
   : VaxeeStoreState<Store>) &
-  VaxeeStoreActions<Store> & {
-    $state: VaxeeStoreState<Store>;
-    $actions: VaxeeStoreActions<Store>;
-    $reset: () => void;
+  VaxeeStoreActions<Store> &
+  (Refs extends true
+    ? ToRefs<VaxeeStoreGetters<Store>>
+    : VaxeeStoreGetters<Store>) & {
+    _state: VaxeeStoreState<Store>;
+    _initialState: Record<string | number | symbol, any>;
+    _actions: VaxeeStoreActions<Store>;
+    _getters: VaxeeStoreGetters<Store>;
+    reset: () => void;
   };
 
-interface UseVaxeeStore<Store extends BaseStore> {
-  (): VaxeeStore<Store, false>;
+type RefIfNot<T> = T extends Ref ? T : Ref<T>;
+
+interface UseVaxeeStore<Name extends string, Store extends BaseStore> {
+  (): VaxeeStore<Store>;
   <R extends boolean>(refs: R): R extends true
     ? VaxeeStore<Store>
     : VaxeeStore<Store, false>;
@@ -45,27 +43,27 @@ interface UseVaxeeStore<Store extends BaseStore> {
     getter: Getter
   ): ReturnType<Getter> extends Function
     ? ReturnType<Getter>
-    : Ref<ReturnType<Getter>>;
+    : RefIfNot<ReturnType<Getter>>;
   <Value extends any>(
     getterSetter: BaseGetterSetter<VaxeeStoreState<Store>, Value>
-  ): Ref<Value>;
+  ): RefIfNot<Value>;
   <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<
     Store,
     false
   >[Name] extends Function
     ? VaxeeStore<Store, false>[Name]
-    : Ref<VaxeeStore<Store, false>[Name]>;
-  _store: string;
+    : RefIfNot<VaxeeStore<Store, false>[Name]>;
+  _store: Name;
+  storeType: Store;
 }
-type CreateVaxeeStore = <Store extends BaseStore>(
-  name: string,
-  store: () => Store
-) => UseVaxeeStore<Store>;
 
-export const createStore: CreateVaxeeStore = (name, store) => {
-  type Store = ReturnType<typeof store>;
+export const createStore = <Name extends string, Store extends BaseStore>(
+  name: Name,
+  store: Store & ThisType<VaxeeStoreState<Store>>
+): UseVaxeeStore<Name, Store> => {
   type State = VaxeeStoreState<Store>;
   type Actions = VaxeeStoreActions<Store>;
+  type Getters = VaxeeStoreGetters<Store>;
 
   if (getVaxeeInstance()?._stores[name]) {
     if (IS_DEV) {
@@ -75,10 +73,10 @@ export const createStore: CreateVaxeeStore = (name, store) => {
     }
   }
 
-  function useStore<Value extends any>(
+  function use(
     getterOrNameOrToRefs?:
       | BaseGetter<State>
-      | BaseGetterSetter<State, Value>
+      | BaseGetterSetter<State, any>
       | keyof VaxeeStore<Store>
       | boolean
   ) {
@@ -96,32 +94,37 @@ export const createStore: CreateVaxeeStore = (name, store) => {
       typeof getterOrNameOrToRefs === "string"
         ? (getterOrNameOrToRefs as keyof Store)
         : undefined;
-    const refs = getterOrNameOrToRefs === true;
+    const refs =
+      getterOrNameOrToRefs === true || getterOrNameOrToRefs === undefined;
 
     const _store = prepareStore(store, name);
 
     if (getter) {
-      const _getter = toRef(() => getter(reactive(_store) as Store));
+      const _getter = computed(() => getter(reactive(_store) as State));
 
       return typeof _getter.value === "function" ? _getter.value : _getter;
     }
 
     if (getterSetter) {
       return computed({
-        get: () => getterSetter.get(_store.$state as any),
-        set: (value: Value) => getterSetter.set(_store.$state as any, value),
+        get: () => getterSetter.get(_store._state),
+        set: (value) => getterSetter.set(_store._state, value),
       });
     }
 
     if (propName) {
-      if (typeof _store[propName as keyof Actions] === "function") {
-        return _store[propName as keyof Actions];
+      if (_store._actions[propName as keyof Actions]) {
+        return _store._actions[propName as keyof Actions];
+      }
+
+      if (_store._getters[propName as keyof Getters]) {
+        return _store._getters[propName as keyof Getters];
       }
 
       return computed({
-        get: () => _store.$state[propName as keyof State],
+        get: () => _store._state[propName as keyof State],
         set: (value) => {
-          _store.$state[propName as keyof State] = value;
+          _store._state[propName as keyof State] = value;
         },
       });
     }
@@ -133,7 +136,8 @@ export const createStore: CreateVaxeeStore = (name, store) => {
     return reactive(_store);
   }
 
-  useStore._store = name;
+  use._store = name;
+  use.storeType = {} as Store;
 
-  return useStore;
+  return use;
 };

@@ -1,15 +1,11 @@
-import type { VaxeeStoreState, VaxeeStoreActions } from "../helpers";
 import type { BaseStore } from "./createStore";
 
-export function parseStore<Store extends BaseStore>(
-  store: Store
-): {
-  state: VaxeeStoreState<Store>;
-  actions: VaxeeStoreActions<Store>;
-} {
+export function parseStore<Store extends BaseStore>(store: Store) {
   return Object.entries(store).reduce(
     (acc, [key, value]) => {
-      if (typeof value === "function") {
+      if (key.startsWith("$") && typeof value === "function") {
+        (acc.getters as any)[key] = value;
+      } else if (typeof value === "function") {
         (acc.actions as any)[key] = value;
       } else {
         (acc.state as any)[key] = value;
@@ -17,11 +13,9 @@ export function parseStore<Store extends BaseStore>(
       return acc;
     },
     {
-      state: {},
-      actions: {},
-    } as {
-      state: VaxeeStoreState<Store>;
-      actions: VaxeeStoreActions<Store>;
+      state: {} as any,
+      actions: {} as any,
+      getters: {} as any,
     }
   );
 }

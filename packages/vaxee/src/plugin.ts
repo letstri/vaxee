@@ -1,4 +1,4 @@
-import { ref, type App, type Ref } from "vue";
+import { reactive, ref, type App, type Ref } from "vue";
 import type { VaxeeStoreState } from "./helpers";
 import type { VaxeeStore } from "./store/createStore";
 import { IS_CLIENT, IS_DEV, VAXEE_LOG_START } from "./constants";

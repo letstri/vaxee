@@ -1,7 +1,9 @@
-export const useTestStore = createStore("test", () => ({
+export const useTestStore = createStore("test", {
   count: 0,
   increment() {
-    // set({ test: 1 });
+    this.count++;
   },
-}));
-// useTestStore()
+  $double() {
+    return this.count * 2;
+  },
+});
