@@ -1,22 +1,21 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { parseStore } from "./parseStore";
+import { state } from "./reactivity";
 
 describe("parseStore", () => {
   const baseStore = {
-    count: 0,
+    count: state(0),
     increment() {},
   };
 
   beforeEach(() => {
-    baseStore.count = 0;
+    baseStore.count.value = 0;
   });
 
   it("split store into state and actions", () => {
-    const { state, actions } = parseStore(baseStore);
+    const { states, actions } = parseStore(baseStore);
 
-    expect(state).toEqual({
-      count: 0,
-    });
+    expect(states.count.value).toEqual(0);
     expect(actions).toEqual({
       increment: baseStore.increment,
     });

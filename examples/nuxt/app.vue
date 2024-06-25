@@ -69,7 +69,6 @@ const useTestStore = createStore("test", {
 });
 </pre
   >
-  <button @click="testStore.reset"><code>testStore.reset()</code></button><br />
   <button @click="testStore._state.count++">
     <code>testStore._state.count++</code></button
   ><br />

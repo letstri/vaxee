@@ -1,17 +1,23 @@
-import { computed, reactive, toRefs } from "vue";
+import { reactive, toRefs } from "vue";
 import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
+  VaxeeStoreOther,
   VaxeeStoreState,
 } from "../helpers";
 import type { BaseStore, VaxeeStore } from "./createStore";
-import { parseStore } from "./parseStore";
 import { useVaxee } from "../composables/useVaxee";
-import clone from "lodash.clonedeep";
+import {
+  isGetter,
+  isState,
+  type VaxeeGetter,
+  type VaxeeState,
+} from "./reactivity";
+import { parseStore } from "./parseStore";
 
 export function prepareStore<Store extends BaseStore>(
-  store: Store,
-  name: string
+  name: string,
+  store: Store
 ): VaxeeStore<Store> {
   const vaxee = useVaxee();
 
@@ -19,57 +25,25 @@ export function prepareStore<Store extends BaseStore>(
     return vaxee._stores[name] as VaxeeStore<Store>;
   }
 
-  const {
-    state: initialState,
-    actions: initialActions,
-    getters: initialGetters,
-  } = parseStore(store);
+  const { states, actions, getters, other } = parseStore(store);
 
-  const state = initialState as VaxeeStoreState<Store>;
-
-  vaxee.state.value[name] ||= clone(state);
-
-  function reset() {
-    vaxee._stores[name]._state = clone(state);
+  if (vaxee.state.value[name]) {
+    for (const key in vaxee.state.value[name]) {
+      states[key].value = vaxee.state.value[name][key];
+    }
   }
 
-  const context = reactive({
-    reset,
-    ...toRefs(vaxee.state.value[name]),
-    ...Object.entries(initialGetters).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key.slice(1)]: computed(
-          (value as () => any).bind(vaxee.state.value[name])
-        ),
-      }),
-      {} as VaxeeStoreGetters<Store>
-    ),
-  });
-
-  const actions = Object.entries(initialActions).reduce(
-    (acc, [key, value]) => ({
-      ...acc,
-      [key]: (value as () => any).bind(context),
-    }),
-    {} as VaxeeStoreActions<Store>
-  );
-  const getters = Object.entries(initialGetters).reduce(
-    (acc, [key, value]) => ({
-      ...acc,
-      [key.slice(1)]: computed((value as () => any).bind(context)),
-    }),
-    {} as VaxeeStoreGetters<Store>
-  );
+  vaxee.state.value[name] = states;
 
   vaxee._stores[name] = {
     ...toRefs(vaxee.state.value[name] as VaxeeStoreState<Store>),
-    ...actions,
-    ...getters,
+    ...(actions as VaxeeStoreActions<Store>),
+    ...(getters as VaxeeStoreGetters<Store>),
+    ...(other as VaxeeStoreOther<Store>),
     _state: vaxee.state.value[name] as VaxeeStoreState<Store>,
-    _actions: actions,
-    _getters: getters,
-    reset,
+    _actions: actions as VaxeeStoreActions<Store>,
+    _getters: getters as VaxeeStoreGetters<Store>,
+    _other: other,
   } satisfies VaxeeStore<Store>;
 
   // To use the state directly by _state = { ... } instead of computed get and set

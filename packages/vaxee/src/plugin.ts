@@ -39,7 +39,7 @@ export function createVaxeePlugin() {
           );
         }
         // @ts-ignore
-        window.$vaxee = vaxee.state;
+        window.$vaxee = vaxee;
       }
     },
     state: ref({}),

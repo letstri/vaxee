@@ -5,6 +5,7 @@ import {
   setVaxeeInstance,
 } from "../plugin";
 import { prepareStore } from "./prepareStore";
+import { state } from "./reactivity";
 
 describe("prepareStore", () => {
   it("should save state and actions into the instance", () => {
@@ -13,13 +14,13 @@ describe("prepareStore", () => {
     const vaxee = getVaxeeInstance()!;
 
     const store = {
-      count: 0,
+      count: state(0),
       increment() {},
     };
 
     const name = "store";
 
-    prepareStore(store, name);
+    prepareStore(name, store);
 
     expect(vaxee.state.value[name].count).toBe(0);
     expect(vaxee._stores[name].increment).toBeInstanceOf(Function);

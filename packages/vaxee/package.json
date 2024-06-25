@@ -32,7 +32,6 @@
   },
   "author": "Valerii Strilets <valerii.strilets@gmail.com>",
   "devDependencies": {
-    "@types/lodash.clonedeep": "^4.5.9",
     "@vitest/browser": "^1.6.0",
     "@vue/test-utils": "^2",
     "typescript": "^5",
@@ -42,8 +41,5 @@
   },
   "peerDependencies": {
     "vue": ">3.0.0"
-  },
-  "dependencies": {
-    "lodash.clonedeep": "^4.5.0"
   }
 }

@@ -16,28 +16,36 @@ describe("createStore", () => {
   });
 
   it("can create an empty store", () => {
-    const store = createStore("store", {})();
+    const store = createStore("store", () => ({}))();
 
     expect(store._state).toEqual({});
     expect(store._actions).toEqual({});
   });
 
   it("reuses the same store", () => {
-    const useStore = createStore("store", {
-      test: 123,
-      increment() {
-        this.test;
-      },
+    const useStore = createStore("store", ({ state }) => {
+      const test = state(123);
+
+      const increment = () => {
+        test.value++;
+      };
+
+      return {
+        test,
+        increment,
+      };
     });
 
     expect(useStore()).toBe(useStore());
   });
 
   it("the same as the original store", () => {
-    const useStore = createStore("store", {
-      test: {
+    const useStore = createStore("store", ({ state }) => {
+      const test = state({
         a: 123,
-      },
+      });
+
+      return { test };
     });
 
     const store = useStore();
@@ -50,8 +58,10 @@ describe("createStore", () => {
   });
 
   it("render and increment count in components", async () => {
-    const useStore = createStore("main", {
-      count: 0,
+    const useStore = createStore("main", ({ state }) => {
+      const count = state(0);
+
+      return { count };
     });
     const TestComponent = defineComponent({
       template: `<div>{{ store.count }}</div>`,
@@ -79,12 +89,14 @@ describe("createStore", () => {
 
   it("can hydrate the state", () => {
     const vaxee = useVaxee();
-    const useStore = createStore("store", {
-      a: true,
-      nested: {
+    const useStore = createStore("store", ({ state }) => {
+      const a = state(true);
+      const nested = state({
         foo: "foo",
         a: { b: "string" },
-      },
+      });
+
+      return { a, nested };
     });
 
     vaxee.state.value.store = {
@@ -93,7 +105,7 @@ describe("createStore", () => {
         foo: "bar",
         a: { b: "string 2" },
       },
-    };
+    } satisfies typeof useStore.storeType;
 
     const store = useStore();
 
@@ -107,12 +119,17 @@ describe("createStore", () => {
   });
 
   it("can reassign _state", () => {
-    const useStore = createStore("store", {
-      a: true,
-      nested: {
+    const useStore = createStore("store", ({ state }) => {
+      const a = state(true);
+      const nested = state({
         foo: "foo",
         a: { b: "string" },
-      },
+      });
+
+      return {
+        a,
+        nested,
+      };
     });
 
     const store = useStore(false);
@@ -144,40 +161,11 @@ describe("createStore", () => {
     expect(store.a).toBe(false);
   });
 
-  it("can be reset", () => {
-    const useStore = createStore("main", {
-      count: 0,
-      count2: 10,
-    });
-    const { count, count2, reset, _state } = useStore();
-
-    count.value = 1;
-    reset();
-    expect(count.value).toBe(0);
-
-    count2.value = 20;
-    expect(_state).toEqual({
-      count: 0,
-      count2: 20,
-    });
-  });
-
-  it("should check context", () => {
-    const useStore = createStore("main", {
-      count: 0,
-      func() {
-        this.reset();
-      },
-      $double() {
-        return this.count * 2;
-      },
-    });
-    const { func } = useStore();
-  });
-
   it("should outlive components", async () => {
-    const useStore = createStore("store", {
-      n: 0,
+    const useStore = createStore("store", ({ state }) => {
+      const n = state(0);
+
+      return { n };
     });
 
     const wrapper = mount(
@@ -218,8 +206,10 @@ describe("createStore", () => {
   });
 
   it("should not break getCurrentInstance", () => {
-    const useStore = createStore("store", {
-      n: 0,
+    const useStore = createStore("store", ({ state }) => {
+      const n = state(0);
+
+      return { n };
     });
     let store: any;
 
@@ -251,8 +241,10 @@ describe("createStore", () => {
 
   it("reuses stores from parent components", () => {
     let s1, s2;
-    const useStore = createStore("store", {
-      n: 0,
+    const useStore = createStore("store", ({ state }) => {
+      const n = state(0);
+
+      return { n };
     });
     const Child = defineComponent({
       setup() {
@@ -278,8 +270,10 @@ describe("createStore", () => {
   });
 
   it("can share the same vaxee in two completely different instances", async () => {
-    const useStore = createStore("store", {
-      n: 0,
+    const useStore = createStore("store", ({ state }) => {
+      const n = state(0);
+
+      return { n };
     });
 
     const Comp = defineComponent({

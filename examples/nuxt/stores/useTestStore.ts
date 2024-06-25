@@ -1,12 +1,16 @@
-export const useTestStore = createStore("test", {
-  count: 0,
-  increment() {
-    this.count++;
-  },
-  $double() {
-    return this.double2;
-  },
-  $double2() {
-    return this.count * 2;
-  },
+export const useTestStore = createStore("test", ({ state, getter }) => {
+  const count = state(0);
+
+  const double = getter(() => count.value * 2);
+
+  function increment() {
+    count.value++;
+  }
+
+  return {
+    count2: 2,
+    count,
+    increment,
+    double,
+  };
 });

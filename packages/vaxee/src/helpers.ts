@@ -1,31 +1,26 @@
 import type { UnwrapNestedRefs } from "vue";
+import type { VaxeeGetter, VaxeeState } from "./store/reactivity";
 
-export type VaxeeStoreStateNames<T> = {
-  [K in keyof T]: T[K] extends Function ? never : K;
+type VaxeeStoreStateNames<T> = {
+  [K in keyof T]: T[K] extends VaxeeState<any> ? K : never;
 }[keyof T];
 export type VaxeeStoreState<T> = UnwrapNestedRefs<
   Pick<T, VaxeeStoreStateNames<T>>
 >;
 
-export type VaxeeStoreActionsNames<T> = {
-  [K in keyof T]: T[K] extends Function
-    ? K extends `$${string}`
-      ? never
-      : K
-    : never;
+type VaxeeStoreGettersNames<T> = {
+  [K in keyof T]: T[K] extends VaxeeGetter<any> ? K : never;
+}[keyof T];
+export type VaxeeStoreGetters<T> = UnwrapNestedRefs<
+  Pick<T, VaxeeStoreGettersNames<T>>
+>;
+
+type VaxeeStoreActionsNames<T> = {
+  [K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
 export type VaxeeStoreActions<T> = Pick<T, VaxeeStoreActionsNames<T>>;
 
-export type VaxeeStoreGettersNames<T> = {
-  [K in keyof T]: T[K] extends Function
-    ? K extends `$${infer P}`
-      ? P
-      : never
-    : never;
-}[keyof T];
-export type VaxeeStoreGetters<T> = Readonly<
-  UnwrapNestedRefs<{
-    // @ts-ignore
-    [K in keyof Pick<T, VaxeeStoreGettersNames<T>>]: ReturnType<T[`$${K}`]>;
-  }>
+export type VaxeeStoreOther<T> = Omit<
+  T,
+  keyof (VaxeeStoreState<T> & VaxeeStoreGetters<T> & VaxeeStoreActions<T>)
 >;

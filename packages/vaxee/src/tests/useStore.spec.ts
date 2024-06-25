@@ -6,14 +6,20 @@ describe("useStore", () => {
     setVaxeeInstance(createVaxeePlugin());
   });
 
-  const useMainStore = createStore("main", {
-    count: 0,
-    increment(count?: number) {
-      this.count += count || 1;
-    },
-    $double() {
-      return this.count * 2;
-    },
+  const useMainStore = createStore("main", ({ state, getter }) => {
+    const count = state(0);
+
+    const increment = (_count?: number) => {
+      count.value += _count || 1;
+    };
+
+    const double = getter(() => count.value * 2);
+
+    return {
+      count,
+      increment,
+      double,
+    };
   });
 
   it("can use simple store", () => {
