@@ -1,4 +1,4 @@
-import type { ComputedRef, UnwrapNestedRefs } from "vue";
+import type { UnwrapNestedRefs } from "vue";
 
 export type VaxeeStoreStateNames<T> = {
   [K in keyof T]: T[K] extends Function ? never : K;
@@ -23,10 +23,9 @@ export type VaxeeStoreGettersNames<T> = {
       : never
     : never;
 }[keyof T];
-export type VaxeeStoreGetters<T> = UnwrapNestedRefs<{
-  // @ts-ignore
-  [K in keyof Pick<T, VaxeeStoreGettersNames<T>>]: ComputedRef<
+export type VaxeeStoreGetters<T> = Readonly<
+  UnwrapNestedRefs<{
     // @ts-ignore
-    ReturnType<T[`$${K}`]>
-  >;
-}>;
+    [K in keyof Pick<T, VaxeeStoreGettersNames<T>>]: ReturnType<T[`$${K}`]>;
+  }>
+>;

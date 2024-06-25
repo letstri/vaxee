@@ -85,7 +85,7 @@ const useTestStore = createStore("test", {
       </tr>
       <tr>
         <td>
-          <pre>const testStore = useTestStore();</pre>
+          <pre>const testStore = useTestStore(false);</pre>
           <button @click="testStore.count++">
             <code>testStore.count++</code>
           </button>
@@ -104,7 +104,7 @@ const useTestStore = createStore("test", {
             <code>increment()</code>
           </button>
           <hr />
-          <pre>const { increment } = useTestStore(true);</pre>
+          <pre>const { increment } = useTestStore();</pre>
           <button @click="incrementDestructure">
             <code>increment()</code>
           </button>
@@ -141,6 +141,9 @@ const count = useTestStore({
           <code>count: {{ countGetterSetter }}</code>
         </td>
         <td>
+          <pre>const testStore = useTestStore(false);</pre>
+          <code>testStore.double: {{ testStore.double }}</code>
+          <hr />
           <pre>const { double } = useTestStore();</pre>
           <code>double: {{ doubleDestructure }}</code>
           <hr />

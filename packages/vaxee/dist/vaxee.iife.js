@@ -643,19 +643,33 @@ var vaxee = function(exports, vue2) {
     } = parseStore(store);
     const state = initialState;
     (_a = vaxee2.state.value)[name] || (_a[name] = clone(state));
+    function reset() {
+      vaxee2._stores[name]._state = clone(state);
+    }
+    const context = vue2.reactive({
+      reset,
+      ...vue2.toRefs(vaxee2.state.value[name]),
+      ...Object.entries(initialGetters).reduce(
+        (acc, [key, value]) => ({
+          ...acc,
+          [key.slice(1)]: vue2.computed(
+            value.bind(vaxee2.state.value[name])
+          )
+        }),
+        {}
+      )
+    });
     const actions = Object.entries(initialActions).reduce(
       (acc, [key, value]) => ({
         ...acc,
-        [key]: value.bind(vaxee2.state.value[name])
+        [key]: value.bind(context)
       }),
       {}
     );
     const getters = Object.entries(initialGetters).reduce(
       (acc, [key, value]) => ({
         ...acc,
-        [key.slice(1)]: vue2.computed(
-          value.bind(vaxee2.state.value[name])
-        )
+        [key.slice(1)]: vue2.computed(value.bind(context))
       }),
       {}
     );
@@ -664,12 +678,9 @@ var vaxee = function(exports, vue2) {
       ...actions,
       ...getters,
       _state: vaxee2.state.value[name],
-      _initialState: Object.freeze(clone(state)),
       _actions: actions,
       _getters: getters,
-      reset: function() {
-        vaxee2._stores[name]._state = clone(state);
-      }
+      reset
     };
     Object.defineProperty(vaxee2._stores[name], "_state", {
       get: () => vaxee2.state.value[name],

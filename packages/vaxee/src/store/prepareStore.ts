@@ -1,10 +1,10 @@
-import { computed, toRefs } from "vue";
+import { computed, reactive, toRefs } from "vue";
 import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
   VaxeeStoreState,
 } from "../helpers";
-import { type BaseStore, type VaxeeStore } from "./createStore";
+import type { BaseStore, VaxeeStore } from "./createStore";
 import { parseStore } from "./parseStore";
 import { useVaxee } from "../composables/useVaxee";
 import clone from "lodash.clonedeep";
@@ -29,19 +29,35 @@ export function prepareStore<Store extends BaseStore>(
 
   vaxee.state.value[name] ||= clone(state);
 
+  function reset() {
+    vaxee._stores[name]._state = clone(state);
+  }
+
+  const context = reactive({
+    reset,
+    ...toRefs(vaxee.state.value[name]),
+    ...Object.entries(initialGetters).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [key.slice(1)]: computed(
+          (value as () => any).bind(vaxee.state.value[name])
+        ),
+      }),
+      {} as VaxeeStoreGetters<Store>
+    ),
+  });
+
   const actions = Object.entries(initialActions).reduce(
     (acc, [key, value]) => ({
       ...acc,
-      [key]: (value as () => any).bind(vaxee.state.value[name]),
+      [key]: (value as () => any).bind(context),
     }),
     {} as VaxeeStoreActions<Store>
   );
   const getters = Object.entries(initialGetters).reduce(
     (acc, [key, value]) => ({
       ...acc,
-      [key.slice(1)]: computed(
-        (value as () => any).bind(vaxee.state.value[name])
-      ),
+      [key.slice(1)]: computed((value as () => any).bind(context)),
     }),
     {} as VaxeeStoreGetters<Store>
   );
@@ -51,12 +67,9 @@ export function prepareStore<Store extends BaseStore>(
     ...actions,
     ...getters,
     _state: vaxee.state.value[name] as VaxeeStoreState<Store>,
-    _initialState: Object.freeze(clone(state)),
     _actions: actions,
     _getters: getters,
-    reset: function () {
-      vaxee._stores[name]._state = clone(state);
-    },
+    reset,
   } satisfies VaxeeStore<Store>;
 
   // To use the state directly by _state = { ... } instead of computed get and set

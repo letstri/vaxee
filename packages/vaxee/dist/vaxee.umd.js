@@ -645,19 +645,33 @@
     } = parseStore(store);
     const state = initialState;
     (_a = vaxee.state.value)[name] || (_a[name] = clone(state));
+    function reset() {
+      vaxee._stores[name]._state = clone(state);
+    }
+    const context = vue.reactive({
+      reset,
+      ...vue.toRefs(vaxee.state.value[name]),
+      ...Object.entries(initialGetters).reduce(
+        (acc, [key, value]) => ({
+          ...acc,
+          [key.slice(1)]: vue.computed(
+            value.bind(vaxee.state.value[name])
+          )
+        }),
+        {}
+      )
+    });
     const actions = Object.entries(initialActions).reduce(
       (acc, [key, value]) => ({
         ...acc,
-        [key]: value.bind(vaxee.state.value[name])
+        [key]: value.bind(context)
       }),
       {}
     );
     const getters = Object.entries(initialGetters).reduce(
       (acc, [key, value]) => ({
         ...acc,
-        [key.slice(1)]: vue.computed(
-          value.bind(vaxee.state.value[name])
-        )
+        [key.slice(1)]: vue.computed(value.bind(context))
       }),
       {}
     );
@@ -666,12 +680,9 @@
       ...actions,
       ...getters,
       _state: vaxee.state.value[name],
-      _initialState: Object.freeze(clone(state)),
       _actions: actions,
       _getters: getters,
-      reset: function() {
-        vaxee._stores[name]._state = clone(state);
-      }
+      reset
     };
     Object.defineProperty(vaxee._stores[name], "_state", {
       get: () => vaxee.state.value[name],

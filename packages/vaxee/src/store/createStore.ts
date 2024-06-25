@@ -1,4 +1,11 @@
-import { computed, reactive, type Ref, type ToRefs } from "vue";
+import {
+  computed,
+  reactive,
+  type ComputedRef,
+  type Ref,
+  type ToRef,
+  type ToRefs,
+} from "vue";
 import { getVaxeeInstance } from "../plugin";
 import type {
   VaxeeStoreState,
@@ -8,11 +15,18 @@ import type {
 import { IS_DEV, VAXEE_LOG_START } from "../constants";
 import { prepareStore } from "./prepareStore";
 
-export type BaseStore = Record<string | number | symbol, any>;
+export type BaseStore = {
+  [key: string | number | symbol]: any;
+};
 type BaseGetter<State> = (state: State) => any;
 type BaseGetterSetter<State, Value> = {
   get: (state: State) => Value;
   set: (state: State, value: Value) => void;
+};
+
+type ToComputed<T> = T extends Ref ? T : ComputedRef<T>;
+type ToComputedRefs<T> = {
+  [K in keyof T]: ToComputed<T[K]>;
 };
 
 export type VaxeeStore<
@@ -23,16 +37,13 @@ export type VaxeeStore<
   : VaxeeStoreState<Store>) &
   VaxeeStoreActions<Store> &
   (Refs extends true
-    ? ToRefs<VaxeeStoreGetters<Store>>
+    ? ToComputedRefs<VaxeeStoreGetters<Store>>
     : VaxeeStoreGetters<Store>) & {
     _state: VaxeeStoreState<Store>;
-    _initialState: Record<string | number | symbol, any>;
     _actions: VaxeeStoreActions<Store>;
     _getters: VaxeeStoreGetters<Store>;
     reset: () => void;
   };
-
-type RefIfNot<T> = T extends Ref ? T : Ref<T>;
 
 interface UseVaxeeStore<Name extends string, Store extends BaseStore> {
   (): VaxeeStore<Store>;
@@ -43,23 +54,26 @@ interface UseVaxeeStore<Name extends string, Store extends BaseStore> {
     getter: Getter
   ): ReturnType<Getter> extends Function
     ? ReturnType<Getter>
-    : RefIfNot<ReturnType<Getter>>;
+    : ToComputed<ReturnType<Getter>>;
   <Value extends any>(
     getterSetter: BaseGetterSetter<VaxeeStoreState<Store>, Value>
-  ): RefIfNot<Value>;
-  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<
-    Store,
-    false
-  >[Name] extends Function
-    ? VaxeeStore<Store, false>[Name]
-    : RefIfNot<VaxeeStore<Store, false>[Name]>;
+  ): ToRef<Value>;
+  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
   _store: Name;
   storeType: Store;
 }
 
-export const createStore = <Name extends string, Store extends BaseStore>(
+export const createStore = <
+  Store extends BaseStore,
+  Name extends string = string
+>(
   name: Name,
-  store: Store & ThisType<VaxeeStoreState<Store>>
+  store: Store &
+    ThisType<
+      VaxeeStoreState<Store> &
+        VaxeeStoreGetters<Store> &
+        Pick<VaxeeStore<Store>, "reset">
+    >
 ): UseVaxeeStore<Name, Store> => {
   type State = VaxeeStoreState<Store>;
   type Actions = VaxeeStoreActions<Store>;

@@ -162,6 +162,19 @@ describe("createStore", () => {
     });
   });
 
+  it("should check context", () => {
+    const useStore = createStore("main", {
+      count: 0,
+      func() {
+        this.reset();
+      },
+      $double() {
+        return this.count * 2;
+      },
+    });
+    const { func } = useStore();
+  });
+
   it("should outlive components", async () => {
     const useStore = createStore("store", {
       n: 0,

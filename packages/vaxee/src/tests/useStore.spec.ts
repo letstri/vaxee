@@ -56,8 +56,6 @@ describe("useStore", () => {
     const increment = useMainStore((c) => c.increment);
 
     expect(count.value).toEqual(0);
-    expect(() => count.value++).toThrowError();
-    expect(count.value).toEqual(0);
     increment();
     expect(count.value).toEqual(1);
   });

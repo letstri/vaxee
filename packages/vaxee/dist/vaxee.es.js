@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, computed, toRefs, reactive } from "vue";
+import { ref, hasInjectionContext, inject, reactive, toRefs, computed } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -642,19 +642,33 @@ function prepareStore(store, name) {
   } = parseStore(store);
   const state = initialState;
   (_a = vaxee.state.value)[name] || (_a[name] = clone(state));
+  function reset() {
+    vaxee._stores[name]._state = clone(state);
+  }
+  const context = reactive({
+    reset,
+    ...toRefs(vaxee.state.value[name]),
+    ...Object.entries(initialGetters).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [key.slice(1)]: computed(
+          value.bind(vaxee.state.value[name])
+        )
+      }),
+      {}
+    )
+  });
   const actions = Object.entries(initialActions).reduce(
     (acc, [key, value]) => ({
       ...acc,
-      [key]: value.bind(vaxee.state.value[name])
+      [key]: value.bind(context)
     }),
     {}
   );
   const getters = Object.entries(initialGetters).reduce(
     (acc, [key, value]) => ({
       ...acc,
-      [key.slice(1)]: computed(
-        value.bind(vaxee.state.value[name])
-      )
+      [key.slice(1)]: computed(value.bind(context))
     }),
     {}
   );
@@ -663,12 +677,9 @@ function prepareStore(store, name) {
     ...actions,
     ...getters,
     _state: vaxee.state.value[name],
-    _initialState: Object.freeze(clone(state)),
     _actions: actions,
     _getters: getters,
-    reset: function() {
-      vaxee._stores[name]._state = clone(state);
-    }
+    reset
   };
   Object.defineProperty(vaxee._stores[name], "_state", {
     get: () => vaxee.state.value[name],
