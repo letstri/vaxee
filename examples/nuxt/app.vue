@@ -1,8 +1,10 @@
 <script setup lang="ts">
 onServerPrefetch(() => {
   testStore.count = 10;
-});
 
+  // // @ts-ignore
+  // useNuxtApp().$vaxee.state.value.test = { count: 5 };
+});
 const {
   count: countDestructure,
   increment: incrementDestructure,

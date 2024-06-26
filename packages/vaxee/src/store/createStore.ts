@@ -2,7 +2,6 @@ import {
   computed,
   reactive,
   type ComputedRef,
-  type Reactive,
   type Ref,
   type ToRef,
   type ToRefs,
@@ -52,7 +51,7 @@ type VaxeeStoreInfer<Store extends BaseStore> = Omit<
   "_state" | "_getters" | "_actions" | "_other"
 >;
 
-interface UseVaxeeStore<Name extends string, Store extends BaseStore> {
+interface UseVaxeeStore<Store extends BaseStore> {
   (): VaxeeStore<Store>;
   <R extends boolean>(refs: R): R extends true
     ? VaxeeStore<Store>
@@ -66,17 +65,14 @@ interface UseVaxeeStore<Name extends string, Store extends BaseStore> {
     getterSetter: BaseGetterSetter<VaxeeStoreState<Store>, Value>
   ): ToRef<Value>;
   <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
-  _store: Name;
+  _store: string;
   storeType: VaxeeStoreInfer<Store>;
 }
 
-export const createStore = <
-  Store extends BaseStore,
-  Name extends string = string
->(
-  name: Name,
+export const createStore = <Store extends BaseStore>(
+  name: string,
   store: (options: { state: typeof state; getter: typeof getter }) => Store
-): UseVaxeeStore<Name, Store> => {
+): UseVaxeeStore<Store> => {
   type State = VaxeeStoreState<Store>;
   type Actions = VaxeeStoreActions<Store>;
   type Getters = VaxeeStoreGetters<Store>;

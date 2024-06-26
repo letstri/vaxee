@@ -18,17 +18,17 @@ export type VaxeeStore<Store extends BaseStore, Refs extends boolean = true> = (
     _other: Record<string, any>;
 };
 type VaxeeStoreInfer<Store extends BaseStore> = Omit<VaxeeStore<Store, false>, "_state" | "_getters" | "_actions" | "_other">;
-interface UseVaxeeStore<Name extends string, Store extends BaseStore> {
+interface UseVaxeeStore<Store extends BaseStore> {
     (): VaxeeStore<Store>;
     <R extends boolean>(refs: R): R extends true ? VaxeeStore<Store> : VaxeeStore<Store, false>;
     <Getter extends BaseGetter<VaxeeStore<Store, false>>>(getter: Getter): ReturnType<Getter> extends Function ? ReturnType<Getter> : ToComputed<ReturnType<Getter>>;
     <Value extends any>(getterSetter: BaseGetterSetter<VaxeeStoreState<Store>, Value>): ToRef<Value>;
     <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
-    _store: Name;
+    _store: string;
     storeType: VaxeeStoreInfer<Store>;
 }
-export declare const createStore: <Store extends BaseStore, Name extends string = string>(name: Name, store: (options: {
+export declare const createStore: <Store extends BaseStore>(name: string, store: (options: {
     state: typeof state;
     getter: typeof getter;
-}) => Store) => UseVaxeeStore<Name, Store>;
+}) => Store) => UseVaxeeStore<Store>;
 export {};

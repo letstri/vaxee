@@ -85,7 +85,7 @@ var vaxee = function(exports, vue2) {
     }
     const { states, actions, getters, other } = parseStore(store);
     if (vaxee2.state.value[name]) {
-      for (const key in vaxee2.state.value[name]) {
+      for (const key in states) {
         states[key].value = vaxee2.state.value[name][key];
       }
     }

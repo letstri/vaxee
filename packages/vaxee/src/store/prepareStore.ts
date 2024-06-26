@@ -1,4 +1,4 @@
-import { reactive, toRefs } from "vue";
+import { toRefs } from "vue";
 import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
@@ -7,12 +7,6 @@ import type {
 } from "../helpers";
 import type { BaseStore, VaxeeStore } from "./createStore";
 import { useVaxee } from "../composables/useVaxee";
-import {
-  isGetter,
-  isState,
-  type VaxeeGetter,
-  type VaxeeState,
-} from "./reactivity";
 import { parseStore } from "./parseStore";
 
 export function prepareStore<Store extends BaseStore>(
@@ -28,7 +22,7 @@ export function prepareStore<Store extends BaseStore>(
   const { states, actions, getters, other } = parseStore(store);
 
   if (vaxee.state.value[name]) {
-    for (const key in vaxee.state.value[name]) {
+    for (const key in states) {
       states[key].value = vaxee.state.value[name][key];
     }
   }

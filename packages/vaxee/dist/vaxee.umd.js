@@ -87,7 +87,7 @@
     }
     const { states, actions, getters, other } = parseStore(store);
     if (vaxee.state.value[name]) {
-      for (const key in vaxee.state.value[name]) {
+      for (const key in states) {
         states[key].value = vaxee.state.value[name][key];
       }
     }
