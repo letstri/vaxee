@@ -57,7 +57,7 @@ var vaxee = function(exports, vue2) {
         } else if (typeof value === "function") {
           acc.actions[key] = value;
         } else {
-          acc.other[key] = value;
+          acc.other[key] = vue2.unref(value);
         }
         return acc;
       },

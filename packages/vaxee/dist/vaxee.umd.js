@@ -59,7 +59,7 @@
         } else if (typeof value === "function") {
           acc.actions[key] = value;
         } else {
-          acc.other[key] = value;
+          acc.other[key] = vue.unref(value);
         }
         return acc;
       },

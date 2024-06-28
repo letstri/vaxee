@@ -33,11 +33,11 @@ export function prepareStore<Store extends BaseStore>(
     ...(actions as VaxeeStoreActions<Store>),
     ...(getters as VaxeeStoreGetters<Store>),
     ...(toRefs(vaxee.state.value[name]) as VaxeeStoreState<Store>),
-    ...(other as VaxeeStoreOther<Store>),
+    ...(other as any),
     _state: vaxee.state.value[name] as VaxeeStoreState<Store>,
     _actions: actions as VaxeeStoreActions<Store>,
     _getters: getters as VaxeeStoreGetters<Store>,
-    _other: other as VaxeeStoreOther<Store>,
+    _other: other as any,
   } satisfies VaxeeStore<Store>;
 
   // To use the state directly by _state = { ... }

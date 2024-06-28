@@ -20,9 +20,11 @@ type VaxeeStoreActionsNames<T> = {
 }[keyof T];
 export type VaxeeStoreActions<T> = Pick<T, VaxeeStoreActionsNames<T>>;
 
-export type VaxeeStoreOther<T> = Omit<
-  T,
-  | VaxeeStoreStateNames<T>
-  | VaxeeStoreGettersNames<T>
-  | VaxeeStoreActionsNames<T>
+export type VaxeeStoreOther<T> = UnwrapNestedRefs<
+  Omit<
+    T,
+    | VaxeeStoreStateNames<T>
+    | VaxeeStoreGettersNames<T>
+    | VaxeeStoreActionsNames<T>
+  >
 >;

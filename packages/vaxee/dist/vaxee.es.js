@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, computed, toRefs, reactive } from "vue";
+import { ref, hasInjectionContext, inject, computed, unref, toRefs, reactive } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -56,7 +56,7 @@ function parseStore(store) {
       } else if (typeof value === "function") {
         acc.actions[key] = value;
       } else {
-        acc.other[key] = value;
+        acc.other[key] = unref(value);
       }
       return acc;
     },

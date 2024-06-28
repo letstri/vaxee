@@ -19,7 +19,7 @@ import { prepareStore } from "./prepareStore";
 import { getter, state } from "./reactivity";
 
 export type BaseStore = Record<string, any>;
-type BaseGetter<Store extends VaxeeStore<any, false>> = (store: Store) => any;
+type BaseGetter = (store: VaxeeStore<any, false>) => any;
 type BaseGetterSetter<State extends VaxeeStoreState<any>, Value> = {
   get: (state: State) => Value;
   set: (state: State, value: Value) => void;
@@ -46,7 +46,7 @@ interface UseVaxeeStore<Store extends BaseStore> {
   <R extends boolean>(refs: R): R extends true
     ? VaxeeStore<Store>
     : VaxeeStore<Store, false>;
-  <Getter extends BaseGetter<VaxeeStore<Store, false>>>(
+  <Getter extends BaseGetter>(
     getter: Getter
   ): ReturnType<Getter> extends Function
     ? ReturnType<Getter>
@@ -80,7 +80,7 @@ export const createStore = <Store extends BaseStore>(
 
   function use(
     getterOrNameOrToRefs?:
-      | BaseGetter<VaxeeStore<Store, false>>
+      | BaseGetter
       | BaseGetterSetter<State, any>
       | keyof VaxeeStore<Store, false>
       | boolean
