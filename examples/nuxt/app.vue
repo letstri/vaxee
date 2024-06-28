@@ -1,9 +1,6 @@
 <script setup lang="ts">
 onServerPrefetch(() => {
   testStore.count = 10;
-
-  // // @ts-ignore
-  // useNuxtApp().$vaxee.state.value.test = { count: 5 };
 });
 const {
   count: countDestructure,
@@ -14,7 +11,7 @@ const testStore = useTestStore(false);
 const count = useTestStore("count");
 const double = useTestStore("double");
 const countGetter = useTestStore((c) => c.count);
-const doubleGetter = useTestStore((c) => c.count);
+const doubleGetter = useTestStore((c) => c.double);
 const countGetterSetter = useTestStore({
   get: (state) => state.count,
   set: (state, value) => (state.count = value),
@@ -60,14 +57,20 @@ watch(count, () => {
 
 <template>
   <pre>
-const useTestStore = createStore("test", {
-  count: 0,
-  increment() {
-    this.count++;
-  },
-  $double() {
-    return this.count * 2;
-  },
+export const useTestStore = createStore("test", ({ state, getter }) => {
+  const count = state(0);
+
+  const double = getter(() => count.value * 2);
+
+  function increment() {
+    count.value++;
+  }
+
+  return {
+    count,
+    increment,
+    double,
+  };
 });
 </pre
   >

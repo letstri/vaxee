@@ -8,7 +8,6 @@ export const useTestStore = createStore("test", ({ state, getter }) => {
   }
 
   return {
-    count2: 2,
     count,
     increment,
     double,
