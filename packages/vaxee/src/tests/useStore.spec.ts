@@ -17,6 +17,7 @@ describe("useStore", () => {
 
     return {
       count,
+      simple: 100,
       increment,
       double,
     };
@@ -33,10 +34,11 @@ describe("useStore", () => {
     store.count++;
     expect(store.count).toEqual(4);
     expect(store.double).toEqual(8);
+    expect(store.simple).toEqual(100);
   });
 
   it("can use store with destructuring", () => {
-    const { count, increment, double } = useMainStore();
+    const { count, increment, double, simple } = useMainStore();
 
     expect(count.value).toEqual(0);
     count.value++;
@@ -44,6 +46,7 @@ describe("useStore", () => {
     increment();
     expect(count.value).toEqual(2);
     expect(double.value).toEqual(4);
+    expect(simple).toEqual(100);
   });
 
   it("can use store with named getter", () => {
