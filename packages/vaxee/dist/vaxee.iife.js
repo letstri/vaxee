@@ -36,26 +36,17 @@ var vaxee = function(exports, vue2) {
   const stateSymbol = Symbol("vaxee-state");
   const getterSymbol = Symbol("vaxee-getter");
   const state = (value) => {
-    const ref = vue2.customRef((track, trigger) => ({
-      get() {
-        track();
-        return value;
-      },
-      set(newValue) {
-        value = newValue;
-        trigger();
-      }
-    }));
-    ref._vaxee = stateSymbol;
-    return ref;
+    const _ref = vue2.ref(value);
+    _ref._vaxee = stateSymbol;
+    return _ref;
   };
-  const isState = (ref) => (ref == null ? void 0 : ref._vaxee) === stateSymbol;
+  const isState = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === stateSymbol;
   const getter = (fn) => {
-    const ref = vue2.computed(() => fn());
-    ref._vaxee = getterSymbol;
-    return ref;
+    const ref2 = vue2.computed(() => fn());
+    ref2._vaxee = getterSymbol;
+    return ref2;
   };
-  const isGetter = (ref) => (ref == null ? void 0 : ref._vaxee) === getterSymbol;
+  const isGetter = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === getterSymbol;
   function parseStore(store) {
     return Object.entries(store).reduce(
       (acc, [key, value]) => {
@@ -85,15 +76,16 @@ var vaxee = function(exports, vue2) {
     }
     const { states, actions, getters, other } = parseStore(store);
     if (vaxee2.state.value[name]) {
+      vue2.toRefs(vaxee2.state.value[name]);
       for (const key in states) {
         states[key].value = vaxee2.state.value[name][key];
       }
     }
     vaxee2.state.value[name] = states;
     vaxee2._stores[name] = {
-      ...vue2.toRefs(vaxee2.state.value[name]),
       ...actions,
       ...getters,
+      ...vue2.toRefs(vaxee2.state.value[name]),
       ...other,
       _state: vaxee2.state.value[name],
       _actions: actions,
@@ -124,7 +116,12 @@ var vaxee = function(exports, vue2) {
       const refs = getterOrNameOrToRefs === true || getterOrNameOrToRefs === void 0;
       const _store = prepareStore(name, store({ state, getter }));
       if (getterParam) {
-        const _getter = vue2.computed(() => getterParam(vue2.reactive(_store)));
+        const _getter = vue2.computed(
+          () => (
+            // @ts-ignore
+            getterParam(vue2.reactive(_store))
+          )
+        );
         return typeof _getter.value === "function" ? _getter.value : _getter;
       }
       if (getterSetter) {
@@ -155,8 +152,7 @@ var vaxee = function(exports, vue2) {
       }
       return vue2.reactive(_store);
     }
-    use._store = name;
-    use.storeType = {};
+    use.$stateInfer = {};
     return use;
   };
   exports.createStore = createStore;

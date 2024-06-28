@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, customRef, computed, toRefs, reactive } from "vue";
+import { ref, hasInjectionContext, inject, computed, toRefs, reactive } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -35,18 +35,9 @@ function useVaxee() {
 const stateSymbol = Symbol("vaxee-state");
 const getterSymbol = Symbol("vaxee-getter");
 const state = (value) => {
-  const ref2 = customRef((track, trigger) => ({
-    get() {
-      track();
-      return value;
-    },
-    set(newValue) {
-      value = newValue;
-      trigger();
-    }
-  }));
-  ref2._vaxee = stateSymbol;
-  return ref2;
+  const _ref = ref(value);
+  _ref._vaxee = stateSymbol;
+  return _ref;
 };
 const isState = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === stateSymbol;
 const getter = (fn) => {
@@ -84,15 +75,16 @@ function prepareStore(name, store) {
   }
   const { states, actions, getters, other } = parseStore(store);
   if (vaxee.state.value[name]) {
+    toRefs(vaxee.state.value[name]);
     for (const key in states) {
       states[key].value = vaxee.state.value[name][key];
     }
   }
   vaxee.state.value[name] = states;
   vaxee._stores[name] = {
-    ...toRefs(vaxee.state.value[name]),
     ...actions,
     ...getters,
+    ...toRefs(vaxee.state.value[name]),
     ...other,
     _state: vaxee.state.value[name],
     _actions: actions,
@@ -123,7 +115,12 @@ const createStore = (name, store) => {
     const refs = getterOrNameOrToRefs === true || getterOrNameOrToRefs === void 0;
     const _store = prepareStore(name, store({ state, getter }));
     if (getterParam) {
-      const _getter = computed(() => getterParam(reactive(_store)));
+      const _getter = computed(
+        () => (
+          // @ts-ignore
+          getterParam(reactive(_store))
+        )
+      );
       return typeof _getter.value === "function" ? _getter.value : _getter;
     }
     if (getterSetter) {
@@ -154,8 +151,7 @@ const createStore = (name, store) => {
     }
     return reactive(_store);
   }
-  use._store = name;
-  use.storeType = {};
+  use.$stateInfer = {};
   return use;
 };
 export {

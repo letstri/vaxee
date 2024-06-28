@@ -1,4 +1,4 @@
-import { computed, customRef, type ComputedRef, type Ref } from "vue";
+import { computed, customRef, type ComputedRef, type Ref, ref } from "vue";
 
 const stateSymbol = Symbol("vaxee-state");
 const getterSymbol = Symbol("vaxee-getter");
@@ -8,21 +8,12 @@ export type VaxeeState<T> = Ref<T> & {
 };
 
 export const state = <T>(value: T): VaxeeState<T> => {
-  const ref = customRef((track, trigger) => ({
-    get() {
-      track();
-      return value;
-    },
-    set(newValue) {
-      value = newValue;
-      trigger();
-    },
-  }));
+  const _ref = ref(value);
 
   // @ts-expect-error
-  ref._vaxee = stateSymbol;
+  _ref._vaxee = stateSymbol;
 
-  return ref as VaxeeState<T>;
+  return _ref as VaxeeState<T>;
 };
 
 export const isState = (ref: any): ref is VaxeeState<any> =>

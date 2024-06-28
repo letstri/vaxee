@@ -22,5 +22,7 @@ export type VaxeeStoreActions<T> = Pick<T, VaxeeStoreActionsNames<T>>;
 
 export type VaxeeStoreOther<T> = Omit<
   T,
-  keyof (VaxeeStoreState<T> & VaxeeStoreGetters<T> & VaxeeStoreActions<T>)
+  | VaxeeStoreStateNames<T>
+  | VaxeeStoreGettersNames<T>
+  | VaxeeStoreActionsNames<T>
 >;

@@ -1,13 +1,13 @@
-import { toRefs } from "vue";
+import type { BaseStore, VaxeeStore } from "./createStore";
+import { useVaxee } from "../composables/useVaxee";
+import { parseStore } from "./parseStore";
 import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
   VaxeeStoreOther,
   VaxeeStoreState,
 } from "../helpers";
-import type { BaseStore, VaxeeStore } from "./createStore";
-import { useVaxee } from "../composables/useVaxee";
-import { parseStore } from "./parseStore";
+import { toRefs } from "vue";
 
 export function prepareStore<Store extends BaseStore>(
   name: string,
@@ -30,17 +30,17 @@ export function prepareStore<Store extends BaseStore>(
   vaxee.state.value[name] = states;
 
   vaxee._stores[name] = {
-    ...toRefs(vaxee.state.value[name] as VaxeeStoreState<Store>),
     ...(actions as VaxeeStoreActions<Store>),
     ...(getters as VaxeeStoreGetters<Store>),
+    ...(toRefs(vaxee.state.value[name]) as VaxeeStoreState<Store>),
     ...(other as VaxeeStoreOther<Store>),
     _state: vaxee.state.value[name] as VaxeeStoreState<Store>,
     _actions: actions as VaxeeStoreActions<Store>,
     _getters: getters as VaxeeStoreGetters<Store>,
-    _other: other,
+    _other: other as VaxeeStoreOther<Store>,
   } satisfies VaxeeStore<Store>;
 
-  // To use the state directly by _state = { ... } instead of computed get and set
+  // To use the state directly by _state = { ... }
   Object.defineProperty(vaxee._stores[name], "_state", {
     get: () => vaxee.state.value[name],
     set: (state) => {

@@ -12,5 +12,5 @@ type VaxeeStoreActionsNames<T> = {
     [K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
 export type VaxeeStoreActions<T> = Pick<T, VaxeeStoreActionsNames<T>>;
-export type VaxeeStoreOther<T> = Omit<T, keyof (VaxeeStoreState<T> & VaxeeStoreGetters<T> & VaxeeStoreActions<T>)>;
+export type VaxeeStoreOther<T> = Omit<T, VaxeeStoreStateNames<T> | VaxeeStoreGettersNames<T> | VaxeeStoreActionsNames<T>>;
 export {};

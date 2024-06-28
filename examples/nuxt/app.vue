@@ -14,7 +14,7 @@ const testStore = useTestStore(false);
 const count = useTestStore("count");
 const double = useTestStore("double");
 const countGetter = useTestStore((c) => c.count);
-const doubleGetter = useTestStore((c) => c.double);
+const doubleGetter = useTestStore((c) => c.count);
 const countGetterSetter = useTestStore({
   get: (state) => state.count,
   set: (state, value) => (state.count = value),
@@ -121,7 +121,7 @@ const count = useTestStore({
           </button>
         </td>
         <td>
-          <pre>const testStore = useTestStore();</pre>
+          <pre>const testStore = useTestStore(false);</pre>
           <code>testStore.count: {{ testStore.count }}</code>
           <hr />
           <pre>const count = useTestStore("count");</pre>
@@ -130,7 +130,7 @@ const count = useTestStore({
           <pre>const count = useTestStore((c) => c.count);</pre>
           <code>count: {{ countGetter }}</code>
           <hr />
-          <pre>const { count } = useTestStore(true);</pre>
+          <pre>const { count } = useTestStore();</pre>
           <code>count: {{ countDestructure }}</code>
           <hr />
           <pre>

@@ -1,6 +1,7 @@
 import {
   computed,
   reactive,
+  toRefs,
   type ComputedRef,
   type Ref,
   type ToRef,
@@ -18,7 +19,7 @@ import { prepareStore } from "./prepareStore";
 import { getter, state } from "./reactivity";
 
 export type BaseStore = Record<string, any>;
-type BaseGetter<Store extends VaxeeStore<any>> = (store: Store) => any;
+type BaseGetter<Store extends VaxeeStore<any, false>> = (store: Store) => any;
 type BaseGetterSetter<State extends VaxeeStoreState<any>, Value> = {
   get: (state: State) => Value;
   set: (state: State, value: Value) => void;
@@ -29,30 +30,19 @@ type ToComputedRefs<T> = {
   [K in keyof T]: ToComputed<T[K]>;
 };
 
-export type VaxeeStore<
-  Store extends BaseStore,
-  Refs extends boolean = true
-> = (Refs extends true
-  ? ToRefs<VaxeeStoreState<Store>>
-  : VaxeeStoreState<Store>) &
+export type VaxeeStore<Store extends BaseStore, Refs extends boolean = true> = {
+  _state: VaxeeStoreState<Store>;
+  _actions: VaxeeStoreActions<Store>;
+  _getters: VaxeeStoreGetters<Store>;
+  _other: VaxeeStoreOther<Store>;
+} & (Refs extends true
+  ? ToRefs<VaxeeStoreState<Store>> & ToComputedRefs<VaxeeStoreGetters<Store>>
+  : VaxeeStoreState<Store> & VaxeeStoreGetters<Store>) &
   VaxeeStoreActions<Store> &
-  (Refs extends true
-    ? ToComputedRefs<VaxeeStoreGetters<Store>>
-    : VaxeeStoreGetters<Store>) &
-  VaxeeStoreOther<Store> & {
-    _state: VaxeeStoreState<Store>;
-    _actions: VaxeeStoreActions<Store>;
-    _getters: VaxeeStoreGetters<Store>;
-    _other: Record<string, any>;
-  };
-
-type VaxeeStoreInfer<Store extends BaseStore> = Omit<
-  VaxeeStore<Store, false>,
-  "_state" | "_getters" | "_actions" | "_other"
->;
+  VaxeeStoreOther<Store>;
 
 interface UseVaxeeStore<Store extends BaseStore> {
-  (): VaxeeStore<Store>;
+  (): VaxeeStore<Store, true>;
   <R extends boolean>(refs: R): R extends true
     ? VaxeeStore<Store>
     : VaxeeStore<Store, false>;
@@ -64,9 +54,11 @@ interface UseVaxeeStore<Store extends BaseStore> {
   <Value extends any>(
     getterSetter: BaseGetterSetter<VaxeeStoreState<Store>, Value>
   ): ToRef<Value>;
-  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
-  _store: string;
-  storeType: VaxeeStoreInfer<Store>;
+  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<
+    Store,
+    true
+  >[Name];
+  $stateInfer: VaxeeStoreState<Store>;
 }
 
 export const createStore = <Store extends BaseStore>(
@@ -88,9 +80,9 @@ export const createStore = <Store extends BaseStore>(
 
   function use(
     getterOrNameOrToRefs?:
-      | BaseGetter<VaxeeStore<Store>>
+      | BaseGetter<VaxeeStore<Store, false>>
       | BaseGetterSetter<State, any>
-      | keyof VaxeeStore<Store>
+      | keyof VaxeeStore<Store, false>
       | boolean
   ) {
     const getterParam =
@@ -113,8 +105,10 @@ export const createStore = <Store extends BaseStore>(
     const _store = prepareStore(name, store({ state, getter }));
 
     if (getterParam) {
-      // @ts-ignore
-      const _getter = computed(() => getterParam(reactive(_store)));
+      const _getter = computed(() =>
+        // @ts-ignore
+        getterParam(reactive(_store))
+      );
 
       return typeof _getter.value === "function" ? _getter.value : _getter;
     }
@@ -156,8 +150,7 @@ export const createStore = <Store extends BaseStore>(
     return reactive(_store);
   }
 
-  use._store = name;
-  use.storeType = {} as VaxeeStoreInfer<Store>;
+  use.$stateInfer = {} as State;
 
   return use;
 };

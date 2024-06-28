@@ -105,7 +105,7 @@ describe("createStore", () => {
         foo: "bar",
         a: { b: "string 2" },
       },
-    } satisfies typeof useStore.storeType;
+    } satisfies typeof useStore.$stateInfer;
 
     const store = useStore();
 
