@@ -1,0 +1,14 @@
+{
+  "name": "@vaxee/docs",
+  "private": true,
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress previews"
+  },
+  "packageManager": "pnpm@9.4.0",
+  "devDependencies": {
+    "vitepress": "^1.2.3",
+    "vue": "^3.4.29"
+  }
+}
