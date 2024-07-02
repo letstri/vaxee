@@ -1,7 +1,7 @@
 {
   "name": "vaxee",
-  "version": "0.0.1",
-  "description": "Store for Vue 3",
+  "version": "0.0.2",
+  "description": "The State Manager for Vue 3",
   "scripts": {
     "prepublishOnly": "npm run build",
     "dev": "vite",

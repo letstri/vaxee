@@ -1,29 +1,27 @@
 {
   "name": "@vaxee/nuxt",
-  "version": "0.0.1",
-  "description": "Nuxt Module for pinia",
+  "version": "0.0.2",
+  "description": "Nuxt Module for vaxee",
   "keywords": [
-    "pinia",
+    "vaxee",
     "nuxt",
     "vue",
     "vuex",
     "store"
   ],
-  "homepage": "https://github.com/vuejs/pinia/tree/v2/packages/nuxt#readme",
+  "homepage": "https://vaxee.letstri.dev",
   "bugs": {
-    "url": "https://github.com/vuejs/pinia/issues"
+    "url": "https://github.com/letstri/vaxee/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vuejs/pinia.git"
+    "url": "git+https://github.com/letstri/vaxee.git"
   },
-  "funding": "https://github.com/sponsors/posva",
   "license": "MIT",
   "author": {
-    "name": "Eduardo San Martin Morote",
-    "email": "posva13@gmail.com"
+    "name": "Valerii Strilets",
+    "email": "valerii.strilets@gmail.com"
   },
-  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
