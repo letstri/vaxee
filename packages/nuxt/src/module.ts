@@ -12,21 +12,13 @@ import type { NuxtModule } from "@nuxt/schema";
 
 export interface ModuleOptions {
   /**
-   * Vaxee disables Vuex by default, set this option to `false` to avoid it and
-   * use Vaxee alongside Vuex (Nuxt 2 only)
-   *
-   * @default `true`
-   */
-  disableVuex?: boolean;
-
-  /**
    * Automatically add stores dirs to the auto imports. This is the same as
    * directly adding the dirs to the `imports.dirs` option. If you want to
    * also import nested stores, you can use the glob pattern `./stores/**`
    *
    * @default `['stores']`
    */
-  storesDirs?: string[];
+  dirs?: string[];
 }
 
 const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
@@ -36,9 +28,6 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     compatibility: {
       nuxt: ">=3.0.0",
     },
-  },
-  defaults: {
-    disableVuex: true,
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
@@ -57,12 +46,12 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     const composables = resolver.resolve("./runtime/composables");
     addImports([{ from: composables, name: "createStore" }]);
 
-    if (!options.storesDirs) {
-      options.storesDirs = [resolver.resolve(nuxt.options.srcDir, "stores")];
+    if (!options.dirs) {
+      options.dirs = [resolver.resolve(nuxt.options.srcDir, "stores")];
     }
 
-    if (options.storesDirs) {
-      for (const storeDir of options.storesDirs) {
+    if (options.dirs) {
+      for (const storeDir of options.dirs) {
         addImportsDir(resolver.resolve(nuxt.options.rootDir, storeDir));
       }
     }

@@ -1,13 +1,7 @@
-import { ref, type App, type Ref } from "vue";
+import { ref, shallowReadonly, type App, type Ref } from "vue";
 import type { VaxeeStoreState } from "./helpers";
 import type { VaxeeStore } from "./store/createStore";
 import { IS_CLIENT, IS_DEV, VAXEE_LOG_START } from "./constants";
-
-declare module "@vue/runtime-core" {
-  interface ComponentCustomProperties {
-    $vaxee: Vaxee;
-  }
-}
 
 export const vaxeeSymbol = Symbol("vaxee");
 
@@ -39,7 +33,7 @@ export function createVaxeePlugin() {
           );
         }
         // @ts-ignore
-        window.$vaxee = vaxee;
+        window.$vaxee = vaxee.state.value;
       }
     },
     state: ref({}),

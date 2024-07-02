@@ -14,7 +14,7 @@ function createVaxeePlugin() {
       setVaxeeInstance(vaxee);
       app.provide(vaxeeSymbol, vaxee);
       if (IS_DEV && IS_CLIENT) {
-        window.$vaxee = vaxee;
+        window.$vaxee = vaxee.state.value;
       }
     },
     state: ref({}),

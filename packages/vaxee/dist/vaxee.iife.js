@@ -15,7 +15,7 @@ var vaxee = function(exports, vue2) {
         setVaxeeInstance(vaxee2);
         app.provide(vaxeeSymbol, vaxee2);
         if (IS_DEV && IS_CLIENT) {
-          window.$vaxee = vaxee2;
+          window.$vaxee = vaxee2.state.value;
         }
       },
       state: vue2.ref({}),
