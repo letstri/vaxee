@@ -12,6 +12,11 @@ describe("reactivity", () => {
     expect(count.value).toBe(0);
     expect(double.value).toBe(0);
 
+    count.value = 1;
+
+    expect(count.value).toBe(1);
+    expect(double.value).toBe(2);
+
     expect(isState(count)).toBe(true);
     expect(isGetter(double)).toBe(true);
 

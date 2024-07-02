@@ -8,9 +8,6 @@ const module = defineNuxtModule({
       nuxt: ">=3.0.0"
     }
   },
-  defaults: {
-    disableVuex: true
-  },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
     nuxt.options.build.transpile.push(resolver.resolve("./runtime"));
@@ -22,11 +19,11 @@ const module = defineNuxtModule({
     });
     const composables = resolver.resolve("./runtime/composables");
     addImports([{ from: composables, name: "createStore" }]);
-    if (!options.storesDirs) {
-      options.storesDirs = [resolver.resolve(nuxt.options.srcDir, "stores")];
+    if (!options.dirs) {
+      options.dirs = [resolver.resolve(nuxt.options.srcDir, "stores")];
     }
-    if (options.storesDirs) {
-      for (const storeDir of options.storesDirs) {
+    if (options.dirs) {
+      for (const storeDir of options.dirs) {
         addImportsDir(resolver.resolve(nuxt.options.rootDir, storeDir));
       }
     }

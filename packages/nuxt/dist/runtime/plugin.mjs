@@ -10,10 +10,5 @@ export default defineNuxtPlugin({
     } else if (nuxtApp.payload && nuxtApp.payload.vaxee) {
       vaxee.state.value = nuxtApp.payload.vaxee;
     }
-    return {
-      provide: {
-        vaxee
-      }
-    };
   }
 });
