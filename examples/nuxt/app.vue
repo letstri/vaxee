@@ -10,15 +10,7 @@ const {
 const testStore = useTestStore(false);
 const count = useTestStore("count");
 const double = useTestStore("double");
-const countGetter = useTestStore((c) => c.count);
-const doubleGetter = useTestStore((c) => c.double);
-const countGetterSetter = useTestStore({
-  get: (state) => state.count,
-  set: (state, value) => (state.count = value),
-});
-
 const increment = useTestStore("increment");
-const incrementGetter = useTestStore((c) => c.increment);
 
 watch(
   () => testStore.count,
@@ -40,12 +32,6 @@ watch(doubleDestructure, () => {
 });
 watch(double, () => {
   console.log("double", double.value);
-});
-watch(countGetterSetter, () => {
-  console.log("countGetterSetter", countGetterSetter.value);
-});
-watch(doubleGetter, () => {
-  console.log("doubleGetter", doubleGetter.value);
 });
 watch(count, () => {
   console.log("count", count.value);
@@ -103,24 +89,9 @@ export const useTestStore = createStore("test", ({ state, getter }) => {
           <pre>const increment = useTestStore("increment");</pre>
           <button @click="increment"><code>increment()</code></button>
           <hr />
-          <pre>const increment = useTestStore((c) => c.increment);</pre>
-          <button @click="incrementGetter">
-            <code>increment()</code>
-          </button>
-          <hr />
           <pre>const { increment } = useTestStore();</pre>
           <button @click="incrementDestructure">
             <code>increment()</code>
-          </button>
-          <hr />
-          <pre>
-const count = useTestStore({
-  get: (state) => state.count,
-  set: (state, value) => (state.count = value),
-});</pre
-          >
-          <button @click="countGetterSetter++">
-            <code>count++</code>
           </button>
         </td>
         <td>
@@ -130,19 +101,8 @@ const count = useTestStore({
           <pre>const count = useTestStore("count");</pre>
           <code>count: {{ count }}</code>
           <hr />
-          <pre>const count = useTestStore((c) => c.count);</pre>
-          <code>count: {{ countGetter }}</code>
-          <hr />
           <pre>const { count } = useTestStore();</pre>
           <code>count: {{ countDestructure }}</code>
-          <hr />
-          <pre>
-const count = useTestStore({
-  get: (state) => state.count,
-  set: (state, value) => (state.count = value),
-});</pre
-          >
-          <code>count: {{ countGetterSetter }}</code>
         </td>
         <td>
           <pre>const testStore = useTestStore(false);</pre>
@@ -153,10 +113,6 @@ const count = useTestStore({
           <hr />
           <pre>const double = useTestStore('double');</pre>
           <code>double: {{ double }}</code>
-          <hr />
-          <pre>const double = useTestStore((c) => c.double);</pre>
-          <code>double: {{ doubleGetter }}</code>
-          <hr />
         </td>
       </tr>
     </tbody>
