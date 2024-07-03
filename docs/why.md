@@ -4,7 +4,7 @@ outline: deep
 
 # Introduction
 
-Having worked on **many** projects and frameworks, I've developed my **own vision** of the perfect state manager for **Vue 3**. After googling for a while and **not finding** anything similar, I decided to create _my own_. By establishing the basic functionality in Vaxee, the features that were missing in other state managers will gradually be added.
+Having worked on **many** projects and frameworks, I've developed my **own vision** of the perfect state manager for **Vue 3**. After googling for a while and **not finding** anything similar, I decided to create _my own_. By establishing the basic functionality in `Vaxee`, the features that were missing in other state managers will gradually be added.
 
 ## Why Do You Need Vaxee?
 
@@ -12,11 +12,11 @@ If you use **Vue 3** and want to store your _data_ and use it across different _
 
 Vaxee uses a single `ref` under the hood to store **all the data**. This is similar to creating your own `ref` where you would store all your data and **import** it into each **component**, but we've done that **for you**.
 
-Additionally, Vaxee offers extra functionality in the form of **stores** to help you **divide** all your data into **smaller parts**. Each store is created using a single imported function called `createStore`. Inside the callback of this function, you can use **reactive** variables declared via `state` and their computed parts via `getter`. All this is still stored in a single `ref` variable under the hood.
+Additionally, Vaxee offers extra functionality in the form of **stores** to help you **divide** all your data into **smaller parts**. Each store is created using a single imported function called `createStore`. Inside the callback of this function, you can use **reactive** variables declared via `state` and their computed parts via `getter`. All this data is still stored in a single `ref` variable under the hood.
 
 To **use** the data, we offer many different options that are fully supported by **TypeScript** and simplify the use of any store.
 
-We have moved away from using regular `ref` and `computed` inside the store because we **want** to give you more **control** over the variables, like `persist` or `log`. We will keep adding more functionality **over time**.
+We have moved away from using regular `ref` and `computed` inside the stores because we **want** to give you more **control** over the variables, like `persist` or `log`. We will keep adding more functionality **over time**.
 
 ## Why Not Pinia?
 
@@ -28,7 +28,7 @@ Let's consider the **Composition API** approach, which is relevant for the moder
 
 Having worked on **many** Vue 3 projects, I've **noticed** that some developers attempt to **use** side effects **inside stores**. However, this approach can lead to **issues**, such as the side effects not functioning correctly, as discussed in this [GitHub thread](https://github.com/vuejs/pinia/discussions/1508). Examples of such side effects include `onMounted` or `onServerPrefetch`.
 
-That's why in **Vaxee**, we intentionally avoid incorporating side effects inside stores. This design choice allows all stores to function seamlessly without the need for `effectScope` or the usage of `watch` and similar functionalities.
+That's why in **Vaxee**, we intentionally avoid incorporating side effects inside stores. This design choice allows all stores to function seamlessly without the need for `effectScope` or the usage of `watch` and similar functionalities. Also that's why we have created our own reactive functions like `state` and `getter` instead of using `ref` and `computed`.
 
 ### Usage
 

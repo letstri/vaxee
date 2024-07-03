@@ -24,11 +24,11 @@ export default defineConfig({
       {
         text: "Core Concepts",
         items: [
+          { text: "Store", link: "/store" },
           { text: "State", link: "/state" },
-          { text: "Actions", link: "/actions" },
           { text: "Getters", link: "/getters" },
-          { text: "Mutations", link: "/mutations" },
-          { text: "Modules", link: "/modules" },
+          { text: "Actions", link: "/actions" },
+          { text: "Other", link: "/other" },
         ],
       },
       {

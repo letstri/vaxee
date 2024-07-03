@@ -105,6 +105,8 @@ const { count } = useCounterStore();
 </template>
 ```
 
+Try it on [StackBlitz](https://stackblitz.com/edit/vaxee-counter-playground?file=src%2Fstores%2Fcounter.ts,src%2FApp.vue&terminal=dev).
+
 ## Server-Side Rendering
 
 ::: warning
@@ -132,3 +134,5 @@ if (typeof window !== "undefined") {
 app.use(vaxee);
 app.$mount("#app");
 ```
+
+The main point is to set the `vaxee.state.value` with the data **before using any store**.

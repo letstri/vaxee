@@ -3,6 +3,8 @@
  * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
  */
 
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+
 /**
  * Colors
  *
@@ -68,6 +70,15 @@
   --vp-c-danger-2: var(--vp-c-red-2);
   --vp-c-danger-3: var(--vp-c-red-3);
   --vp-c-danger-soft: var(--vp-c-red-soft);
+
+  --vp-font-family-base: "Ubuntu", sans-serif;
+}
+
+.dark {
+  --vp-c-bg: #1d1e1f;
+  --vp-c-bg-alt: #222526;
+  --vp-c-gutter: #161616;
+  --vp-c-bg-soft: #202427;
 }
 
 /**
