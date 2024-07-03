@@ -1,10 +1,8 @@
 import {
   computed,
   reactive,
-  toRefs,
   type ComputedRef,
   type Ref,
-  type ToRef,
   type ToRefs,
 } from "vue";
 import { getVaxeeInstance } from "../plugin";
@@ -19,11 +17,6 @@ import { prepareStore } from "./prepareStore";
 import { getter, state } from "./reactivity";
 
 export type BaseStore = Record<string, any>;
-type BaseGetter = (store: VaxeeStore<any, false>) => any;
-type BaseGetterSetter<State extends VaxeeStoreState<any>, Value> = {
-  get: (state: State) => Value;
-  set: (state: State, value: Value) => void;
-};
 
 type ToComputed<T> = T extends Ref ? T : ComputedRef<T>;
 type ToComputedRefs<T> = {
@@ -42,22 +35,11 @@ export type VaxeeStore<Store extends BaseStore, Refs extends boolean = true> = {
   VaxeeStoreOther<Store>;
 
 interface UseVaxeeStore<Store extends BaseStore> {
-  (): VaxeeStore<Store, true>;
+  (): VaxeeStore<Store>;
   <R extends boolean>(refs: R): R extends true
     ? VaxeeStore<Store>
     : VaxeeStore<Store, false>;
-  <Getter extends BaseGetter>(
-    getter: Getter
-  ): ReturnType<Getter> extends Function
-    ? ReturnType<Getter>
-    : ToComputed<ReturnType<Getter>>;
-  <Value extends any>(
-    getterSetter: BaseGetterSetter<VaxeeStoreState<Store>, Value>
-  ): ToRef<Value>;
-  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<
-    Store,
-    true
-  >[Name];
+  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
   $stateInfer: VaxeeStoreState<Store>;
 }
 
@@ -78,47 +60,14 @@ export const createStore = <Store extends BaseStore>(
     }
   }
 
-  function use(
-    getterOrNameOrToRefs?:
-      | BaseGetter
-      | BaseGetterSetter<State, any>
-      | keyof VaxeeStore<Store, false>
-      | boolean
-  ) {
-    const getterParam =
-      typeof getterOrNameOrToRefs === "function"
-        ? getterOrNameOrToRefs
-        : undefined;
-    const getterSetter =
-      typeof getterOrNameOrToRefs === "object" &&
-      "get" in getterOrNameOrToRefs &&
-      "set" in getterOrNameOrToRefs
-        ? getterOrNameOrToRefs
-        : undefined;
+  function use(nameOrToRefs?: keyof VaxeeStore<Store> | boolean) {
     const propName =
-      typeof getterOrNameOrToRefs === "string"
-        ? (getterOrNameOrToRefs as keyof Store)
+      typeof nameOrToRefs === "string"
+        ? (nameOrToRefs as keyof Store)
         : undefined;
-    const refs =
-      getterOrNameOrToRefs === true || getterOrNameOrToRefs === undefined;
+    const refs = nameOrToRefs === true || nameOrToRefs === undefined;
 
     const _store = prepareStore(name, store({ state, getter }));
-
-    if (getterParam) {
-      const _getter = computed(() =>
-        // @ts-ignore
-        getterParam(reactive(_store))
-      );
-
-      return typeof _getter.value === "function" ? _getter.value : _getter;
-    }
-
-    if (getterSetter) {
-      return computed({
-        get: () => getterSetter.get(_store._state),
-        set: (value) => getterSetter.set(_store._state, value),
-      });
-    }
 
     if (propName) {
       if (_store._actions[propName as keyof Actions]) {
@@ -129,9 +78,7 @@ export const createStore = <Store extends BaseStore>(
         return _store._getters[propName as keyof Getters];
       }
 
-      // @ts-ignore
       if (_store._other[propName as keyof Other]) {
-        // @ts-ignore
         return _store._other[propName as keyof Other];
       }
 
@@ -140,7 +87,7 @@ export const createStore = <Store extends BaseStore>(
         set: (value) => {
           _store._state[propName as keyof State] = value;
         },
-      });
+      }) as any; // TODO: remove any
     }
 
     if (refs) {

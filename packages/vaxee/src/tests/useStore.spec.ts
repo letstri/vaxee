@@ -60,26 +60,6 @@ describe("useStore", () => {
     expect(count.value).toEqual(2);
   });
 
-  it("can use store with getter functions", () => {
-    const count = useMainStore((c) => c.count);
-    const increment = useMainStore((c) => c.increment);
-
-    expect(count.value).toEqual(0);
-    increment();
-    expect(count.value).toEqual(1);
-  });
-
-  it("can use store with getter and setter", () => {
-    const count = useMainStore({
-      get: (c) => c.count,
-      set: (c, v) => (c.count = v),
-    });
-
-    expect(count.value).toEqual(0);
-    count.value++;
-    expect(count.value).toEqual(1);
-  });
-
   it("check _state and _actions", () => {
     const store = useMainStore(false);
 

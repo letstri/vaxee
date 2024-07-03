@@ -107,27 +107,10 @@ const createStore = (name, store) => {
       );
     }
   }
-  function use(getterOrNameOrToRefs) {
-    const getterParam = typeof getterOrNameOrToRefs === "function" ? getterOrNameOrToRefs : void 0;
-    const getterSetter = typeof getterOrNameOrToRefs === "object" && "get" in getterOrNameOrToRefs && "set" in getterOrNameOrToRefs ? getterOrNameOrToRefs : void 0;
-    const propName = typeof getterOrNameOrToRefs === "string" ? getterOrNameOrToRefs : void 0;
-    const refs = getterOrNameOrToRefs === true || getterOrNameOrToRefs === void 0;
+  function use(nameOrToRefs) {
+    const propName = typeof nameOrToRefs === "string" ? nameOrToRefs : void 0;
+    const refs = nameOrToRefs === true || nameOrToRefs === void 0;
     const _store = prepareStore(name, store({ state, getter }));
-    if (getterParam) {
-      const _getter = computed(
-        () => (
-          // @ts-ignore
-          getterParam(reactive(_store))
-        )
-      );
-      return typeof _getter.value === "function" ? _getter.value : _getter;
-    }
-    if (getterSetter) {
-      return computed({
-        get: () => getterSetter.get(_store._state),
-        set: (value) => getterSetter.set(_store._state, value)
-      });
-    }
     if (propName) {
       if (_store._actions[propName]) {
         return _store._actions[propName];

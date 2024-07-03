@@ -1,4 +1,4 @@
-import { computed, customRef, type ComputedRef, type Ref, ref } from "vue";
+import { computed, type ComputedRef, type Ref, ref } from "vue";
 
 const stateSymbol = Symbol("vaxee-state");
 const getterSymbol = Symbol("vaxee-getter");
