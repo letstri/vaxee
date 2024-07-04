@@ -89,7 +89,7 @@ Now, let's use this store in a component.
 <script setup>
 import { useCounterStore } from "../stores/counter";
 
-const { count, increment } = useCounterStore();
+const { count, double, increment } = useCounterStore();
 </script>
 
 <template>
