@@ -1,6 +1,6 @@
 # `@vaxee/nuxt`
 
-> Nuxt 2 & 3 module
+> Nuxt 3 module
 
 ## Installation
 
@@ -10,7 +10,7 @@ npm i @vaxee/nuxt
 
 ## Usage
 
-Add to `modules` (Nuxt 3) or `buildModules` (Nuxt 2) in `nuxt.config.js`:
+Add to `modules` in `nuxt.config.js`:
 
 ```js
 export default defineNuxtConfig({
