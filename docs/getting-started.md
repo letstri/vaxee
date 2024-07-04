@@ -76,6 +76,10 @@ export default defineNuxtConfig({
 });
 ```
 
+::: tip
+You may not import the `createStore` function to create stores in Nuxt because it is exposed globally.
+:::
+
 ## Usage
 
 Let's create a simple store with a counter.
@@ -110,10 +114,14 @@ Try it on [StackBlitz](https://stackblitz.com/edit/vaxee-counter-playground?file
 ## Server-Side Rendering
 
 ::: warning
-If you are using the Nuxt 3 package, you can skip this section. The code below is already included in the Nuxt 3 package.
+If you are using the Nuxt package, you can skip this section. The code below is already included in the Nuxt package.
 :::
 
 To use Vaxee with server-side rendering (SSR), you need to use **save** your data before sending it to the client and then restore it on the client side. You can do it by inserting your data into the HTML response.
+
+::: tip
+When inserting data into the HTML response, make sure to properly escape it. You can use the [devalue](https://github.com/nuxt-contrib/devalue) package for this purpose.
+:::
 
 To restore same data on the client side, you can use the following code.
 

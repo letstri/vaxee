@@ -40,6 +40,9 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [{ icon: "github", link: "https://github.com/letstri/vaxee" }],
+    socialLinks: [
+      { icon: "github", link: "https://github.com/letstri/vaxee" },
+      { icon: "npm", link: "https://www.npmjs.com/package/vaxee" },
+    ],
   },
 });
