@@ -6,7 +6,7 @@ outline: deep
 
 The main purpose of a store is to provide ability to store and manage some parts of the application state. It should be used to store data that is shared between multiple components.
 
-## Creating a simple store
+## Creating a store
 
 To create a store, use the `createStore` function and pass a **name** of the store and a **callback** function that returns the store object.
 
@@ -107,6 +107,18 @@ const store = useCounterStore(false);
     <button @click="store.increment">Increment</button>
   </div>
 </template>
+```
+
+::: warning
+With the `false` argument, you can't use destructuring.
+:::
+
+```js
+import { useCounterStore } from "../stores/counter";
+
+const { count } = useCounterStore(false);
+
+count++; // Won't work
 ```
 
 ### Pick a prop

@@ -25,17 +25,7 @@ export default defineConfig({
         text: "Core Concepts",
         items: [
           { text: "Store", link: "/store" },
-          { text: "State", link: "/state" },
-          { text: "Getters", link: "/getters" },
-          { text: "Actions", link: "/actions" },
-          { text: "Other", link: "/other" },
-        ],
-      },
-      {
-        text: "Advanced",
-        items: [
-          { text: "Plugins", link: "/plugins" },
-          { text: "Devtools", link: "/devtools" },
+          { text: "Reactivity", link: "/reactivity" },
         ],
       },
     ],

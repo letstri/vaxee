@@ -40,7 +40,7 @@ interface UseVaxeeStore<Store extends BaseStore> {
     ? VaxeeStore<Store>
     : VaxeeStore<Store, false>;
   <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
-  $stateInfer: VaxeeStoreState<Store>;
+  $inferState: VaxeeStoreState<Store>;
 }
 
 export const createStore = <Store extends BaseStore>(
@@ -55,6 +55,10 @@ export const createStore = <Store extends BaseStore>(
   if (getVaxeeInstance()?._stores[name]) {
     if (IS_DEV) {
       console.warn(
+        VAXEE_LOG_START + `The store with name ${name} already exists.`
+      );
+    } else {
+      throw new Error(
         VAXEE_LOG_START + `The store with name ${name} already exists.`
       );
     }
@@ -97,7 +101,7 @@ export const createStore = <Store extends BaseStore>(
     return reactive(_store);
   }
 
-  use.$stateInfer = {} as State;
+  use.$inferState = {} as State;
 
   return use;
 };

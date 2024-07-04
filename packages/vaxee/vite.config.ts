@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       name: "vaxee",
       entry: "./src/index.ts",
-      formats: ["es", "cjs", "iife", "umd"],
+      formats: ["es", "iife"],
       fileName: (format) => `vaxee.${format}.js`,
     },
     rollupOptions: {
