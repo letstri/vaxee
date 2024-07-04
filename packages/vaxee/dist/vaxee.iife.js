@@ -106,6 +106,10 @@ var vaxee = function(exports, vue2) {
         console.warn(
           VAXEE_LOG_START + `The store with name ${name} already exists.`
         );
+      } else {
+        throw new Error(
+          VAXEE_LOG_START + `The store with name ${name} already exists.`
+        );
       }
     }
     function use(nameOrToRefs) {
@@ -134,7 +138,7 @@ var vaxee = function(exports, vue2) {
       }
       return vue2.reactive(_store);
     }
-    use.$stateInfer = {};
+    use.$inferState = {};
     return use;
   };
   exports.createStore = createStore;

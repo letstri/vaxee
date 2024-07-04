@@ -105,6 +105,10 @@ const createStore = (name, store) => {
       console.warn(
         VAXEE_LOG_START + `The store with name ${name} already exists.`
       );
+    } else {
+      throw new Error(
+        VAXEE_LOG_START + `The store with name ${name} already exists.`
+      );
     }
   }
   function use(nameOrToRefs) {
@@ -133,7 +137,7 @@ const createStore = (name, store) => {
     }
     return reactive(_store);
   }
-  use.$stateInfer = {};
+  use.$inferState = {};
   return use;
 };
 export {

@@ -16,7 +16,7 @@ interface UseVaxeeStore<Store extends BaseStore> {
     (): VaxeeStore<Store>;
     <R extends boolean>(refs: R): R extends true ? VaxeeStore<Store> : VaxeeStore<Store, false>;
     <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
-    $stateInfer: VaxeeStoreState<Store>;
+    $inferState: VaxeeStoreState<Store>;
 }
 export declare const createStore: <Store extends BaseStore>(name: string, store: (options: {
     state: typeof state;
