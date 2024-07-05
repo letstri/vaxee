@@ -10,7 +10,7 @@ Actions are any functions that are used to update the state in a store. They sho
 
 To create an action, just define a function inside the store callback and return it.
 
-```js
+```ts
 import { createStore } from "vaxee";
 
 export const useCounterStore = createStore("counter", ({ state }) => {

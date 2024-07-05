@@ -10,7 +10,7 @@ The main purpose of a store is to provide ability to store and manage some parts
 
 To create a store, use the `createStore` function and pass a **name** of the store and a **callback** function that returns the store object.
 
-```js
+```ts
 import { createStore } from "vaxee";
 
 export const useCounterStore = createStore("counter", ({ state, getter }) => {
@@ -113,7 +113,7 @@ const store = useCounterStore(false);
 With the `false` argument, you can't use destructuring.
 :::
 
-```js
+```ts
 import { useCounterStore } from "../stores/counter";
 
 const { count } = useCounterStore(false);
@@ -156,7 +156,7 @@ We created a wrappers around `ref` and `computed` due to more control the data a
 
 We do not use `effectScope` from Vue to create stores in order to avoid side effects in stores. Instead, we have a single `ref` under the hood to store the entire state of the stores. In general, it can be visualized like this:
 
-```js
+```ts
 // Create a simple store
 createStore("counter", ({ state }) => ({
   count: state(0),

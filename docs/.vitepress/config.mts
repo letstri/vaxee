@@ -10,6 +10,10 @@ export default defineConfig({
     nav: [
       { text: "Home", link: "/" },
       { text: "Introduction", link: "/why" },
+      {
+        text: "Playground",
+        link: "https://stackblitz.com/edit/vaxee-playground?file=src%2FApp.vue",
+      },
     ],
 
     sidebar: [
@@ -24,7 +28,9 @@ export default defineConfig({
         text: "Core Concepts",
         items: [
           { text: "Store", link: "/store" },
-          { text: "State & Getters", link: "/reactivity" },
+          { text: "State", link: "/state" },
+          { text: "Getters", link: "/getters" },
+          { text: "Query", link: "/query" },
         ],
       },
     ],

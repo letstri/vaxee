@@ -34,7 +34,7 @@ That's why in **Vaxee**, we intentionally avoid incorporating side effects insid
 
 When using stores in Pinia, you might need to use reactive **variables** and **functions** simultaneously. How do you do this in **Pinia**?
 
-```js
+```ts
 const store = useStore();
 const { count } = storeToRefs(store);
 const { increment } = store;
@@ -42,7 +42,7 @@ const { increment } = store;
 
 It took us **3 lines** just to get a function and a reactive variable. How do you do this in **Vaxee**?
 
-```js
+```ts
 const { count, increment } = useStore();
 
 // count: Ref<number>;
@@ -51,7 +51,7 @@ const { count, increment } = useStore();
 
 This way, we get a reactive variable and a function. What if we need the data to not be wrapped in a `ref`?
 
-```js
+```ts
 const store = useStore(false);
 
 // store: {

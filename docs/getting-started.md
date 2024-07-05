@@ -32,12 +32,12 @@ bun i vaxee
 
 And then use it in your Vue 3 project.
 
-```js{3,5,8}
+```ts{3,5,8}
 import { createApp } from "vue";
 import App from "./App.vue";
-import { createVaxeePlugin } from "vaxee";
+import { createVaxee } from "vaxee";
 
-const vaxee = createVaxeePlugin();
+const vaxee = createVaxee();
 const app = createApp(App);
 
 app.use(vaxee);
@@ -70,7 +70,7 @@ bun i @vaxee/nuxt
 
 And then use it in your Nuxt project.
 
-```js
+```ts
 export default defineNuxtConfig({
   modules: ["@vaxee/nuxt"],
 });
@@ -84,7 +84,7 @@ You may not import the `createStore` function to create stores in Nuxt because i
 
 Let's create a simple store with a counter.
 
-```js
+```ts
 import { createStore } from "vaxee";
 
 export const useCounterStore = createStore("counter", ({ state }) => ({
@@ -125,12 +125,12 @@ When inserting data into the HTML response, make sure to properly escape it. You
 
 To restore same data on the client side, you can use the following code.
 
-```js{8-12}
+```ts{8-12}
 import { createApp } from "vue";
 import App from "./App.vue";
-import { createVaxeePlugin } from "vaxee";
+import { createVaxee } from "vaxee";
 
-const vaxee = createVaxeePlugin();
+const vaxee = createVaxee();
 const app = createApp(App);
 
 if (typeof window !== "undefined") {
