@@ -132,7 +132,7 @@ var vaxee = function(exports, vue2) {
     }
     for (const key in queries) {
       const query2 = queries[key]({
-        initial: ((_a = vaxee2.state.value[name]) == null ? void 0 : _a[key]) ? {
+        initial: ((_a = vaxee2.state.value[name]) == null ? void 0 : _a[key]) && vaxee2.state.value[name][key].status !== "pending" ? {
           data: vaxee2.state.value[name][key].data,
           status: vaxee2.state.value[name][key].status,
           error: vaxee2.state.value[name][key].error

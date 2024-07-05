@@ -131,7 +131,7 @@ function prepareStore(name, store) {
   }
   for (const key in queries) {
     const query2 = queries[key]({
-      initial: ((_a = vaxee.state.value[name]) == null ? void 0 : _a[key]) ? {
+      initial: ((_a = vaxee.state.value[name]) == null ? void 0 : _a[key]) && vaxee.state.value[name][key].status !== "pending" ? {
         data: vaxee.state.value[name][key].data,
         status: vaxee.state.value[name][key].status,
         error: vaxee.state.value[name][key].error

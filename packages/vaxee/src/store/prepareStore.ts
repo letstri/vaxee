@@ -28,13 +28,15 @@ export function prepareStore<Store extends BaseStore>(
 
   for (const key in queries) {
     const query = queries[key]({
-      initial: vaxee.state.value[name]?.[key]
-        ? {
-            data: vaxee.state.value[name][key].data,
-            status: vaxee.state.value[name][key].status,
-            error: vaxee.state.value[name][key].error,
-          }
-        : undefined,
+      initial:
+        vaxee.state.value[name]?.[key] &&
+        vaxee.state.value[name][key].status !== "pending"
+          ? {
+              data: vaxee.state.value[name][key].data,
+              status: vaxee.state.value[name][key].status,
+              error: vaxee.state.value[name][key].error,
+            }
+          : undefined,
     });
 
     states[key] = query;
