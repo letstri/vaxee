@@ -1,13 +1,15 @@
 {
   "name": "@vaxee/nuxt",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Nuxt Module for vaxee",
   "keywords": [
     "vaxee",
-    "nuxt",
     "vue",
     "vuex",
-    "store"
+    "store",
+    "pinia",
+    "state",
+    "nuxt"
   ],
   "homepage": "https://vaxee.letstri.dev",
   "bugs": {
