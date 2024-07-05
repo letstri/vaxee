@@ -1,9 +1,9 @@
-import { createVaxeePlugin } from "vaxee";
+import { createVaxee } from "vaxee";
 import { defineNuxtPlugin } from "#app";
 export default defineNuxtPlugin({
   name: "vaxee",
   setup(nuxtApp) {
-    const vaxee = createVaxeePlugin();
+    const vaxee = createVaxee();
     nuxtApp.vueApp.use(vaxee);
     if (import.meta.server) {
       nuxtApp.payload.vaxee = vaxee.state.value;

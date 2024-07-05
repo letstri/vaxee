@@ -16,4 +16,4 @@ export interface Vaxee {
 }
 export declare function setVaxeeInstance(instance: Vaxee): void;
 export declare const getVaxeeInstance: () => Vaxee | null;
-export declare function createVaxeePlugin(): Vaxee;
+export declare function createVaxee(): Vaxee;

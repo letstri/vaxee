@@ -35,9 +35,9 @@ And then use it in your Vue 3 project.
 ```ts
 import { createApp } from "vue";
 import App from "./App.vue";
-import { createVaxeePlugin } from "vaxee";
+import { createVaxee } from "vaxee";
 
-const vaxee = createVaxeePlugin();
+const vaxee = createVaxee();
 const app = createApp(App);
 
 app.use(vaxee);

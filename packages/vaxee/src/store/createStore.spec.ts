@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from "vitest";
-import { createVaxeePlugin, createStore, setVaxeeInstance } from "..";
+import { createVaxee, createStore, setVaxeeInstance } from "..";
 import { mount } from "@vue/test-utils";
 import { defineComponent, getCurrentInstance, nextTick, watch } from "vue";
 import { useVaxee } from "../composables/useVaxee";
@@ -12,7 +12,7 @@ import { useVaxee } from "../composables/useVaxee";
 
 describe("createStore", () => {
   beforeEach(() => {
-    setVaxeeInstance(createVaxeePlugin());
+    setVaxeeInstance(createVaxee());
   });
 
   it("can create an empty store", () => {

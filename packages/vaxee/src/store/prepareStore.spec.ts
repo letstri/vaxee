@@ -1,15 +1,11 @@
 import { describe, it, expect } from "vitest";
-import {
-  createVaxeePlugin,
-  getVaxeeInstance,
-  setVaxeeInstance,
-} from "../plugin";
+import { createVaxee, getVaxeeInstance, setVaxeeInstance } from "../plugin";
 import { prepareStore } from "./prepareStore";
 import { state } from "./reactivity";
 
 describe("prepareStore", () => {
   it("should save state and actions into the instance", () => {
-    setVaxeeInstance(createVaxeePlugin());
+    setVaxeeInstance(createVaxee());
 
     const vaxee = getVaxeeInstance()!;
 

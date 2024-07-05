@@ -9,7 +9,7 @@ var vaxee = function(exports, vue2) {
     vaxeeInstance = instance;
   }
   const getVaxeeInstance = () => vaxeeInstance;
-  function createVaxeePlugin() {
+  function createVaxee() {
     const vaxee2 = {
       install(app) {
         setVaxeeInstance(vaxee2);
@@ -208,7 +208,7 @@ var vaxee = function(exports, vue2) {
     return use;
   };
   exports.createStore = createStore;
-  exports.createVaxeePlugin = createVaxeePlugin;
+  exports.createVaxee = createVaxee;
   exports.setVaxeeInstance = setVaxeeInstance;
   exports.useVaxee = useVaxee;
   Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });

@@ -1,9 +1,9 @@
 import { beforeEach, describe, it, expect } from "vitest";
-import { createVaxeePlugin, createStore, setVaxeeInstance } from "..";
+import { createVaxee, createStore, setVaxeeInstance } from "..";
 
 describe("useStore", () => {
   beforeEach(() => {
-    setVaxeeInstance(createVaxeePlugin());
+    setVaxeeInstance(createVaxee());
   });
 
   const useMainStore = createStore("main", ({ state, getter }) => {

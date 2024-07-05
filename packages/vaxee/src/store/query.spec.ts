@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { nextTick } from "vue";
 import { isQuery, query } from "./query";
 import { createStore } from "./createStore";
-import { createVaxeePlugin, setVaxeeInstance } from "../plugin";
+import { createVaxee, setVaxeeInstance } from "../plugin";
 
 describe("query", () => {
   beforeEach(() => {
-    setVaxeeInstance(createVaxeePlugin());
+    setVaxeeInstance(createVaxee());
   });
 
   it("fetch simple query", async () => {

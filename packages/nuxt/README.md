@@ -27,7 +27,7 @@ npm i @vaxee/nuxt
 
 Add to `modules` in `nuxt.config.js`:
 
-```js
+```ts
 export default defineNuxtConfig({
   modules: ["@vaxee/nuxt"],
 });

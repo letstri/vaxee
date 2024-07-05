@@ -8,7 +8,7 @@ function setVaxeeInstance(instance) {
   vaxeeInstance = instance;
 }
 const getVaxeeInstance = () => vaxeeInstance;
-function createVaxeePlugin() {
+function createVaxee() {
   const vaxee = {
     install(app) {
       setVaxeeInstance(vaxee);
@@ -208,7 +208,7 @@ const createStore = (name, store) => {
 };
 export {
   createStore,
-  createVaxeePlugin,
+  createVaxee,
   setVaxeeInstance,
   useVaxee
 };

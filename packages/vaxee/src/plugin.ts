@@ -36,7 +36,7 @@ export function setVaxeeInstance(instance: Vaxee) {
 
 export const getVaxeeInstance = () => vaxeeInstance;
 
-export function createVaxeePlugin() {
+export function createVaxee() {
   const vaxee: Vaxee = {
     install(app: App) {
       setVaxeeInstance(vaxee);
