@@ -39,7 +39,11 @@ export function prepareStore<Store extends BaseStore>(
           : undefined,
     });
 
-    states[key] = query;
+    states[key] = state({
+      data: query.data,
+      error: query.error,
+      status: query.status,
+    });
 
     preparedQueries[key] = query;
   }

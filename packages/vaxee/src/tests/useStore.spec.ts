@@ -63,8 +63,11 @@ describe("useStore", () => {
   it("check _state and _actions", () => {
     const store = useMainStore(false);
 
+    // @ts-expect-error
     expect(store._state.count).toEqual(0);
+    // @ts-expect-error
     store._actions.increment();
+    // @ts-expect-error
     expect(store._state.count).toEqual(1);
     expect(store.count).toEqual(1);
     // @ts-expect-error

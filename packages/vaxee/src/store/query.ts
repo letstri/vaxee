@@ -1,27 +1,13 @@
-import { state, type VaxeeState } from "./reactivity";
+import { ref, type Ref } from "vue";
 
 const querySymbol = Symbol("vaxee-query");
 
-export type VaxeeQueryState<T> = (
-  | VaxeeState<{
-      data: null;
-      error: null;
-      status: "pending";
-    }>
-  | VaxeeState<{
-      data: null;
-      error: Error;
-      status: "error";
-    }>
-  | VaxeeState<{
-      data: T;
-      error: null;
-      status: "success";
-    }>
-) & {
+export type VaxeeQueryState<T> = {
+  data: Ref<null | T>;
+  error: Ref<null | Error>;
+  status: Ref<"pending" | "error" | "success">;
   suspense: () => Promise<void>;
   refresh: () => Promise<void>;
-  execute: () => Promise<void>;
 };
 
 type VaxeeQueryOptions<T> = {
@@ -42,27 +28,27 @@ export function query<T>(callback: () => Promise<T>): VaxeeQuery<T> {
   function _query(options: any) {
     const _options = options as VaxeeQueryOptions<T>;
 
-    const q = state({
-      data: null,
-      error: null,
-      status: "pending",
-    }) as VaxeeQueryState<T>;
+    const q = {
+      data: ref(null),
+      error: ref(null),
+      status: ref("pending"),
+    } as VaxeeQueryState<T>;
 
     const fetchQuery = async () => {
       try {
         const data = await callback();
 
-        q.value.data = data;
-        q.value.status = "success";
+        q.data.value = data;
+        q.status.value = "success";
       } catch (error) {
-        q.value.error = error as Error;
-        q.value.status = "error";
+        q.error.value = error as Error;
+        q.status.value = "error";
       }
     };
 
     q.refresh = async () => {
-      q.value.status = "pending";
-      q.value.error = null;
+      q.status.value = "pending";
+      q.error.value = null;
       const promise = fetchQuery();
 
       q.suspense = () => promise;
@@ -70,15 +56,10 @@ export function query<T>(callback: () => Promise<T>): VaxeeQuery<T> {
       return promise;
     };
 
-    q.execute = async () => {
-      q.value.data = null;
-      return q.refresh();
-    };
-
     if (_options?.initial) {
-      q.value.data = _options?.initial.data;
-      q.value.error = _options?.initial.error;
-      q.value.status = _options?.initial.status;
+      q.data.value = _options?.initial.data;
+      q.error.value = _options?.initial.error;
+      q.status.value = _options?.initial.status;
 
       q.suspense = () => Promise.resolve();
 

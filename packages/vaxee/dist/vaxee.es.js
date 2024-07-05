@@ -50,36 +50,32 @@ const querySymbol = Symbol("vaxee-query");
 function query(callback) {
   function _query(options) {
     const _options = options;
-    const q = state({
-      data: null,
-      error: null,
-      status: "pending"
-    });
+    const q = {
+      data: ref(null),
+      error: ref(null),
+      status: ref("pending")
+    };
     const fetchQuery = async () => {
       try {
         const data = await callback();
-        q.value.data = data;
-        q.value.status = "success";
+        q.data.value = data;
+        q.status.value = "success";
       } catch (error) {
-        q.value.error = error;
-        q.value.status = "error";
+        q.error.value = error;
+        q.status.value = "error";
       }
     };
     q.refresh = async () => {
-      q.value.status = "pending";
-      q.value.error = null;
+      q.status.value = "pending";
+      q.error.value = null;
       const promise2 = fetchQuery();
       q.suspense = () => promise2;
       return promise2;
     };
-    q.execute = async () => {
-      q.value.data = null;
-      return q.refresh();
-    };
     if (_options == null ? void 0 : _options.initial) {
-      q.value.data = _options == null ? void 0 : _options.initial.data;
-      q.value.error = _options == null ? void 0 : _options.initial.error;
-      q.value.status = _options == null ? void 0 : _options.initial.status;
+      q.data.value = _options == null ? void 0 : _options.initial.data;
+      q.error.value = _options == null ? void 0 : _options.initial.error;
+      q.status.value = _options == null ? void 0 : _options.initial.status;
       q.suspense = () => Promise.resolve();
       return q;
     }
@@ -137,7 +133,11 @@ function prepareStore(name, store) {
         error: vaxee.state.value[name][key].error
       } : void 0
     });
-    states[key] = query2;
+    states[key] = state({
+      data: query2.data,
+      error: query2.error,
+      status: query2.status
+    });
     preparedQueries[key] = query2;
   }
   vaxee.state.value[name] = states;

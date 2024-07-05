@@ -1,21 +1,11 @@
-import { type VaxeeState } from "./reactivity";
+import { type Ref } from "vue";
 declare const querySymbol: unique symbol;
-export type VaxeeQueryState<T> = (VaxeeState<{
-    data: null;
-    error: null;
-    status: "pending";
-}> | VaxeeState<{
-    data: null;
-    error: Error;
-    status: "error";
-}> | VaxeeState<{
-    data: T;
-    error: null;
-    status: "success";
-}>) & {
+export type VaxeeQueryState<T> = {
+    data: Ref<null | T>;
+    error: Ref<null | Error>;
+    status: Ref<"pending" | "error" | "success">;
     suspense: () => Promise<void>;
     refresh: () => Promise<void>;
-    execute: () => Promise<void>;
 };
 type VaxeeQueryOptions<T> = {
     initial?: {
