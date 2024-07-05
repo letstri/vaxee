@@ -12,12 +12,7 @@ To create a query, use the `query` function from the `createStore` callback.
 
 ```ts
 import { createStore } from "vaxee";
-
-function fetchUser(id: number) {
-  return fetch(`https://jsonplaceholder.typicode.com/users/${id}`).then(
-    (response) => response.json() as { id: number; name: string; email: string }
-  );
-}
+import { fetchUser } from "../api/user";
 
 export const useUserStore = createStore("user", ({ query }) => {
   const user = query(() => fetchUser(1));
