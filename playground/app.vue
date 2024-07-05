@@ -6,7 +6,11 @@ const {
   count: countDestructure,
   increment: incrementDestructure,
   double: doubleDestructure,
+  users,
 } = useTestStore();
+
+await users.suspense();
+
 const testStore = useTestStore(false);
 const count = useTestStore("count");
 const double = useTestStore("double");
@@ -39,9 +43,15 @@ watch(count, () => {
     console.log("---");
   }, 0);
 });
+
+const refresh = () => {
+  users.refresh();
+};
 </script>
 
 <template>
+  {{ users }}
+  <button @click="refresh"></button>
   <pre>
 export const useTestStore = createStore("test", ({ state, getter }) => {
   const count = state(0);
@@ -60,12 +70,6 @@ export const useTestStore = createStore("test", ({ state, getter }) => {
 });
 </pre
   >
-  <button @click="testStore._state.count++">
-    <code>testStore._state.count++</code></button
-  ><br />
-  <button @click="testStore._actions.increment">
-    <code>testStore._actions.increment()</code>
-  </button>
   <table>
     <tbody>
       <tr>

@@ -4,6 +4,7 @@
     "build": "pnpm -r --filter='./packages/*' run build",
     "test": "pnpm -r --filter='./packages/*' run test",
     "publish": "pnpm publish -r --filter='./packages/*'",
+    "playground": "pnpm -r --filter='./playground' run dev",
     "docs:dev": "pnpm -r --filter='./docs' run docs:dev",
     "docs:build": "pnpm -r --filter='./docs' run docs:build",
     "docs:preview": "pnpm -r --filter='./docs' run docs:previews"

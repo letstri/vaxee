@@ -17,27 +17,6 @@ importers:
         specifier: ^3.4.29
         version: 3.4.29(typescript@5.4.5)
 
-  examples/nuxt:
-    dependencies:
-      '@vaxee/nuxt':
-        specifier: workspace:^
-        version: link:../../packages/nuxt
-      '@vueuse/core':
-        specifier: ^10.11.0
-        version: 10.11.0(vue@3.4.29(typescript@5.4.5))
-      '@vueuse/nuxt':
-        specifier: ^10.11.0
-        version: 10.11.0(magicast@0.3.4)(nuxt@3.12.2(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.14.3)(@unocss/reset@0.61.0)(encoding@0.1.13)(eslint@9.5.0)(floating-vue@5.2.2(@nuxt/kit@3.12.2(magicast@0.3.4)(rollup@4.18.0))(vue@3.4.29(typescript@5.4.5)))(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.4)(rollup@4.18.0)(terser@5.31.1)(typescript@5.4.5)(unocss@0.61.0(postcss@8.4.38)(rollup@4.18.0)(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1)))(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1)))(rollup@4.18.0)(vue@3.4.29(typescript@5.4.5))
-      nuxt:
-        specifier: ^3.12.2
-        version: 3.12.2(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.14.3)(@unocss/reset@0.61.0)(encoding@0.1.13)(eslint@9.5.0)(floating-vue@5.2.2(@nuxt/kit@3.12.2(magicast@0.3.4)(rollup@4.18.0))(vue@3.4.29(typescript@5.4.5)))(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.4)(rollup@4.18.0)(terser@5.31.1)(typescript@5.4.5)(unocss@0.61.0(postcss@8.4.38)(rollup@4.18.0)(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1)))(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1))
-      vue:
-        specifier: ^3.4.29
-        version: 3.4.29(typescript@5.4.5)
-      vue-router:
-        specifier: ^4.3.3
-        version: 4.3.3(vue@3.4.29(typescript@5.4.5))
-
   packages/nuxt:
     dependencies:
       '@nuxt/kit':
@@ -93,6 +72,27 @@ importers:
       webdriverio:
         specifier: ^8.39.0
         version: 8.39.0(encoding@0.1.13)(typescript@5.4.5)
+
+  playground:
+    dependencies:
+      '@vaxee/nuxt':
+        specifier: workspace:^
+        version: link:../packages/nuxt
+      '@vueuse/core':
+        specifier: ^10.11.0
+        version: 10.11.0(vue@3.4.29(typescript@5.4.5))
+      '@vueuse/nuxt':
+        specifier: ^10.11.0
+        version: 10.11.0(magicast@0.3.4)(nuxt@3.12.2(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.14.3)(@unocss/reset@0.61.0)(encoding@0.1.13)(eslint@9.5.0)(floating-vue@5.2.2(@nuxt/kit@3.12.2(magicast@0.3.4)(rollup@4.18.0))(vue@3.4.29(typescript@5.4.5)))(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.4)(rollup@4.18.0)(terser@5.31.1)(typescript@5.4.5)(unocss@0.61.0(postcss@8.4.38)(rollup@4.18.0)(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1)))(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1)))(rollup@4.18.0)(vue@3.4.29(typescript@5.4.5))
+      nuxt:
+        specifier: ^3.12.2
+        version: 3.12.2(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.14.3)(@unocss/reset@0.61.0)(encoding@0.1.13)(eslint@9.5.0)(floating-vue@5.2.2(@nuxt/kit@3.12.2(magicast@0.3.4)(rollup@4.18.0))(vue@3.4.29(typescript@5.4.5)))(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.4)(rollup@4.18.0)(terser@5.31.1)(typescript@5.4.5)(unocss@0.61.0(postcss@8.4.38)(rollup@4.18.0)(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1)))(vite@5.3.1(@types/node@20.14.3)(terser@5.31.1))
+      vue:
+        specifier: ^3.4.29
+        version: 3.4.29(typescript@5.4.5)
+      vue-router:
+        specifier: ^4.3.3
+        version: 4.3.3(vue@3.4.29(typescript@5.4.5))
 
 packages:
 
