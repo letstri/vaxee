@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "The State Manager for Vue 3",
   "scripts": {
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm run test && pnpm run build",
     "dev": "vite",
     "build": "vite build && tsc",
     "test": "vitest run"
