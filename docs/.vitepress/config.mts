@@ -7,10 +7,9 @@ export default defineConfig({
   themeConfig: {
     siteTitle: false,
     logo: "/logo.svg",
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: "Home", link: "/" },
-      { text: "Examples", link: "/markdown-examples" },
+      { text: "Introduction", link: "/why" },
     ],
 
     sidebar: [
@@ -25,7 +24,7 @@ export default defineConfig({
         text: "Core Concepts",
         items: [
           { text: "Store", link: "/store" },
-          { text: "Reactivity", link: "/reactivity" },
+          { text: "State & Getters", link: "/reactivity" },
         ],
       },
     ],
