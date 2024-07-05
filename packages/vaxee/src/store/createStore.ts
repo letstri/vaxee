@@ -1,36 +1,30 @@
-import {
-  computed,
-  reactive,
-  type ComputedRef,
-  type Ref,
-  type ToRefs,
-} from "vue";
+import { computed, reactive, type ToRefs, type UnwrapNestedRefs } from "vue";
 import { getVaxeeInstance } from "../plugin";
 import type {
   VaxeeStoreState,
   VaxeeStoreActions,
   VaxeeStoreGetters,
   VaxeeStoreOther,
-} from "../helpers";
+  VaxeeStoreQueries,
+} from "./types";
 import { IS_DEV, VAXEE_LOG_START } from "../constants";
 import { prepareStore } from "./prepareStore";
 import { getter, state } from "./reactivity";
+import { query } from "./query";
+import type { ToComputedRefs } from "../types";
 
 export type BaseStore = Record<string, any>;
 
-type ToComputed<T> = T extends Ref ? T : ComputedRef<T>;
-type ToComputedRefs<T> = {
-  [K in keyof T]: ToComputed<T[K]>;
-};
-
-export type VaxeeStore<Store extends BaseStore, Refs extends boolean = true> = {
-  _state: VaxeeStoreState<Store>;
-  _actions: VaxeeStoreActions<Store>;
-  _getters: VaxeeStoreGetters<Store>;
-  _other: VaxeeStoreOther<Store>;
-} & (Refs extends true
-  ? ToRefs<VaxeeStoreState<Store>> & ToComputedRefs<VaxeeStoreGetters<Store>>
-  : VaxeeStoreState<Store> & VaxeeStoreGetters<Store>) &
+export type VaxeeStore<
+  Store extends BaseStore,
+  Refs extends boolean = true
+> = (Refs extends true
+  ? ToRefs<VaxeeStoreState<Store>> &
+      ToComputedRefs<VaxeeStoreGetters<Store>> &
+      VaxeeStoreQueries<Store>
+  : VaxeeStoreState<Store> &
+      VaxeeStoreGetters<Store> &
+      UnwrapNestedRefs<VaxeeStoreQueries<Store>>) &
   VaxeeStoreActions<Store> &
   VaxeeStoreOther<Store>;
 
@@ -45,11 +39,16 @@ interface UseVaxeeStore<Store extends BaseStore> {
 
 export const createStore = <Store extends BaseStore>(
   name: string,
-  store: (options: { state: typeof state; getter: typeof getter }) => Store
+  store: (options: {
+    state: typeof state;
+    getter: typeof getter;
+    query: typeof query;
+  }) => Store
 ): UseVaxeeStore<Store> => {
   type State = VaxeeStoreState<Store>;
   type Actions = VaxeeStoreActions<Store>;
   type Getters = VaxeeStoreGetters<Store>;
+  type Queries = VaxeeStoreQueries<Store>;
   type Other = VaxeeStoreOther<Store>;
 
   if (getVaxeeInstance()?._stores[name]) {
@@ -71,7 +70,7 @@ export const createStore = <Store extends BaseStore>(
         : undefined;
     const refs = nameOrToRefs === true || nameOrToRefs === undefined;
 
-    const _store = prepareStore(name, store({ state, getter }));
+    const _store = prepareStore(name, store({ state, getter, query }));
 
     if (propName) {
       if (_store._actions[propName as keyof Actions]) {
@@ -80,6 +79,10 @@ export const createStore = <Store extends BaseStore>(
 
       if (_store._getters[propName as keyof Getters]) {
         return _store._getters[propName as keyof Getters];
+      }
+
+      if (_store._queries[propName as keyof Queries]) {
+        return _store._queries[propName as keyof Queries];
       }
 
       if (_store._other[propName as keyof Other]) {

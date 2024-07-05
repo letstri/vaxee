@@ -1,17 +1,10 @@
-import { type ComputedRef, type Ref, type ToRefs } from "vue";
-import type { VaxeeStoreState, VaxeeStoreActions, VaxeeStoreGetters, VaxeeStoreOther } from "../helpers";
+import { type ToRefs, type UnwrapNestedRefs } from "vue";
+import type { VaxeeStoreState, VaxeeStoreActions, VaxeeStoreGetters, VaxeeStoreOther, VaxeeStoreQueries } from "./types";
 import { getter, state } from "./reactivity";
+import { query } from "./query";
+import type { ToComputedRefs } from "../types";
 export type BaseStore = Record<string, any>;
-type ToComputed<T> = T extends Ref ? T : ComputedRef<T>;
-type ToComputedRefs<T> = {
-    [K in keyof T]: ToComputed<T[K]>;
-};
-export type VaxeeStore<Store extends BaseStore, Refs extends boolean = true> = {
-    _state: VaxeeStoreState<Store>;
-    _actions: VaxeeStoreActions<Store>;
-    _getters: VaxeeStoreGetters<Store>;
-    _other: VaxeeStoreOther<Store>;
-} & (Refs extends true ? ToRefs<VaxeeStoreState<Store>> & ToComputedRefs<VaxeeStoreGetters<Store>> : VaxeeStoreState<Store> & VaxeeStoreGetters<Store>) & VaxeeStoreActions<Store> & VaxeeStoreOther<Store>;
+export type VaxeeStore<Store extends BaseStore, Refs extends boolean = true> = (Refs extends true ? ToRefs<VaxeeStoreState<Store>> & ToComputedRefs<VaxeeStoreGetters<Store>> & VaxeeStoreQueries<Store> : VaxeeStoreState<Store> & VaxeeStoreGetters<Store> & UnwrapNestedRefs<VaxeeStoreQueries<Store>>) & VaxeeStoreActions<Store> & VaxeeStoreOther<Store>;
 interface UseVaxeeStore<Store extends BaseStore> {
     (): VaxeeStore<Store>;
     <R extends boolean>(refs: R): R extends true ? VaxeeStore<Store> : VaxeeStore<Store, false>;
@@ -21,5 +14,6 @@ interface UseVaxeeStore<Store extends BaseStore> {
 export declare const createStore: <Store extends BaseStore>(name: string, store: (options: {
     state: typeof state;
     getter: typeof getter;
+    query: typeof query;
 }) => Store) => UseVaxeeStore<Store>;
 export {};

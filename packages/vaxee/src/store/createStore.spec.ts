@@ -18,7 +18,9 @@ describe("createStore", () => {
   it("can create an empty store", () => {
     const store = createStore("store", () => ({}))();
 
+    // @ts-expect-error
     expect(store._state).toEqual({});
+    // @ts-expect-error
     expect(store._actions).toEqual({});
   });
 
@@ -50,6 +52,7 @@ describe("createStore", () => {
 
     const store = useStore();
 
+    // @ts-expect-error
     expect(store._state).toEqual({
       test: {
         a: 123,
@@ -109,6 +112,7 @@ describe("createStore", () => {
 
     const store = useStore();
 
+    // @ts-expect-error
     expect(store._state).toEqual({
       a: false,
       nested: {
@@ -139,6 +143,7 @@ describe("createStore", () => {
 
     expect(spy).toHaveBeenCalledTimes(0);
 
+    // @ts-expect-error
     store._state = {
       a: false,
       nested: {
@@ -151,6 +156,7 @@ describe("createStore", () => {
 
     expect(spy).toHaveBeenCalledTimes(1);
 
+    // @ts-expect-error
     expect(store._state).toEqual({
       a: false,
       nested: {

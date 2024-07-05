@@ -1,25 +1,24 @@
-import type { BaseStore, VaxeeStore } from "./createStore";
+import { toRefs } from "vue";
+import type { BaseStore } from "./createStore";
 import { useVaxee } from "../composables/useVaxee";
 import { parseStore } from "./parseStore";
-import type {
-  VaxeeStoreActions,
-  VaxeeStoreGetters,
-  VaxeeStoreOther,
-  VaxeeStoreState,
-} from "../helpers";
-import { toRefs } from "vue";
+import type { VaxeeInternalStore } from "../plugin";
+import type { VaxeeQueryState } from "./query";
+import { state } from "./reactivity";
 
 export function prepareStore<Store extends BaseStore>(
   name: string,
   store: Store
-): VaxeeStore<Store> {
+): VaxeeInternalStore<Store> {
   const vaxee = useVaxee();
 
   if (vaxee._stores[name]) {
-    return vaxee._stores[name] as VaxeeStore<Store>;
+    return vaxee._stores[name] as VaxeeInternalStore<Store>;
   }
 
-  const { states, actions, getters, other } = parseStore(store);
+  const { states, actions, getters, queries, other } = parseStore(store);
+
+  const preparedQueries = {} as Record<string, VaxeeQueryState<any>>;
 
   if (vaxee.state.value[name]) {
     for (const key in states) {
@@ -27,18 +26,36 @@ export function prepareStore<Store extends BaseStore>(
     }
   }
 
+  for (const key in queries) {
+    const query = queries[key]({
+      initial: vaxee.state.value[name]?.[key]
+        ? {
+            data: vaxee.state.value[name][key].data,
+            status: vaxee.state.value[name][key].status,
+            error: vaxee.state.value[name][key].error,
+          }
+        : undefined,
+    });
+
+    states[key] = query;
+
+    preparedQueries[key] = query;
+  }
+
   vaxee.state.value[name] = states;
 
   vaxee._stores[name] = {
-    ...(actions as VaxeeStoreActions<Store>),
-    ...(getters as VaxeeStoreGetters<Store>),
-    ...(toRefs(vaxee.state.value[name]) as VaxeeStoreState<Store>),
+    ...toRefs(vaxee.state.value[name]),
+    ...actions,
+    ...getters,
+    ...preparedQueries,
     ...(other as any),
-    _state: vaxee.state.value[name] as VaxeeStoreState<Store>,
-    _actions: actions as VaxeeStoreActions<Store>,
-    _getters: getters as VaxeeStoreGetters<Store>,
-    _other: other as any,
-  } satisfies VaxeeStore<Store>;
+    _state: vaxee.state.value[name],
+    _actions: actions,
+    _getters: getters,
+    _queries: preparedQueries,
+    _other: other,
+  } satisfies VaxeeInternalStore<Store>;
 
   // To use the state directly by _state = { ... }
   Object.defineProperty(vaxee._stores[name], "_state", {
@@ -48,5 +65,5 @@ export function prepareStore<Store extends BaseStore>(
     },
   });
 
-  return vaxee._stores[name] as VaxeeStore<Store>;
+  return vaxee._stores[name] as VaxeeInternalStore<Store>;
 }

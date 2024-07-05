@@ -15,7 +15,7 @@ var vaxee = function(exports, vue2) {
         setVaxeeInstance(vaxee2);
         app.provide(vaxeeSymbol, vaxee2);
         if (IS_DEV && IS_CLIENT) {
-          window.$vaxee = vaxee2.state.value;
+          window.$vaxee = vaxee2.state;
         }
       },
       state: vue2.ref({}),
@@ -47,6 +47,51 @@ var vaxee = function(exports, vue2) {
     return ref2;
   };
   const isGetter = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === getterSymbol;
+  const querySymbol = Symbol("vaxee-query");
+  function query(callback) {
+    function _query(options) {
+      const _options = options;
+      const q = state({
+        data: null,
+        error: null,
+        status: "pending"
+      });
+      const fetchQuery = async () => {
+        try {
+          const data = await callback();
+          q.value.data = data;
+          q.value.status = "success";
+        } catch (error) {
+          q.value.error = error;
+          q.value.status = "error";
+        }
+      };
+      q.refresh = async () => {
+        q.value.status = "pending";
+        q.value.error = null;
+        const promise2 = fetchQuery();
+        q.suspense = () => promise2;
+        return promise2;
+      };
+      q.execute = async () => {
+        q.value.data = null;
+        return q.refresh();
+      };
+      if (_options == null ? void 0 : _options.initial) {
+        q.value.data = _options == null ? void 0 : _options.initial.data;
+        q.value.error = _options == null ? void 0 : _options.initial.error;
+        q.value.status = _options == null ? void 0 : _options.initial.status;
+        q.suspense = () => Promise.resolve();
+        return q;
+      }
+      const promise = fetchQuery();
+      q.suspense = () => promise;
+      return q;
+    }
+    _query._vaxee = querySymbol;
+    return _query;
+  }
+  const isQuery = (query2) => (query2 == null ? void 0 : query2._vaxee) === querySymbol;
   function parseStore(store) {
     return Object.entries(store).reduce(
       (acc, [key, value]) => {
@@ -54,6 +99,8 @@ var vaxee = function(exports, vue2) {
           acc.states[key] = value;
         } else if (isGetter(value)) {
           acc.getters[key] = value;
+        } else if (isQuery(value)) {
+          acc.queries[key] = value;
         } else if (typeof value === "function") {
           acc.actions[key] = value;
         } else {
@@ -65,30 +112,46 @@ var vaxee = function(exports, vue2) {
         states: {},
         actions: {},
         getters: {},
+        queries: {},
         other: {}
       }
     );
   }
   function prepareStore(name, store) {
+    var _a;
     const vaxee2 = useVaxee();
     if (vaxee2._stores[name]) {
       return vaxee2._stores[name];
     }
-    const { states, actions, getters, other } = parseStore(store);
+    const { states, actions, getters, queries, other } = parseStore(store);
+    const preparedQueries = {};
     if (vaxee2.state.value[name]) {
       for (const key in states) {
         states[key].value = vaxee2.state.value[name][key];
       }
     }
+    for (const key in queries) {
+      const query2 = queries[key]({
+        initial: ((_a = vaxee2.state.value[name]) == null ? void 0 : _a[key]) ? {
+          data: vaxee2.state.value[name][key].data,
+          status: vaxee2.state.value[name][key].status,
+          error: vaxee2.state.value[name][key].error
+        } : void 0
+      });
+      states[key] = query2;
+      preparedQueries[key] = query2;
+    }
     vaxee2.state.value[name] = states;
     vaxee2._stores[name] = {
+      ...vue2.toRefs(vaxee2.state.value[name]),
       ...actions,
       ...getters,
-      ...vue2.toRefs(vaxee2.state.value[name]),
+      ...preparedQueries,
       ...other,
       _state: vaxee2.state.value[name],
       _actions: actions,
       _getters: getters,
+      _queries: preparedQueries,
       _other: other
     };
     Object.defineProperty(vaxee2._stores[name], "_state", {
@@ -115,13 +178,16 @@ var vaxee = function(exports, vue2) {
     function use(nameOrToRefs) {
       const propName = typeof nameOrToRefs === "string" ? nameOrToRefs : void 0;
       const refs = nameOrToRefs === true || nameOrToRefs === void 0;
-      const _store = prepareStore(name, store({ state, getter }));
+      const _store = prepareStore(name, store({ state, getter, query }));
       if (propName) {
         if (_store._actions[propName]) {
           return _store._actions[propName];
         }
         if (_store._getters[propName]) {
           return _store._getters[propName];
+        }
+        if (_store._queries[propName]) {
+          return _store._queries[propName];
         }
         if (_store._other[propName]) {
           return _store._other[propName];
