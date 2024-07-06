@@ -28,6 +28,20 @@ export const useCounterStore = createStore("counter", ({ state }) => {
 > [!WARNING]
 > Any property that is not defined using the `state` function won't be a reactive property, even if it's a `ref`.
 
+### Options
+
+The `state` function accepts an optional `options` object as the second argument.
+
+- `shallow` - boolean property that determines whether the state should be [shallowly](https://vuejs.org/api/reactivity-advanced.html#shallowref) reactive. Default is `false`.
+
+```ts
+interface VaxeeStateOptions {
+  shallow: boolean;
+}
+
+function state<T>(value: T, options?: VaxeeStateOptions): VaxeeState<T>;
+```
+
 ## Update the State
 
 We provide two ways to update the state: inside the store and outside the store.
