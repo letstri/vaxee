@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, computed, unref, toRefs, reactive } from "vue";
+import { ref, hasInjectionContext, inject, shallowRef, computed, unref, toRefs, reactive } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -34,17 +34,17 @@ function useVaxee() {
 }
 const stateSymbol = Symbol("vaxee-state");
 const getterSymbol = Symbol("vaxee-getter");
-const state = (value) => {
-  const _ref = ref(value);
+function state(value, options) {
+  const _ref = (options == null ? void 0 : options.shallow) ? shallowRef(value) : ref(value);
   _ref._vaxee = stateSymbol;
   return _ref;
-};
+}
 const isState = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === stateSymbol;
-const getter = (fn) => {
+function getter(fn) {
   const ref2 = computed(() => fn());
   ref2._vaxee = getterSymbol;
   return ref2;
-};
+}
 const isGetter = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === getterSymbol;
 const querySymbol = Symbol("vaxee-query");
 function query(callback) {

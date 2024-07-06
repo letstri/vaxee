@@ -35,17 +35,17 @@ var vaxee = function(exports, vue2) {
   }
   const stateSymbol = Symbol("vaxee-state");
   const getterSymbol = Symbol("vaxee-getter");
-  const state = (value) => {
-    const _ref = vue2.ref(value);
+  function state(value, options) {
+    const _ref = (options == null ? void 0 : options.shallow) ? vue2.shallowRef(value) : vue2.ref(value);
     _ref._vaxee = stateSymbol;
     return _ref;
-  };
+  }
   const isState = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === stateSymbol;
-  const getter = (fn) => {
+  function getter(fn) {
     const ref2 = vue2.computed(() => fn());
     ref2._vaxee = getterSymbol;
     return ref2;
-  };
+  }
   const isGetter = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === getterSymbol;
   const querySymbol = Symbol("vaxee-query");
   function query(callback) {
