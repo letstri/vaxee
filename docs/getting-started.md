@@ -87,9 +87,20 @@ Let's create a simple store with a counter.
 ```ts
 import { createStore } from "vaxee";
 
-export const useCounterStore = createStore("counter", ({ state }) => ({
-  count: state(0),
-}));
+export const useCounterStore = createStore("counter", ({ state, getter }) => {
+  const count = state(0);
+  const double = getter(() => count.value * 2);
+
+  const increment = () => {
+    count.value++;
+  };
+
+  return {
+    count,
+    double,
+    increment,
+  };
+});
 ```
 
 Now, let's use this store in a component.
