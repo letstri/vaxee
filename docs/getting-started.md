@@ -76,9 +76,30 @@ export default defineNuxtConfig({
 });
 ```
 
-::: tip
-You may not import the `createStore` function to create stores in Nuxt because it is exposed globally.
-:::
+#### Auto-import
+
+You may not import the `createStore` function to create stores in Nuxt because it is exposed globally. Also we reserve the `stores` dir at the root of your project to expose the stores globally. Customize the `stores` dir by setting the `dirs` option in the `vaxee` options.
+
+```ts
+export default defineNuxtConfig({
+  modules: ["@vaxee/nuxt"],
+  vaxee: {
+    dirs: ["my-stores"],
+  },
+});
+
+// or
+export default defineNuxtConfig({
+  modules: [
+    [
+      "@vaxee/nuxt",
+      {
+        dirs: ["my-stores"],
+      },
+    ],
+  ],
+});
+```
 
 ## Usage
 
