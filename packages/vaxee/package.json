@@ -1,6 +1,6 @@
 {
   "name": "vaxee",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "The State Manager for Vue 3",
   "scripts": {
     "prepublishOnly": "pnpm run test && pnpm run build",
@@ -23,7 +23,9 @@
     "vuex",
     "store",
     "pinia",
-    "state"
+    "state",
+    "query",
+    "shallow"
   ],
   "license": "MIT",
   "homepage": "https://vaxee.letstri.dev",

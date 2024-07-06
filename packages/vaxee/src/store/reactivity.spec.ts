@@ -1,8 +1,14 @@
-import { describe, it, expect } from "vitest";
-import { computed, ref } from "vue";
+import { describe, it, expect, beforeEach } from "vitest";
+import { computed, isShallow, ref } from "vue";
 import { getter, isGetter, isState, state } from "./reactivity";
+import { createVaxee, setVaxeeInstance } from "../plugin";
+import { createStore } from "./createStore";
 
 describe("reactivity", () => {
+  beforeEach(() => {
+    setVaxeeInstance(createVaxee());
+  });
+
   it("check is our reactivity", () => {
     const vueRef = ref(0);
     const vueComputed = computed(() => vueRef.value * 2);
@@ -22,5 +28,9 @@ describe("reactivity", () => {
 
     expect(isState(vueRef)).toBe(false);
     expect(isGetter(vueComputed)).toBe(false);
+  });
+
+  it("check shallow state", () => {
+    expect(isShallow(state({}, { shallow: true }))).toBe(true);
   });
 });
