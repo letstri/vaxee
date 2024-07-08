@@ -4,7 +4,7 @@ outline: deep
 
 # Query
 
-Vaxee provides a `query` function to fetch data and store it in the store. Also `query` provides a way to cache the data and several options to enhance the data fetching process.
+Vaxee provides a `query` function to fetch data and store it in the store. Also `query` provides a way to cache the data and several options to enhance the data fetching process. **Cache** is stored in the store and is **shared** between all components that use the store. That means if you fetch the data in one component, it will be available in another component without fetching it again.
 
 ## Create a Query
 
