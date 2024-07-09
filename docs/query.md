@@ -34,6 +34,7 @@ Let's use this query in a component.
 import { useUserStore } from "../stores/user";
 
 const {
+  // user, userStatus, userError are still reactive
   user: { data: user, status: userStatus, error: userError },
 } = useUserStore();
 
