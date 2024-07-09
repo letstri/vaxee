@@ -9,7 +9,7 @@ var vaxee = function(exports, vue2) {
     vaxeeInstance = instance;
   }
   const getVaxeeInstance = () => vaxeeInstance;
-  function createVaxee() {
+  function createVaxee(options = {}) {
     const vaxee2 = {
       install(app) {
         setVaxeeInstance(vaxee2);
@@ -19,7 +19,8 @@ var vaxee = function(exports, vue2) {
         }
       },
       state: vue2.ref({}),
-      _stores: {}
+      _stores: {},
+      _options: options
     };
     return vaxee2;
   }
@@ -38,6 +39,7 @@ var vaxee = function(exports, vue2) {
   function state(value, options) {
     const _ref = (options == null ? void 0 : options.shallow) ? vue2.shallowRef(value) : vue2.ref(value);
     _ref._vaxee = stateSymbol;
+    _ref._options = options || {};
     return _ref;
   }
   const isState = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === stateSymbol;
@@ -114,21 +116,54 @@ var vaxee = function(exports, vue2) {
     );
   }
   function prepareStore(name, store) {
-    var _a;
+    var _a, _b;
     const vaxee2 = useVaxee();
     if (vaxee2._stores[name]) {
       return vaxee2._stores[name];
     }
     const { states, actions, getters, queries, other } = parseStore(store);
-    const preparedQueries = {};
-    if (vaxee2.state.value[name]) {
-      for (const key in states) {
+    for (const key in states) {
+      if (states[key]._options.persist) {
+        const { get: _get, set: _set } = typeof states[key]._options.persist === "object" ? states[key]._options.persist : {
+          get: (key2) => {
+            if (vaxee2._options.persist) {
+              return vaxee2._options.persist.get(key2);
+            }
+            if (!IS_CLIENT) {
+              return null;
+            }
+            return JSON.parse(localStorage.getItem(key2) || "null");
+          },
+          set: (key2, value) => {
+            var _a2;
+            if (vaxee2._options.persist) {
+              (_a2 = vaxee2._options.persist) == null ? void 0 : _a2.set(key2, value);
+              return;
+            }
+            if (IS_CLIENT) {
+              JSON.stringify(localStorage.setItem(key2, value));
+            }
+          }
+        };
+        const persisted = _get(`${name}.${key}`);
+        if (persisted || ((_a = vaxee2.state.value[name]) == null ? void 0 : _a[key])) {
+          states[key].value = persisted || vaxee2.state.value[name][key];
+        }
+        vue2.watch(
+          states[key],
+          (value) => {
+            _set(`${name}.${key}`, value);
+          },
+          { deep: true }
+        );
+      } else if (vaxee2.state.value[name]) {
         states[key].value = vaxee2.state.value[name][key];
       }
     }
+    const preparedQueries = {};
     for (const key in queries) {
       const query2 = queries[key]({
-        initial: ((_a = vaxee2.state.value[name]) == null ? void 0 : _a[key]) && vaxee2.state.value[name][key].status !== "pending" ? {
+        initial: ((_b = vaxee2.state.value[name]) == null ? void 0 : _b[key]) && vaxee2.state.value[name][key].status !== "pending" ? {
           data: vaxee2.state.value[name][key].data,
           status: vaxee2.state.value[name][key].status,
           error: vaxee2.state.value[name][key].error
@@ -143,12 +178,12 @@ var vaxee = function(exports, vue2) {
     }
     vaxee2.state.value[name] = states;
     vaxee2._stores[name] = {
-      ...vue2.toRefs(vaxee2.state.value[name]),
+      ...states,
       ...actions,
       ...getters,
       ...preparedQueries,
       ...other,
-      _state: vaxee2.state.value[name],
+      _state: states,
       _actions: actions,
       _getters: getters,
       _queries: preparedQueries,

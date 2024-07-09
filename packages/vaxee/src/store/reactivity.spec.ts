@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, expectTypeOf } from "vitest";
 import { computed, isShallow, ref } from "vue";
 import { getter, isGetter, isState, state } from "./reactivity";
 import { createVaxee, setVaxeeInstance } from "../plugin";
-import { createStore } from "./createStore";
 
 describe("reactivity", () => {
   beforeEach(() => {

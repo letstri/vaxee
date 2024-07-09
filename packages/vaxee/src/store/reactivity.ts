@@ -5,22 +5,31 @@ const getterSymbol = Symbol("vaxee-getter");
 
 export type VaxeeState<T> = Ref<T> & {
   _vaxee: typeof stateSymbol;
+  _options: VaxeeStateOptions;
 };
 
 interface VaxeeStateOptions {
-  shallow: boolean;
+  shallow?: boolean;
+  persist?:
+    | boolean
+    | {
+        get: (key: string) => any;
+        set: (key: string, value: any) => any;
+      };
 }
 
 export function state<T = any>(): VaxeeState<T | undefined>;
 export function state<T>(value: T, options?: VaxeeStateOptions): VaxeeState<T>;
 export function state<T>(
   value?: T,
-  options?: { shallow: boolean }
+  options?: VaxeeStateOptions
 ): VaxeeState<T> {
-  const _ref = options?.shallow ? shallowRef(value) : ref(value);
+  const _ref = (
+    options?.shallow ? shallowRef(value) : ref(value)
+  ) as VaxeeState<T>;
 
-  // @ts-expect-error
   _ref._vaxee = stateSymbol;
+  _ref._options = options || {};
 
   return _ref as VaxeeState<T>;
 }

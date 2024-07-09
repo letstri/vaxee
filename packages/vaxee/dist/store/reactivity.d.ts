@@ -3,9 +3,14 @@ declare const stateSymbol: unique symbol;
 declare const getterSymbol: unique symbol;
 export type VaxeeState<T> = Ref<T> & {
     _vaxee: typeof stateSymbol;
+    _options: VaxeeStateOptions;
 };
 interface VaxeeStateOptions {
-    shallow: boolean;
+    shallow?: boolean;
+    persist?: boolean | {
+        get: (key: string) => any;
+        set: (key: string, value: any) => any;
+    };
 }
 export declare function state<T = any>(): VaxeeState<T | undefined>;
 export declare function state<T>(value: T, options?: VaxeeStateOptions): VaxeeState<T>;

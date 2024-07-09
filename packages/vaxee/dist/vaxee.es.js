@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, shallowRef, computed, unref, toRefs, reactive } from "vue";
+import { ref, hasInjectionContext, inject, shallowRef, computed, unref, watch, reactive } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -8,7 +8,7 @@ function setVaxeeInstance(instance) {
   vaxeeInstance = instance;
 }
 const getVaxeeInstance = () => vaxeeInstance;
-function createVaxee() {
+function createVaxee(options = {}) {
   const vaxee = {
     install(app) {
       setVaxeeInstance(vaxee);
@@ -18,7 +18,8 @@ function createVaxee() {
       }
     },
     state: ref({}),
-    _stores: {}
+    _stores: {},
+    _options: options
   };
   return vaxee;
 }
@@ -37,6 +38,7 @@ const getterSymbol = Symbol("vaxee-getter");
 function state(value, options) {
   const _ref = (options == null ? void 0 : options.shallow) ? shallowRef(value) : ref(value);
   _ref._vaxee = stateSymbol;
+  _ref._options = options || {};
   return _ref;
 }
 const isState = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === stateSymbol;
@@ -113,21 +115,54 @@ function parseStore(store) {
   );
 }
 function prepareStore(name, store) {
-  var _a;
+  var _a, _b;
   const vaxee = useVaxee();
   if (vaxee._stores[name]) {
     return vaxee._stores[name];
   }
   const { states, actions, getters, queries, other } = parseStore(store);
-  const preparedQueries = {};
-  if (vaxee.state.value[name]) {
-    for (const key in states) {
+  for (const key in states) {
+    if (states[key]._options.persist) {
+      const { get: _get, set: _set } = typeof states[key]._options.persist === "object" ? states[key]._options.persist : {
+        get: (key2) => {
+          if (vaxee._options.persist) {
+            return vaxee._options.persist.get(key2);
+          }
+          if (!IS_CLIENT) {
+            return null;
+          }
+          return JSON.parse(localStorage.getItem(key2) || "null");
+        },
+        set: (key2, value) => {
+          var _a2;
+          if (vaxee._options.persist) {
+            (_a2 = vaxee._options.persist) == null ? void 0 : _a2.set(key2, value);
+            return;
+          }
+          if (IS_CLIENT) {
+            JSON.stringify(localStorage.setItem(key2, value));
+          }
+        }
+      };
+      const persisted = _get(`${name}.${key}`);
+      if (persisted || ((_a = vaxee.state.value[name]) == null ? void 0 : _a[key])) {
+        states[key].value = persisted || vaxee.state.value[name][key];
+      }
+      watch(
+        states[key],
+        (value) => {
+          _set(`${name}.${key}`, value);
+        },
+        { deep: true }
+      );
+    } else if (vaxee.state.value[name]) {
       states[key].value = vaxee.state.value[name][key];
     }
   }
+  const preparedQueries = {};
   for (const key in queries) {
     const query2 = queries[key]({
-      initial: ((_a = vaxee.state.value[name]) == null ? void 0 : _a[key]) && vaxee.state.value[name][key].status !== "pending" ? {
+      initial: ((_b = vaxee.state.value[name]) == null ? void 0 : _b[key]) && vaxee.state.value[name][key].status !== "pending" ? {
         data: vaxee.state.value[name][key].data,
         status: vaxee.state.value[name][key].status,
         error: vaxee.state.value[name][key].error
@@ -142,12 +177,12 @@ function prepareStore(name, store) {
   }
   vaxee.state.value[name] = states;
   vaxee._stores[name] = {
-    ...toRefs(vaxee.state.value[name]),
+    ...states,
     ...actions,
     ...getters,
     ...preparedQueries,
     ...other,
-    _state: vaxee.state.value[name],
+    _state: states,
     _actions: actions,
     _getters: getters,
     _queries: preparedQueries,

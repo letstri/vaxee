@@ -13,7 +13,14 @@ export interface Vaxee {
     install(app: App): void;
     state: Ref<Record<string, VaxeeStoreState<any>>>;
     _stores: Record<string, VaxeeInternalStore<any>>;
+    _options: VaxeeOptions;
+}
+export interface VaxeeOptions {
+    persist?: {
+        get: (key: string) => any;
+        set: (key: string, value: any) => any;
+    };
 }
 export declare function setVaxeeInstance(instance: Vaxee): void;
 export declare const getVaxeeInstance: () => Vaxee | null;
-export declare function createVaxee(): Vaxee;
+export declare function createVaxee(options?: VaxeeOptions): Vaxee;

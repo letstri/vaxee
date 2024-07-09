@@ -1,10 +1,11 @@
-import { toRefs } from "vue";
+import { watch } from "vue";
 import type { BaseStore } from "./createStore";
 import { useVaxee } from "../composables/useVaxee";
 import { parseStore } from "./parseStore";
 import type { VaxeeInternalStore } from "../plugin";
 import type { VaxeeQueryState } from "./query";
 import { state } from "./reactivity";
+import { IS_CLIENT } from "../constants";
 
 export function prepareStore<Store extends BaseStore>(
   name: string,
@@ -18,13 +19,57 @@ export function prepareStore<Store extends BaseStore>(
 
   const { states, actions, getters, queries, other } = parseStore(store);
 
-  const preparedQueries = {} as Record<string, VaxeeQueryState<any>>;
+  for (const key in states) {
+    if (states[key]._options.persist) {
+      const { get: _get, set: _set } =
+        typeof states[key]._options.persist === "object"
+          ? (states[key]._options.persist as {
+              get: (key: string) => any;
+              set: (key: string, value: any) => void;
+            })
+          : {
+              get: (key: string) => {
+                if (vaxee._options.persist) {
+                  return vaxee._options.persist.get(key);
+                }
 
-  if (vaxee.state.value[name]) {
-    for (const key in states) {
+                if (!IS_CLIENT) {
+                  return null;
+                }
+
+                return JSON.parse(localStorage.getItem(key) || "null");
+              },
+              set: (key: string, value: any) => {
+                if (vaxee._options.persist) {
+                  vaxee._options.persist?.set(key, value);
+                  return;
+                }
+
+                if (IS_CLIENT) {
+                  JSON.stringify(localStorage.setItem(key, value));
+                }
+              },
+            };
+
+      const persisted = _get(`${name}.${key}`);
+
+      if (persisted || vaxee.state.value[name]?.[key]) {
+        states[key].value = persisted || vaxee.state.value[name][key];
+      }
+
+      watch(
+        states[key],
+        (value) => {
+          _set(`${name}.${key}`, value);
+        },
+        { deep: true }
+      );
+    } else if (vaxee.state.value[name]) {
       states[key].value = vaxee.state.value[name][key];
     }
   }
+
+  const preparedQueries = {} as Record<string, VaxeeQueryState<any>>;
 
   for (const key in queries) {
     const query = queries[key]({
@@ -51,12 +96,12 @@ export function prepareStore<Store extends BaseStore>(
   vaxee.state.value[name] = states;
 
   vaxee._stores[name] = {
-    ...toRefs(vaxee.state.value[name]),
+    ...states,
     ...actions,
     ...getters,
     ...preparedQueries,
     ...(other as any),
-    _state: vaxee.state.value[name],
+    _state: states,
     _actions: actions,
     _getters: getters,
     _queries: preparedQueries,

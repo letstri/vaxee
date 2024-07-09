@@ -1,9 +1,14 @@
 import { createVaxee } from "vaxee";
-import { defineNuxtPlugin } from "#app";
+import { defineNuxtPlugin, useCookie } from "#app";
 export default defineNuxtPlugin({
   name: "vaxee",
   setup(nuxtApp) {
-    const vaxee = createVaxee();
+    const vaxee = createVaxee({
+      persist: {
+        get: (key) => useCookie(key, { readonly: true }).value,
+        set: (key, value) => useCookie(key).value = value
+      }
+    });
     nuxtApp.vueApp.use(vaxee);
     if (import.meta.server) {
       nuxtApp.payload.vaxee = vaxee.state.value;

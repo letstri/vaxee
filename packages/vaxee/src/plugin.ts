@@ -26,6 +26,14 @@ export interface Vaxee {
   install(app: App): void;
   state: Ref<Record<string, VaxeeStoreState<any>>>;
   _stores: Record<string, VaxeeInternalStore<any>>;
+  _options: VaxeeOptions;
+}
+
+export interface VaxeeOptions {
+  persist?: {
+    get: (key: string) => any;
+    set: (key: string, value: any) => any;
+  };
 }
 
 let vaxeeInstance: Vaxee | null = null;
@@ -36,7 +44,7 @@ export function setVaxeeInstance(instance: Vaxee) {
 
 export const getVaxeeInstance = () => vaxeeInstance;
 
-export function createVaxee() {
+export function createVaxee(options: VaxeeOptions = {}) {
   const vaxee: Vaxee = {
     install(app: App) {
       setVaxeeInstance(vaxee);
@@ -55,6 +63,7 @@ export function createVaxee() {
     },
     state: ref({}),
     _stores: {},
+    _options: options,
   };
 
   return vaxee;
