@@ -2,8 +2,8 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Vaxee",
-  description: "State Manager for Vue 3",
+  title: "Vaxee - State Manager for Vue 3, Pinia alternative",
+  description: "State Manager for Vue 3 with cache, query, and more features.",
   themeConfig: {
     siteTitle: false,
     logo: "/logo.svg",
