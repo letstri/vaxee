@@ -5,7 +5,7 @@ const querySymbol = Symbol("vaxee-query");
 export type VaxeeQueryState<T> = {
   data: Ref<null | T>;
   error: Ref<null | Error>;
-  status: Ref<"pending" | "error" | "success">;
+  status: Ref<"fetching" | "refreshing" | "error" | "success">;
   suspense: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -14,7 +14,7 @@ type VaxeeQueryOptions<T> = {
   initial?: {
     data: T;
     error: Error;
-    status: "pending" | "error" | "success";
+    status: "fetching" | "refreshing" | "error" | "success";
   };
 };
 
@@ -31,7 +31,7 @@ export function query<T>(callback: () => Promise<T>): VaxeeQuery<T> {
     const q = {
       data: ref(null),
       error: ref(null),
-      status: ref("pending"),
+      status: ref("fetching"),
     } as VaxeeQueryState<T>;
 
     const fetchQuery = async () => {
@@ -47,7 +47,7 @@ export function query<T>(callback: () => Promise<T>): VaxeeQuery<T> {
     };
 
     q.refresh = async () => {
-      q.status.value = "pending";
+      q.status.value = "refreshing";
       q.error.value = null;
       const promise = fetchQuery();
 

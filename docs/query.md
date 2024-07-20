@@ -44,7 +44,7 @@ const {
 </script>
 
 <template>
-  <div v-if="userStatus === 'pending'">Loading...</div>
+  <div v-if="userStatus === 'fetching'">Loading...</div>
   <div v-else-if="userStatus === 'error'">Error: {{ userError.message }}</div>
   <div v-else>
     <p>User ID: {{ user.data.id }}</p>

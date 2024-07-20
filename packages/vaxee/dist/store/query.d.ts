@@ -3,7 +3,7 @@ declare const querySymbol: unique symbol;
 export type VaxeeQueryState<T> = {
     data: Ref<null | T>;
     error: Ref<null | Error>;
-    status: Ref<"pending" | "error" | "success">;
+    status: Ref<"fetching" | "refreshing" | "error" | "success">;
     suspense: () => Promise<void>;
     refresh: () => Promise<void>;
 };
@@ -11,7 +11,7 @@ type VaxeeQueryOptions<T> = {
     initial?: {
         data: T;
         error: Error;
-        status: "pending" | "error" | "success";
+        status: "fetching" | "refreshing" | "error" | "success";
     };
 };
 export type VaxeeQuery<T> = {

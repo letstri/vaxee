@@ -13,8 +13,8 @@
     "@vaxee/nuxt": "workspace:^",
     "@vueuse/core": "^10.11.0",
     "@vueuse/nuxt": "^10.11.0",
-    "nuxt": "^3.12.2",
-    "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "nuxt": "^3.12.4",
+    "vue": "^3.4.33",
+    "vue-router": "^4.4.0"
   }
 }

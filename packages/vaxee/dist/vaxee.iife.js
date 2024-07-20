@@ -56,7 +56,7 @@ var vaxee = function(exports, vue2) {
       const q = {
         data: vue2.ref(null),
         error: vue2.ref(null),
-        status: vue2.ref("pending")
+        status: vue2.ref("fetching")
       };
       const fetchQuery = async () => {
         try {
@@ -69,7 +69,7 @@ var vaxee = function(exports, vue2) {
         }
       };
       q.refresh = async () => {
-        q.status.value = "pending";
+        q.status.value = "refreshing";
         q.error.value = null;
         const promise2 = fetchQuery();
         q.suspense = () => promise2;
@@ -116,7 +116,7 @@ var vaxee = function(exports, vue2) {
     );
   }
   function prepareStore(name, store) {
-    var _a, _b;
+    var _a, _b, _c;
     const vaxee2 = useVaxee();
     if (vaxee2._stores[name]) {
       return vaxee2._stores[name];
@@ -141,13 +141,13 @@ var vaxee = function(exports, vue2) {
               return;
             }
             if (IS_CLIENT) {
-              JSON.stringify(localStorage.setItem(key2, value));
+              localStorage.setItem(key2, JSON.stringify(value));
             }
           }
         };
         const persisted = _get(`${name}.${key}`);
         if (persisted || ((_a = vaxee2.state.value[name]) == null ? void 0 : _a[key])) {
-          states[key].value = persisted || vaxee2.state.value[name][key];
+          states[key].value = persisted || ((_b = vaxee2.state.value[name]) == null ? void 0 : _b[key]);
         }
         vue2.watch(
           states[key],
@@ -163,7 +163,7 @@ var vaxee = function(exports, vue2) {
     const preparedQueries = {};
     for (const key in queries) {
       const query2 = queries[key]({
-        initial: ((_b = vaxee2.state.value[name]) == null ? void 0 : _b[key]) && vaxee2.state.value[name][key].status !== "pending" ? {
+        initial: ((_c = vaxee2.state.value[name]) == null ? void 0 : _c[key]) && vaxee2.state.value[name][key].status !== "fetching" ? {
           data: vaxee2.state.value[name][key].data,
           status: vaxee2.state.value[name][key].status,
           error: vaxee2.state.value[name][key].error

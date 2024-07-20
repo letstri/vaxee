@@ -55,7 +55,7 @@ function query(callback) {
     const q = {
       data: ref(null),
       error: ref(null),
-      status: ref("pending")
+      status: ref("fetching")
     };
     const fetchQuery = async () => {
       try {
@@ -68,7 +68,7 @@ function query(callback) {
       }
     };
     q.refresh = async () => {
-      q.status.value = "pending";
+      q.status.value = "refreshing";
       q.error.value = null;
       const promise2 = fetchQuery();
       q.suspense = () => promise2;
@@ -115,7 +115,7 @@ function parseStore(store) {
   );
 }
 function prepareStore(name, store) {
-  var _a, _b;
+  var _a, _b, _c;
   const vaxee = useVaxee();
   if (vaxee._stores[name]) {
     return vaxee._stores[name];
@@ -140,13 +140,13 @@ function prepareStore(name, store) {
             return;
           }
           if (IS_CLIENT) {
-            JSON.stringify(localStorage.setItem(key2, value));
+            localStorage.setItem(key2, JSON.stringify(value));
           }
         }
       };
       const persisted = _get(`${name}.${key}`);
       if (persisted || ((_a = vaxee.state.value[name]) == null ? void 0 : _a[key])) {
-        states[key].value = persisted || vaxee.state.value[name][key];
+        states[key].value = persisted || ((_b = vaxee.state.value[name]) == null ? void 0 : _b[key]);
       }
       watch(
         states[key],
@@ -162,7 +162,7 @@ function prepareStore(name, store) {
   const preparedQueries = {};
   for (const key in queries) {
     const query2 = queries[key]({
-      initial: ((_b = vaxee.state.value[name]) == null ? void 0 : _b[key]) && vaxee.state.value[name][key].status !== "pending" ? {
+      initial: ((_c = vaxee.state.value[name]) == null ? void 0 : _c[key]) && vaxee.state.value[name][key].status !== "fetching" ? {
         data: vaxee.state.value[name][key].data,
         status: vaxee.state.value[name][key].status,
         error: vaxee.state.value[name][key].error

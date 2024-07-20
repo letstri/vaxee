@@ -23,10 +23,7 @@ export function prepareStore<Store extends BaseStore>(
     if (states[key]._options.persist) {
       const { get: _get, set: _set } =
         typeof states[key]._options.persist === "object"
-          ? (states[key]._options.persist as {
-              get: (key: string) => any;
-              set: (key: string, value: any) => void;
-            })
+          ? states[key]._options.persist
           : {
               get: (key: string) => {
                 if (vaxee._options.persist) {
@@ -46,7 +43,7 @@ export function prepareStore<Store extends BaseStore>(
                 }
 
                 if (IS_CLIENT) {
-                  JSON.stringify(localStorage.setItem(key, value));
+                  localStorage.setItem(key, JSON.stringify(value));
                 }
               },
             };
@@ -54,7 +51,7 @@ export function prepareStore<Store extends BaseStore>(
       const persisted = _get(`${name}.${key}`);
 
       if (persisted || vaxee.state.value[name]?.[key]) {
-        states[key].value = persisted || vaxee.state.value[name][key];
+        states[key].value = persisted || vaxee.state.value[name]?.[key];
       }
 
       watch(
@@ -75,7 +72,7 @@ export function prepareStore<Store extends BaseStore>(
     const query = queries[key]({
       initial:
         vaxee.state.value[name]?.[key] &&
-        vaxee.state.value[name][key].status !== "pending"
+        vaxee.state.value[name][key].status !== "fetching"
           ? {
               data: vaxee.state.value[name][key].data,
               status: vaxee.state.value[name][key].status,

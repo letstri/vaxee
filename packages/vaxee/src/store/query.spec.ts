@@ -11,7 +11,7 @@ describe("query", () => {
 
   it("fetch simple query", async () => {
     const q = query(() => Promise.resolve(1))();
-    expect(q.status.value).toBe("pending");
+    expect(q.status.value).toBe("fetching");
 
     await nextTick();
 
@@ -21,7 +21,7 @@ describe("query", () => {
 
   it("fetch error query", async () => {
     const q = query(() => Promise.reject(new Error("error")))();
-    expect(q.status.value).toBe("pending");
+    expect(q.status.value).toBe("fetching");
 
     await nextTick();
 
@@ -33,7 +33,7 @@ describe("query", () => {
     const q = query(() => Promise.resolve(1));
 
     expect(isQuery(q)).toBe(true);
-    expect(q().status.value).toBe("pending");
+    expect(q().status.value).toBe("fetching");
   });
 
   it("check query in store", async () => {
@@ -44,7 +44,7 @@ describe("query", () => {
 
     const store = useStore();
 
-    expect(store.q.status.value).toBe("pending");
+    expect(store.q.status.value).toBe("fetching");
 
     await nextTick();
 
@@ -105,7 +105,7 @@ describe("query", () => {
 
     expect(spy).toHaveBeenCalledTimes(1);
 
-    expect(q.status.value).toBe("pending");
+    expect(q.status.value).toBe("fetching");
 
     await nextTick();
 
