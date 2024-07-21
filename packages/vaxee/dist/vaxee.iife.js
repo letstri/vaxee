@@ -74,7 +74,6 @@ var vaxee = function(exports, vue2) {
     }
     if (_ref._persist) {
       const persisted = _ref._persist.get();
-      console.log(persisted);
       if (persisted !== null && persisted !== void 0) _ref.value = persisted;
       vue2.watch(
         _ref,
