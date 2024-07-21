@@ -5,7 +5,6 @@ import { parseStore } from "./parseStore";
 import type { VaxeeInternalStore } from "../plugin";
 import type { VaxeeQueryState } from "./query";
 import { state } from "./reactivity";
-import { IS_CLIENT } from "../constants";
 
 export function prepareStore<Store extends BaseStore>(
   name: string,
@@ -19,49 +18,8 @@ export function prepareStore<Store extends BaseStore>(
 
   const { states, actions, getters, queries, other } = parseStore(store);
 
-  for (const key in states) {
-    if (states[key]._options.persist) {
-      const { get: _get, set: _set } =
-        typeof states[key]._options.persist === "object"
-          ? states[key]._options.persist
-          : {
-              get: (key: string) => {
-                if (vaxee._options.persist) {
-                  return vaxee._options.persist.get(key);
-                }
-
-                if (!IS_CLIENT) {
-                  return null;
-                }
-
-                return JSON.parse(localStorage.getItem(key) || "null");
-              },
-              set: (key: string, value: any) => {
-                if (vaxee._options.persist) {
-                  vaxee._options.persist?.set(key, value);
-                  return;
-                }
-
-                if (IS_CLIENT) {
-                  localStorage.setItem(key, JSON.stringify(value));
-                }
-              },
-            };
-
-      const persisted = _get(`${name}.${key}`);
-
-      if (persisted || vaxee.state.value[name]?.[key]) {
-        states[key].value = persisted || vaxee.state.value[name]?.[key];
-      }
-
-      watch(
-        states[key],
-        (value) => {
-          _set(`${name}.${key}`, value);
-        },
-        { deep: true }
-      );
-    } else if (vaxee.state.value[name]) {
+  if (vaxee.state.value[name]) {
+    for (const key in states) {
       states[key].value = vaxee.state.value[name][key];
     }
   }

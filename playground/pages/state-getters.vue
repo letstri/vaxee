@@ -1,7 +1,8 @@
 <script setup lang="ts">
 onServerPrefetch(() => {
-  stateGettersStore.count = 10;
+  // stateGettersStore.count = 10;
 });
+
 const {
   count: countDestructure,
   increment: incrementDestructure,

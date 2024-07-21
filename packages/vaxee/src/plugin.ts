@@ -51,12 +51,10 @@ export function createVaxee(options: VaxeeOptions = {}) {
       app.provide(vaxeeSymbol, vaxee);
 
       if (IS_DEV && IS_CLIENT) {
-        if (!__TEST__) {
-          console.log(
-            VAXEE_LOG_START +
-              "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
-          );
-        }
+        console.log(
+          VAXEE_LOG_START +
+            "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
+        );
         // @ts-ignore
         window.$vaxee = vaxee.state;
       }

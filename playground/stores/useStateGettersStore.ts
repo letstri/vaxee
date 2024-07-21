@@ -1,7 +1,7 @@
 export const useStateGettersStore = createStore(
   "state-getters",
   ({ state, getter }) => {
-    const count = state(0, { persist: true });
+    const count = state(0, { persist: "state-getters.count" });
     const double = getter(() => count.value * 2);
 
     const increment = () => {
