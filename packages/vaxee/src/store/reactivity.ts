@@ -82,7 +82,6 @@ export function state<T>(
 
   if (_ref._persist) {
     const persisted = _ref._persist.get();
-    console.log(persisted);
 
     if (persisted !== null && persisted !== undefined) _ref.value = persisted;
 
