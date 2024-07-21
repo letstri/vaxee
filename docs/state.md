@@ -33,20 +33,23 @@ export const useCounterStore = createStore("counter", ({ state }) => {
 The `state` function accepts an optional `options` object as the second argument.
 
 - `shallow` - boolean property that determines whether the state should be [shallowly](https://vuejs.org/api/reactivity-advanced.html#shallowref) reactive. Default is `false`.
-- `persist` - boolean or object property that determines whether the state should be persisted. If it's an object, it should have `get` and `set` methods to get and set the value of the state. Default is `false`.
+- `persist` - string or object property that determines whether the state should be persisted. If it's a string, it should be the key to store the value in the storage. If it's an object, it should have `get` and `set` methods to get and set the value of the state. Default is `undefined`.
 
 ```ts
 interface VaxeeStateOptions {
   shallow?: boolean;
   persist?:
-    | boolean
+    | string
     | {
-        get: (key: string) => any;
-        set: (key: string, value: any) => any;
+        get: () => any;
+        set: (value: any) => any;
       };
 }
 
 function state<T>(value: T, options?: VaxeeStateOptions): VaxeeState<T>;
+
+// Example
+const count = state(0, { shallow: true, persist: "count" });
 ```
 
 ## Update the State
