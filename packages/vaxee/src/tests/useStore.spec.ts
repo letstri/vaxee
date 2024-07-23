@@ -24,7 +24,7 @@ describe("useStore", () => {
   });
 
   it("can use simple store", () => {
-    const store = useMainStore(false);
+    const store = useMainStore.reactive();
 
     expect(store.count).toEqual(0);
     store.increment();
@@ -61,7 +61,7 @@ describe("useStore", () => {
   });
 
   it("check _state and _actions", () => {
-    const store = useMainStore(false);
+    const store = useMainStore.reactive();
 
     // @ts-expect-error
     expect(store._state.count).toEqual(0);

@@ -30,11 +30,9 @@ export type VaxeeStore<
 
 interface UseVaxeeStore<Store extends BaseStore> {
   (): VaxeeStore<Store>;
-  <R extends boolean>(refs: R): R extends true
-    ? VaxeeStore<Store>
-    : VaxeeStore<Store, false>;
   <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
   $inferState: VaxeeStoreState<Store>;
+  reactive: () => VaxeeStore<Store, false>;
 }
 
 export const createStore = <Store extends BaseStore>(
@@ -63,13 +61,7 @@ export const createStore = <Store extends BaseStore>(
     }
   }
 
-  function use(nameOrToRefs?: keyof VaxeeStore<Store> | boolean) {
-    const propName =
-      typeof nameOrToRefs === "string"
-        ? (nameOrToRefs as keyof Store)
-        : undefined;
-    const refs = nameOrToRefs === true || nameOrToRefs === undefined;
-
+  function use(propName?: keyof VaxeeStore<Store>) {
     const _store = prepareStore(name, store({ state, getter, query }));
 
     if (propName) {
@@ -97,14 +89,11 @@ export const createStore = <Store extends BaseStore>(
       }) as any; // TODO: remove any
     }
 
-    if (refs) {
-      return _store;
-    }
-
-    return reactive(_store);
+    return _store;
   }
 
   use.$inferState = {} as State;
+  use.reactive = () => reactive(use());
 
   return use;
 };

@@ -59,7 +59,7 @@ function getDefaultPersist() {
 }
 function state(value, options) {
   const _ref = (options == null ? void 0 : options.shallow) ? shallowRef(value) : ref(value);
-  _ref._vaxee = stateSymbol;
+  _ref.StateSymbol = stateSymbol;
   if (typeof (options == null ? void 0 : options.persist) === "object" && "get" in options.persist && "set" in options.persist) {
     _ref._persist = options.persist;
   } else if (typeof (options == null ? void 0 : options.persist) === "string") {
@@ -84,13 +84,13 @@ function state(value, options) {
   }
   return _ref;
 }
-const isState = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === stateSymbol;
+const isState = (ref2) => (ref2 == null ? void 0 : ref2.StateSymbol) === stateSymbol;
 function getter(fn) {
   const ref2 = computed(() => fn());
-  ref2._vaxee = getterSymbol;
+  ref2.GetterSymbol = getterSymbol;
   return ref2;
 }
-const isGetter = (ref2) => (ref2 == null ? void 0 : ref2._vaxee) === getterSymbol;
+const isGetter = (ref2) => (ref2 == null ? void 0 : ref2.GetterSymbol) === getterSymbol;
 const querySymbol = Symbol("vaxee-query");
 function query(callback) {
   function _query(options) {
@@ -219,9 +219,7 @@ const createStore = (name, store) => {
       );
     }
   }
-  function use(nameOrToRefs) {
-    const propName = typeof nameOrToRefs === "string" ? nameOrToRefs : void 0;
-    const refs = nameOrToRefs === true || nameOrToRefs === void 0;
+  function use(propName) {
     const _store = prepareStore(name, store({ state, getter, query }));
     if (propName) {
       if (_store._actions[propName]) {
@@ -243,12 +241,10 @@ const createStore = (name, store) => {
         }
       });
     }
-    if (refs) {
-      return _store;
-    }
-    return reactive(_store);
+    return _store;
   }
   use.$inferState = {};
+  use.reactive = () => reactive(use());
   return use;
 };
 export {

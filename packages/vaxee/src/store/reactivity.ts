@@ -13,7 +13,7 @@ const stateSymbol = Symbol("vaxee-state");
 const getterSymbol = Symbol("vaxee-getter");
 
 export type VaxeeState<T> = Ref<T> & {
-  _vaxee: typeof stateSymbol;
+  StateSymbol: typeof stateSymbol;
   _persist: null | {
     get: () => any;
     set: (value: any) => any;
@@ -61,7 +61,7 @@ export function state<T>(
     options?.shallow ? shallowRef(value) : ref(value)
   ) as VaxeeState<T>;
 
-  _ref._vaxee = stateSymbol;
+  _ref.StateSymbol = stateSymbol;
 
   if (
     typeof options?.persist === "object" &&
@@ -98,20 +98,19 @@ export function state<T>(
 }
 
 export const isState = (ref: any): ref is VaxeeState<any> =>
-  ref?._vaxee === stateSymbol;
+  ref?.StateSymbol === stateSymbol;
 
 export type VaxeeGetter<T> = ComputedRef<T> & {
-  _vaxee: typeof getterSymbol;
+  GetterSymbol: typeof getterSymbol;
 };
 
 export function getter<T>(fn: () => T): VaxeeGetter<T> {
-  const ref = computed(() => fn());
+  const ref = computed(() => fn()) as VaxeeGetter<T>;
 
-  // @ts-expect-error
-  ref._vaxee = getterSymbol;
+  ref.GetterSymbol = getterSymbol;
 
   return ref as VaxeeGetter<T>;
 }
 
 export const isGetter = (ref: any): ref is VaxeeGetter<any> =>
-  ref?._vaxee === getterSymbol;
+  ref?.GetterSymbol === getterSymbol;

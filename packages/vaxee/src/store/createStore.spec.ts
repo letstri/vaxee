@@ -69,7 +69,7 @@ describe("createStore", () => {
     const TestComponent = defineComponent({
       template: `<div>{{ store.count }}</div>`,
       setup() {
-        const store = useStore(false);
+        const store = useStore.reactive();
         return { store };
       },
     });
@@ -136,7 +136,7 @@ describe("createStore", () => {
       };
     });
 
-    const store = useStore(false);
+    const store = useStore.reactive();
     const spy = vi.fn();
     watch(() => store.a, spy, { flush: "sync" });
     expect(store.a).toBe(true);

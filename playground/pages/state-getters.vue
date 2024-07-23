@@ -9,7 +9,7 @@ const {
   double: doubleDestructure,
 } = useStateGettersStore();
 
-const stateGettersStore = useStateGettersStore(false);
+const stateGettersStore = useStateGettersStore.reactive();
 const count = useStateGettersStore("count");
 const double = useStateGettersStore("double");
 const increment = useStateGettersStore("increment");
@@ -71,7 +71,7 @@ export const useStateGettersStore = createStore("test", ({ state, getter }) => {
       </tr>
       <tr>
         <td>
-          <pre>const stateGettersStore = useStateGettersStore(false);</pre>
+          <pre>const stateGettersStore = useStateGettersStore.reactive();</pre>
           <button @click="stateGettersStore.count++">
             <code>stateGettersStore.count++</code>
           </button>
@@ -91,7 +91,7 @@ export const useStateGettersStore = createStore("test", ({ state, getter }) => {
           </button>
         </td>
         <td>
-          <pre>const stateGettersStore = useStateGettersStore(false);</pre>
+          <pre>const stateGettersStore = useStateGettersStore.reactive();</pre>
           <code>stateGettersStore.count: {{ stateGettersStore.count }}</code>
           <hr />
           <pre>const count = useStateGettersStore("count");</pre>
@@ -101,7 +101,7 @@ export const useStateGettersStore = createStore("test", ({ state, getter }) => {
           <code>count: {{ countDestructure }}</code>
         </td>
         <td>
-          <pre>const stateGettersStore = useStateGettersStore(false);</pre>
+          <pre>const stateGettersStore = useStateGettersStore.reactive();</pre>
           <code>stateGettersStore.double: {{ stateGettersStore.double }}</code>
           <hr />
           <pre>const { double } = useStateGettersStore();</pre>

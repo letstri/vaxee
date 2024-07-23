@@ -5,7 +5,7 @@ const {
 
 await suspense();
 
-const store = useQueryStore(false);
+const store = useQueryStore.reactive();
 </script>
 
 <template>

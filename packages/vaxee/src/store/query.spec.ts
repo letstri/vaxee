@@ -51,7 +51,7 @@ describe("query", () => {
     expect(store.q.status.value).toBe("success");
     expect(store.q.data.value).toBe(1);
 
-    const flatStore = useStore(false);
+    const flatStore = useStore.reactive();
 
     expect(flatStore.q.status).toBe("success");
   });
@@ -112,7 +112,7 @@ describe("query", () => {
     expect(q.status.value).toBe("success");
     expect(q.data.value).toBe(1);
 
-    const store = useStore(false);
+    const store = useStore.reactive();
 
     expect(spy).toHaveBeenCalledTimes(1);
 

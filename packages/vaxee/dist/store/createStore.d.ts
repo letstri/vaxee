@@ -7,9 +7,9 @@ export type BaseStore = Record<string, any>;
 export type VaxeeStore<Store extends BaseStore, Refs extends boolean = true> = (Refs extends true ? ToRefs<VaxeeStoreState<Store>> & ToComputedRefs<VaxeeStoreGetters<Store>> & VaxeeStoreQueries<Store> : VaxeeStoreState<Store> & VaxeeStoreGetters<Store> & UnwrapNestedRefs<VaxeeStoreQueries<Store>>) & VaxeeStoreActions<Store> & VaxeeStoreOther<Store>;
 interface UseVaxeeStore<Store extends BaseStore> {
     (): VaxeeStore<Store>;
-    <R extends boolean>(refs: R): R extends true ? VaxeeStore<Store> : VaxeeStore<Store, false>;
     <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
     $inferState: VaxeeStoreState<Store>;
+    reactive: () => VaxeeStore<Store, false>;
 }
 export declare const createStore: <Store extends BaseStore>(name: string, store: (options: {
     state: typeof state;
