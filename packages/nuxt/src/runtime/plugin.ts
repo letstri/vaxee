@@ -7,7 +7,11 @@ export default defineNuxtPlugin<{ vaxee: Vaxee }>({
     const vaxee = createVaxee({
       persist: {
         get: (key) => useCookie(key, { readonly: true }).value,
-        set: (key, value) => (useCookie(key).value = value),
+        set: (key, value) =>
+          (useCookie(key, {
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+            sameSite: "lax",
+          }).value = value),
       },
     });
 
