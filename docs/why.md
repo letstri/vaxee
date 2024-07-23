@@ -52,7 +52,7 @@ const { count, increment } = useStore();
 This way, we get a reactive variable and a function. What if we need the data to not be wrapped in a `ref`?
 
 ```ts
-const store = useStore(false);
+const store = useStore.reactive();
 
 // store: {
 //   count: number;
@@ -60,6 +60,4 @@ const store = useStore(false);
 // }
 ```
 
-By adding `false` to the store parameters, we remove unnecessary `ref` in nested variables, and the behavior becomes like in Pinia.
-
-In addition to `boolean`, the store accepts other data types, detailed here.
+By calling `reactive()` from the store function, we remove unnecessary `ref` in nested variables, and the behavior becomes like in Pinia.

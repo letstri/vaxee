@@ -39,7 +39,7 @@ const {
 } = useUserStore();
 
 // Or you can use it directly:
-// const store = useUserStore(false);
+// const store = useUserStore.reactive();
 // store.user.data
 </script>
 

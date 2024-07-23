@@ -17,68 +17,45 @@ Vaxee is a simple and easy-to-use library for Vue 3 to manage the state of your 
 
 - ✨ Simple and intuitive API.
 - 💪 Incredible TypeScript support.
+- 🤯 Includes a `query` function.
+- 🫡 Improved DX with reactivity.
 
 ## Documentation
 
-You can find the documentation [on the website](https://vaxee.letstri.dev).
+You can find the documentation and installation steps [on the website](https://vaxee.letstri.dev).
 
-## Installation
+## Demo
 
-### Vue 3
-
-```bash
-npm install vaxee
-```
-
-And then use it in your Vue 3 project.
-
-```ts
-import { createApp } from "vue";
-import App from "./App.vue";
-import { createVaxee } from "vaxee";
-
-const vaxee = createVaxee();
-const app = createApp(App);
-
-app.use(vaxee);
-app.$mount("#app");
-```
-
-### Nuxt
-
-If you are using Nuxt 3 or higher, you don't need to install the `vaxee` package. It is already included in the Nuxt 3 package.
-
-```bash
-npm install @vaxee/nuxt
-```
-
-And then use it in your Nuxt project.
-
-```ts
-export default defineNuxtConfig({
-  modules: ["@vaxee/nuxt"],
-});
-```
-
-## Usage
-
-Let's create a simple store with a counter.
+Let's create a huge demo store with a user and auth logic.
 
 ```ts
 import { createStore } from "vaxee";
+import { fetchUser, signIn, parseJwt } from "~/user";
 
-export const useCounterStore = createStore("counter", ({ state, getter }) => {
-  const count = state(0);
-  const double = getter(() => count.value * 2);
+export const useUserStore = createStore("user", ({ state, getter, query }) => {
+  const tokens = state(
+    {
+      access: "",
+      refresh: "",
+    },
+    {
+      persist: "user.tokens",
+    }
+  );
+  const isAuthorized = getter(
+    () => tokens.value.access && tokens.value.refresh
+  );
+  const userId = getter(() => parseJwt(tokens.value.access).sub);
 
-  const increment = () => {
-    count.value++;
+  const signIn = async (email: string, password: string) => {
+    tokens.value = await signIn(email, password);
   };
 
+  const user = query(() => fetchUser(userId.value));
+
   return {
-    count,
-    double,
-    increment,
+    user,
+    isAuthorized,
   };
 });
 ```
@@ -87,17 +64,25 @@ Now, let's use this store in a component.
 
 ```vue
 <script setup>
-import { useCounterStore } from "../stores/counter";
+import { watch } from "vue";
+import { useUserStore } from "../stores/user";
 
-const { count, double, increment } = useCounterStore();
+const {
+  isAuthorized,
+  user: { data: user, refresh: refreshUser },
+} = useUserStore();
+
+watch(isAuthorized, (isAuthorized) => {
+  if (isAuthorized) {
+    refreshUser();
+  }
+});
 </script>
 
 <template>
   <div>
-    <p>Count: {{ count }}</p>
-    <p>Double: {{ double }}</p>
-    <button @click="count++">count++</button>
-    <button @click="increment">increment</button>
+    <p>Authorized: {{ isAuthorized }}</p>
+    <p>User: {{ user.firstName }} {{ user.lastName }}</p>
   </div>
 </template>
 ```

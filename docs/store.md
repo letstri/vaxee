@@ -86,13 +86,13 @@ const store = useCounterStore();
 
 ### Escape .value
 
-If you want to avoid using `.value` in the component, you can pass `false` as an argument to the store when using it.
+If you want to avoid using `.value` in the component, you can call `reactive()` function from the store when using it.
 
 ```vue
 <script setup>
 import { useCounterStore } from "../stores/counter";
 
-const store = useCounterStore(false);
+const store = useCounterStore.reactive();
 
 // store is:
 // {
@@ -110,13 +110,13 @@ const store = useCounterStore(false);
 ```
 
 ::: warning
-With the `false` argument, you can't use destructuring.
+After call `reactive()` function, you can't use destructuring.
 :::
 
 ```ts
 import { useCounterStore } from "../stores/counter";
 
-const { count } = useCounterStore(false);
+const { count } = useCounterStore.reactive();
 
 count++; // Won't work
 ```
