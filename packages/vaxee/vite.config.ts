@@ -14,10 +14,10 @@ export default defineConfig({
       external: ["vue"],
     },
   },
-  define: {
-    __TEST__: true,
-  },
   test: {
+    env: {
+      TEST: "true",
+    },
     browser: {
       enabled: true,
       provider: "webdriverio",

@@ -21,7 +21,14 @@ export type VaxeeState<T> = Ref<T> & {
 };
 
 interface VaxeeStateOptions {
+  /**
+   * If `true`, the state will be shallow and will not be reactive to deep changes.
+   */
   shallow?: boolean;
+  /**
+   * If a string, the state will be persisted with the given key.
+   * If an object, the object must have `get` and `set` methods. The `get` method should return the persisted value and the `set` method should set the persisted value.
+   */
   persist?:
     | string
     | {

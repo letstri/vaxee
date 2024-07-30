@@ -1,82 +1,133 @@
 import { ref, type Ref } from "vue";
+import { useVaxee } from "../composables/useVaxee";
 
 const querySymbol = Symbol("vaxee-query");
+
+export enum VaxeeQueryStatus {
+  NotFetched = "not-fetched",
+  Fetching = "fetching",
+  Refreshing = "refreshing",
+  Error = "error",
+  Success = "success",
+}
 
 export type VaxeeQueryState<T> = {
   data: Ref<null | T>;
   error: Ref<null | Error>;
-  status: Ref<"fetching" | "refreshing" | "error" | "success">;
+  status: Ref<VaxeeQueryStatus>;
   suspense: () => Promise<void>;
   refresh: () => Promise<void>;
 };
 
-type VaxeeQueryOptions<T> = {
-  initial?: {
-    data: T;
-    error: Error;
-    status: "fetching" | "refreshing" | "error" | "success";
-  };
-};
-
 export type VaxeeQuery<T> = {
-  (options?: VaxeeQueryOptions<T>): VaxeeQueryState<T>;
-  _vaxee: typeof querySymbol;
+  (store: string, key: string): VaxeeQueryState<T>;
+  QuerySymbol: typeof querySymbol;
 };
 
-export function query<T>(callback: () => Promise<T>): VaxeeQuery<T> {
-  // TODO: remove any
-  function _query(options: any) {
-    const _options = options as VaxeeQueryOptions<T>;
+interface VaxeeQueryParams {
+  /**
+   * The signal to use for the query.
+   */
+  signal: AbortSignal;
+}
+
+interface VaxeeQueryOptions {
+  /**
+   * If `true`, the query will not be automatically fetched when the component is mounted.
+   */
+  sendManually?: boolean;
+}
+
+export function query<T>(
+  callback: (params: VaxeeQueryParams) => Promise<T>,
+  options: VaxeeQueryOptions = {}
+): VaxeeQuery<T> {
+  function _query(store: string, key: string) {
+    let abortController: AbortController | null = null;
+    const vaxee = useVaxee();
 
     const q = {
       data: ref(null),
       error: ref(null),
-      status: ref("fetching"),
+      status: ref(
+        options.sendManually
+          ? VaxeeQueryStatus.NotFetched
+          : VaxeeQueryStatus.Fetching
+      ),
+      suspense: () => Promise.resolve(),
     } as VaxeeQueryState<T>;
 
-    const fetchQuery = async () => {
+    const sendQuery = async () => {
+      let isAborted = false;
+
+      if (abortController) {
+        abortController.abort();
+      }
+
+      abortController = new AbortController();
+
+      abortController.signal.onabort = () => {
+        isAborted = true;
+      };
+
       try {
-        const data = await callback();
+        const data = await callback({ signal: abortController.signal });
 
         q.data.value = data;
-        q.status.value = "success";
+        q.status.value = VaxeeQueryStatus.Success;
+        abortController = null;
       } catch (error) {
-        q.error.value = error as Error;
-        q.status.value = "error";
+        if (!isAborted) {
+          q.error.value = error as Error;
+          q.status.value = VaxeeQueryStatus.Error;
+          abortController = null;
+        }
       }
     };
 
     q.refresh = async () => {
-      q.status.value = "refreshing";
+      q.status.value = VaxeeQueryStatus.Refreshing;
       q.error.value = null;
-      const promise = fetchQuery();
+      const promise = sendQuery();
 
       q.suspense = () => promise;
 
       return promise;
     };
 
-    if (_options?.initial) {
-      q.data.value = _options?.initial.data;
-      q.error.value = _options?.initial.error;
-      q.status.value = _options?.initial.status;
+    const initial =
+      vaxee.state.value[store]?.[key] &&
+      vaxee.state.value[store][key].status !== "fetching"
+        ? {
+            data: vaxee.state.value[store][key].data,
+            status: vaxee.state.value[store][key].status,
+            error: vaxee.state.value[store][key].error,
+          }
+        : undefined;
+
+    if (initial) {
+      q.data.value = initial.data;
+      q.error.value = initial.error;
+      q.status.value = initial.status;
 
       q.suspense = () => Promise.resolve();
 
       return q;
     }
 
-    const promise = fetchQuery();
+    if (!options.sendManually) {
+      const promise = sendQuery();
 
-    q.suspense = () => promise;
+      q.suspense = () => promise;
+    }
 
     return q;
   }
 
-  _query._vaxee = querySymbol;
+  _query.QuerySymbol = querySymbol;
 
   return _query;
 }
 
 export const isQuery = (query: any): query is VaxeeQuery<any> =>
-  query?._vaxee === querySymbol;
+  query?.QuerySymbol === querySymbol;

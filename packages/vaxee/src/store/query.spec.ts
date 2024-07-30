@@ -10,7 +10,7 @@ describe("query", () => {
   });
 
   it("fetch simple query", async () => {
-    const q = query(() => Promise.resolve(1))();
+    const q = query(() => Promise.resolve(1))("", "");
     expect(q.status.value).toBe("fetching");
 
     await nextTick();
@@ -20,7 +20,7 @@ describe("query", () => {
   });
 
   it("fetch error query", async () => {
-    const q = query(() => Promise.reject(new Error("error")))();
+    const q = query(() => Promise.reject(new Error("error")))("", "");
     expect(q.status.value).toBe("fetching");
 
     await nextTick();
@@ -33,7 +33,7 @@ describe("query", () => {
     const q = query(() => Promise.resolve(1));
 
     expect(isQuery(q)).toBe(true);
-    expect(q().status.value).toBe("fetching");
+    expect(q("", "").status.value).toBe("fetching");
   });
 
   it("check query in store", async () => {
@@ -118,5 +118,26 @@ describe("query", () => {
 
     expect(store.q.status).toBe("success");
     expect(store.q.data).toBe(1);
+  });
+
+  it("check refresh query", async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ query }) => {
+      const q = query(() => {
+        spy();
+        return Promise.resolve(1);
+      });
+      return { q };
+    });
+
+    const { q } = useStore();
+
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    await q.refresh();
+
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(q.data.value).toBe(1);
   });
 });

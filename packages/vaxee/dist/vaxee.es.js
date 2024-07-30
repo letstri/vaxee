@@ -13,7 +13,7 @@ function createVaxee(options = {}) {
     install(app) {
       setVaxeeInstance(vaxee);
       app.provide(vaxeeSymbol, vaxee);
-      if (IS_DEV && IS_CLIENT) {
+      if (IS_DEV && IS_CLIENT && !process.env.TEST) {
         console.log(
           VAXEE_LOG_START + "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
         );
@@ -92,46 +92,79 @@ function getter(fn) {
 }
 const isGetter = (ref2) => (ref2 == null ? void 0 : ref2.GetterSymbol) === getterSymbol;
 const querySymbol = Symbol("vaxee-query");
-function query(callback) {
-  function _query(options) {
-    const _options = options;
+var VaxeeQueryStatus = /* @__PURE__ */ ((VaxeeQueryStatus2) => {
+  VaxeeQueryStatus2["NotFetched"] = "not-fetched";
+  VaxeeQueryStatus2["Fetching"] = "fetching";
+  VaxeeQueryStatus2["Refreshing"] = "refreshing";
+  VaxeeQueryStatus2["Error"] = "error";
+  VaxeeQueryStatus2["Success"] = "success";
+  return VaxeeQueryStatus2;
+})(VaxeeQueryStatus || {});
+function query(callback, options = {}) {
+  function _query(store, key) {
+    var _a;
+    let abortController = null;
+    const vaxee = useVaxee();
     const q = {
       data: ref(null),
       error: ref(null),
-      status: ref("fetching")
+      status: ref(
+        options.sendManually ? "not-fetched" : "fetching"
+        /* Fetching */
+      ),
+      suspense: () => Promise.resolve()
     };
-    const fetchQuery = async () => {
+    const sendQuery = async () => {
+      let isAborted = false;
+      if (abortController) {
+        abortController.abort();
+      }
+      abortController = new AbortController();
+      abortController.signal.onabort = () => {
+        isAborted = true;
+      };
       try {
-        const data = await callback();
+        const data = await callback({ signal: abortController.signal });
         q.data.value = data;
         q.status.value = "success";
+        abortController = null;
       } catch (error) {
-        q.error.value = error;
-        q.status.value = "error";
+        if (!isAborted) {
+          q.error.value = error;
+          q.status.value = "error";
+          abortController = null;
+        }
       }
     };
     q.refresh = async () => {
       q.status.value = "refreshing";
       q.error.value = null;
-      const promise2 = fetchQuery();
-      q.suspense = () => promise2;
-      return promise2;
+      const promise = sendQuery();
+      q.suspense = () => promise;
+      return promise;
     };
-    if (_options == null ? void 0 : _options.initial) {
-      q.data.value = _options == null ? void 0 : _options.initial.data;
-      q.error.value = _options == null ? void 0 : _options.initial.error;
-      q.status.value = _options == null ? void 0 : _options.initial.status;
+    const initial = ((_a = vaxee.state.value[store]) == null ? void 0 : _a[key]) && vaxee.state.value[store][key].status !== "fetching" ? {
+      data: vaxee.state.value[store][key].data,
+      status: vaxee.state.value[store][key].status,
+      error: vaxee.state.value[store][key].error
+    } : void 0;
+    if (initial) {
+      q.data.value = initial.data;
+      q.error.value = initial.error;
+      q.status.value = initial.status;
       q.suspense = () => Promise.resolve();
       return q;
     }
-    const promise = fetchQuery();
-    q.suspense = () => promise;
+    if (!options.sendManually) {
+      const promise = sendQuery();
+      q.suspense = () => promise;
+    }
     return q;
   }
-  _query._vaxee = querySymbol;
+  _query.QuerySymbol = querySymbol;
   return _query;
 }
-const isQuery = (query2) => (query2 == null ? void 0 : query2._vaxee) === querySymbol;
+const isQuery = (query2) => (query2 == null ? void 0 : query2.QuerySymbol) === querySymbol;
 function parseStore(store) {
   return Object.entries(store).reduce(
     (acc, [key, value]) => {
@@ -158,7 +191,6 @@ function parseStore(store) {
   );
 }
 function prepareStore(name, store) {
-  var _a;
   const vaxee = useVaxee();
   if (vaxee._stores[name]) {
     return vaxee._stores[name];
@@ -171,13 +203,7 @@ function prepareStore(name, store) {
   }
   const preparedQueries = {};
   for (const key in queries) {
-    const query2 = queries[key]({
-      initial: ((_a = vaxee.state.value[name]) == null ? void 0 : _a[key]) && vaxee.state.value[name][key].status !== "fetching" ? {
-        data: vaxee.state.value[name][key].data,
-        status: vaxee.state.value[name][key].status,
-        error: vaxee.state.value[name][key].error
-      } : void 0
-    });
+    const query2 = queries[key](name, key);
     states[key] = state({
       data: query2.data,
       error: query2.error,
@@ -248,8 +274,12 @@ const createStore = (name, store) => {
   return use;
 };
 export {
+  VaxeeQueryStatus,
   createStore,
   createVaxee,
+  getter,
+  query,
   setVaxeeInstance,
+  state,
   useVaxee
 };
