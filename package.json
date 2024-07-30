@@ -1,6 +1,7 @@
 {
   "name": "@vaxee/core",
   "scripts": {
+    "prepare": "husky",
     "build": "pnpm -r --filter='./packages/*' run build",
     "test": "pnpm -r --filter='./packages/*' run test",
     "publish": "pnpm publish -r --filter='./packages/*'",
@@ -9,5 +10,10 @@
     "docs:build": "pnpm -r --filter='./docs' run docs:build",
     "docs:preview": "pnpm -r --filter='./docs' run docs:previews"
   },
-  "packageManager": "pnpm@9.4.0"
+  "packageManager": "pnpm@9.4.0",
+  "devDependencies": {
+    "@commitlint/config-conventional": "^19.2.2",
+    "commitlint": "^19.3.0",
+    "husky": "^9.1.4"
+  }
 }
