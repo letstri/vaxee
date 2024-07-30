@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { nextTick } from "vue";
-import { isQuery, query } from "./query";
+import { checkPrivateQuery, isQuery, query } from "./query";
 import { createStore } from "./createStore";
 import { createVaxee, setVaxeeInstance } from "../plugin";
 
@@ -10,7 +10,12 @@ describe("query", () => {
   });
 
   it("fetch simple query", async () => {
-    const q = query(() => Promise.resolve(1))("", "");
+    const _q = query(() => Promise.resolve(1));
+
+    checkPrivateQuery(_q);
+
+    const q = _q._init("", "");
+
     expect(q.status.value).toBe("fetching");
 
     await nextTick();
@@ -20,7 +25,12 @@ describe("query", () => {
   });
 
   it("fetch error query", async () => {
-    const q = query(() => Promise.reject(new Error("error")))("", "");
+    const _q = query(() => Promise.reject(new Error("error")));
+
+    checkPrivateQuery(_q);
+
+    const q = _q._init("", "");
+
     expect(q.status.value).toBe("fetching");
 
     await nextTick();
@@ -33,7 +43,10 @@ describe("query", () => {
     const q = query(() => Promise.resolve(1));
 
     expect(isQuery(q)).toBe(true);
-    expect(q("", "").status.value).toBe("fetching");
+
+    checkPrivateQuery(q);
+
+    expect(q._init("", "").status.value).toBe("fetching");
   });
 
   it("check query in store", async () => {

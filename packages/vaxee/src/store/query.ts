@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue";
+import { readonly, ref, type Ref } from "vue";
 import { useVaxee } from "../composables/useVaxee";
 
 const querySymbol = Symbol("vaxee-query");
@@ -11,18 +11,32 @@ export enum VaxeeQueryStatus {
   Success = "success",
 }
 
-export type VaxeeQueryState<T> = {
+export interface VaxeeQueryState<T> {
   data: Ref<null | T>;
   error: Ref<null | Error>;
   status: Ref<VaxeeQueryStatus>;
   suspense: () => Promise<void>;
   refresh: () => Promise<void>;
-};
+}
 
-export type VaxeeQuery<T> = {
-  (store: string, key: string): VaxeeQueryState<T>;
+export interface VaxeeQuery<T> {
+  status: VaxeeQueryState<T>["status"];
+  data: VaxeeQueryState<T>["data"];
+  refresh: VaxeeQueryState<T>["refresh"];
+}
+
+interface VaxeePrivateQuery<T> extends VaxeeQuery<T> {
+  _init(store: string, key: string): VaxeeQueryState<T>;
   QuerySymbol: typeof querySymbol;
-};
+}
+
+export function checkPrivateQuery(
+  query: any
+): asserts query is VaxeePrivateQuery<any> {
+  if (query?.QuerySymbol !== querySymbol) {
+    throw new Error("This is not a private query");
+  }
+}
 
 interface VaxeeQueryParams {
   /**
@@ -42,50 +56,16 @@ export function query<T>(
   callback: (params: VaxeeQueryParams) => Promise<T>,
   options: VaxeeQueryOptions = {}
 ): VaxeeQuery<T> {
-  function _query(store: string, key: string) {
-    let abortController: AbortController | null = null;
-    const vaxee = useVaxee();
-
-    const q = {
-      data: ref(null),
-      error: ref(null),
-      status: ref(
-        options.sendManually
-          ? VaxeeQueryStatus.NotFetched
-          : VaxeeQueryStatus.Fetching
-      ),
-      suspense: () => Promise.resolve(),
-    } as VaxeeQueryState<T>;
-
-    const sendQuery = async () => {
-      let isAborted = false;
-
-      if (abortController) {
-        abortController.abort();
-      }
-
-      abortController = new AbortController();
-
-      abortController.signal.onabort = () => {
-        isAborted = true;
-      };
-
-      try {
-        const data = await callback({ signal: abortController.signal });
-
-        q.data.value = data;
-        q.status.value = VaxeeQueryStatus.Success;
-        abortController = null;
-      } catch (error) {
-        if (!isAborted) {
-          q.error.value = error as Error;
-          q.status.value = VaxeeQueryStatus.Error;
-          abortController = null;
-        }
-      }
-    };
-
-    q.refresh = async () => {
+  const q: VaxeeQueryState<T> = {
+    data: ref<T | null>(null) as Ref<T | null>,
+    error: ref<Error | null>(null),
+    status: ref<VaxeeQueryStatus>(
+      options.sendManually
+        ? VaxeeQueryStatus.NotFetched
+        : VaxeeQueryStatus.Fetching
+    ),
+    suspense: () => Promise.resolve(),
+    async refresh() {
       q.status.value = VaxeeQueryStatus.Refreshing;
       q.error.value = null;
       const promise = sendQuery();
@@ -93,7 +73,41 @@ export function query<T>(
       q.suspense = () => promise;
 
       return promise;
+    },
+  };
+
+  let abortController: AbortController | null = null;
+
+  const sendQuery = async () => {
+    let isAborted = false;
+
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
+
+    abortController.signal.onabort = () => {
+      isAborted = true;
     };
+
+    try {
+      const data = await callback({ signal: abortController.signal });
+
+      q.data.value = data;
+      q.status.value = VaxeeQueryStatus.Success;
+      abortController = null;
+    } catch (error) {
+      if (!isAborted) {
+        q.error.value = error as Error;
+        q.status.value = VaxeeQueryStatus.Error;
+        abortController = null;
+      }
+    }
+  };
+
+  function _init(store: string, key: string) {
+    const vaxee = useVaxee();
 
     const initial =
       vaxee.state.value[store]?.[key] &&
@@ -110,8 +124,6 @@ export function query<T>(
       q.error.value = initial.error;
       q.status.value = initial.status;
 
-      q.suspense = () => Promise.resolve();
-
       return q;
     }
 
@@ -124,9 +136,17 @@ export function query<T>(
     return q;
   }
 
-  _query.QuerySymbol = querySymbol;
+  const returning: VaxeePrivateQuery<T> = {
+    ...({
+      status: readonly(q.status),
+      data: readonly(q.data) as VaxeeQueryState<T>["data"],
+      refresh: q.refresh,
+    } satisfies VaxeeQuery<T>),
+    _init,
+    QuerySymbol: querySymbol,
+  };
 
-  return _query;
+  return returning as VaxeeQuery<T>;
 }
 
 export const isQuery = (query: any): query is VaxeeQuery<any> =>

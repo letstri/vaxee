@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, shallowRef, watch, computed, unref, reactive } from "vue";
+import { ref, hasInjectionContext, inject, shallowRef, watch, computed, readonly, unref, reactive } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -100,49 +100,54 @@ var VaxeeQueryStatus = /* @__PURE__ */ ((VaxeeQueryStatus2) => {
   VaxeeQueryStatus2["Success"] = "success";
   return VaxeeQueryStatus2;
 })(VaxeeQueryStatus || {});
+function checkPrivateQuery(query2) {
+  if ((query2 == null ? void 0 : query2.QuerySymbol) !== querySymbol) {
+    throw new Error("This is not a private query");
+  }
+}
 function query(callback, options = {}) {
-  function _query(store, key) {
-    var _a;
-    let abortController = null;
-    const vaxee = useVaxee();
-    const q = {
-      data: ref(null),
-      error: ref(null),
-      status: ref(
-        options.sendManually ? "not-fetched" : "fetching"
-        /* Fetching */
-      ),
-      suspense: () => Promise.resolve()
-    };
-    const sendQuery = async () => {
-      let isAborted = false;
-      if (abortController) {
-        abortController.abort();
-      }
-      abortController = new AbortController();
-      abortController.signal.onabort = () => {
-        isAborted = true;
-      };
-      try {
-        const data = await callback({ signal: abortController.signal });
-        q.data.value = data;
-        q.status.value = "success";
-        abortController = null;
-      } catch (error) {
-        if (!isAborted) {
-          q.error.value = error;
-          q.status.value = "error";
-          abortController = null;
-        }
-      }
-    };
-    q.refresh = async () => {
+  const q = {
+    data: ref(null),
+    error: ref(null),
+    status: ref(
+      options.sendManually ? "not-fetched" : "fetching"
+      /* Fetching */
+    ),
+    suspense: () => Promise.resolve(),
+    async refresh() {
       q.status.value = "refreshing";
       q.error.value = null;
       const promise = sendQuery();
       q.suspense = () => promise;
       return promise;
+    }
+  };
+  let abortController = null;
+  const sendQuery = async () => {
+    let isAborted = false;
+    if (abortController) {
+      abortController.abort();
+    }
+    abortController = new AbortController();
+    abortController.signal.onabort = () => {
+      isAborted = true;
     };
+    try {
+      const data = await callback({ signal: abortController.signal });
+      q.data.value = data;
+      q.status.value = "success";
+      abortController = null;
+    } catch (error) {
+      if (!isAborted) {
+        q.error.value = error;
+        q.status.value = "error";
+        abortController = null;
+      }
+    }
+  };
+  function _init(store, key) {
+    var _a;
+    const vaxee = useVaxee();
     const initial = ((_a = vaxee.state.value[store]) == null ? void 0 : _a[key]) && vaxee.state.value[store][key].status !== "fetching" ? {
       data: vaxee.state.value[store][key].data,
       status: vaxee.state.value[store][key].status,
@@ -152,7 +157,6 @@ function query(callback, options = {}) {
       q.data.value = initial.data;
       q.error.value = initial.error;
       q.status.value = initial.status;
-      q.suspense = () => Promise.resolve();
       return q;
     }
     if (!options.sendManually) {
@@ -161,8 +165,16 @@ function query(callback, options = {}) {
     }
     return q;
   }
-  _query.QuerySymbol = querySymbol;
-  return _query;
+  const returning = {
+    ...{
+      status: readonly(q.status),
+      data: readonly(q.data),
+      refresh: q.refresh
+    },
+    _init,
+    QuerySymbol: querySymbol
+  };
+  return returning;
 }
 const isQuery = (query2) => (query2 == null ? void 0 : query2.QuerySymbol) === querySymbol;
 function parseStore(store) {
@@ -203,7 +215,8 @@ function prepareStore(name, store) {
   }
   const preparedQueries = {};
   for (const key in queries) {
-    const query2 = queries[key](name, key);
+    checkPrivateQuery(queries[key]);
+    const query2 = queries[key]._init(name, key);
     states[key] = state({
       data: query2.data,
       error: query2.error,

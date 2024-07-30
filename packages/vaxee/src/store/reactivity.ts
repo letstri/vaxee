@@ -12,7 +12,9 @@ import { IS_CLIENT } from "../constants";
 const stateSymbol = Symbol("vaxee-state");
 const getterSymbol = Symbol("vaxee-getter");
 
-export type VaxeeState<T> = Ref<T> & {
+export type VaxeeState<T> = Ref<T>;
+
+type VaxeePrivateState<T> = VaxeeState<T> & {
   StateSymbol: typeof stateSymbol;
   _persist: null | {
     get: () => any;
@@ -66,7 +68,7 @@ export function state<T>(
 ): VaxeeState<T> {
   const _ref = (
     options?.shallow ? shallowRef(value) : ref(value)
-  ) as VaxeeState<T>;
+  ) as VaxeePrivateState<T>;
 
   _ref.StateSymbol = stateSymbol;
 
@@ -101,18 +103,20 @@ export function state<T>(
     );
   }
 
-  return _ref;
+  return _ref as VaxeeState<T>;
 }
 
 export const isState = (ref: any): ref is VaxeeState<any> =>
   ref?.StateSymbol === stateSymbol;
 
-export type VaxeeGetter<T> = ComputedRef<T> & {
+export type VaxeeGetter<T> = ComputedRef<T>;
+
+export type VaxeePrivateGetter<T> = VaxeeGetter<T> & {
   GetterSymbol: typeof getterSymbol;
 };
 
 export function getter<T>(fn: () => T): VaxeeGetter<T> {
-  const ref = computed(() => fn()) as VaxeeGetter<T>;
+  const ref = computed(() => fn()) as VaxeePrivateGetter<T>;
 
   ref.GetterSymbol = getterSymbol;
 

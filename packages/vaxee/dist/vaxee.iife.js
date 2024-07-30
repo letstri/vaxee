@@ -101,49 +101,54 @@ var vaxee = function(exports, vue2) {
     VaxeeQueryStatus2["Success"] = "success";
     return VaxeeQueryStatus2;
   })(VaxeeQueryStatus || {});
+  function checkPrivateQuery(query2) {
+    if ((query2 == null ? void 0 : query2.QuerySymbol) !== querySymbol) {
+      throw new Error("This is not a private query");
+    }
+  }
   function query(callback, options = {}) {
-    function _query(store, key) {
-      var _a;
-      let abortController = null;
-      const vaxee2 = useVaxee();
-      const q = {
-        data: vue2.ref(null),
-        error: vue2.ref(null),
-        status: vue2.ref(
-          options.sendManually ? "not-fetched" : "fetching"
-          /* Fetching */
-        ),
-        suspense: () => Promise.resolve()
-      };
-      const sendQuery = async () => {
-        let isAborted = false;
-        if (abortController) {
-          abortController.abort();
-        }
-        abortController = new AbortController();
-        abortController.signal.onabort = () => {
-          isAborted = true;
-        };
-        try {
-          const data = await callback({ signal: abortController.signal });
-          q.data.value = data;
-          q.status.value = "success";
-          abortController = null;
-        } catch (error) {
-          if (!isAborted) {
-            q.error.value = error;
-            q.status.value = "error";
-            abortController = null;
-          }
-        }
-      };
-      q.refresh = async () => {
+    const q = {
+      data: vue2.ref(null),
+      error: vue2.ref(null),
+      status: vue2.ref(
+        options.sendManually ? "not-fetched" : "fetching"
+        /* Fetching */
+      ),
+      suspense: () => Promise.resolve(),
+      async refresh() {
         q.status.value = "refreshing";
         q.error.value = null;
         const promise = sendQuery();
         q.suspense = () => promise;
         return promise;
+      }
+    };
+    let abortController = null;
+    const sendQuery = async () => {
+      let isAborted = false;
+      if (abortController) {
+        abortController.abort();
+      }
+      abortController = new AbortController();
+      abortController.signal.onabort = () => {
+        isAborted = true;
       };
+      try {
+        const data = await callback({ signal: abortController.signal });
+        q.data.value = data;
+        q.status.value = "success";
+        abortController = null;
+      } catch (error) {
+        if (!isAborted) {
+          q.error.value = error;
+          q.status.value = "error";
+          abortController = null;
+        }
+      }
+    };
+    function _init(store, key) {
+      var _a;
+      const vaxee2 = useVaxee();
       const initial = ((_a = vaxee2.state.value[store]) == null ? void 0 : _a[key]) && vaxee2.state.value[store][key].status !== "fetching" ? {
         data: vaxee2.state.value[store][key].data,
         status: vaxee2.state.value[store][key].status,
@@ -153,7 +158,6 @@ var vaxee = function(exports, vue2) {
         q.data.value = initial.data;
         q.error.value = initial.error;
         q.status.value = initial.status;
-        q.suspense = () => Promise.resolve();
         return q;
       }
       if (!options.sendManually) {
@@ -162,8 +166,16 @@ var vaxee = function(exports, vue2) {
       }
       return q;
     }
-    _query.QuerySymbol = querySymbol;
-    return _query;
+    const returning = {
+      ...{
+        status: vue2.readonly(q.status),
+        data: vue2.readonly(q.data),
+        refresh: q.refresh
+      },
+      _init,
+      QuerySymbol: querySymbol
+    };
+    return returning;
   }
   const isQuery = (query2) => (query2 == null ? void 0 : query2.QuerySymbol) === querySymbol;
   function parseStore(store) {
@@ -204,7 +216,8 @@ var vaxee = function(exports, vue2) {
     }
     const preparedQueries = {};
     for (const key in queries) {
-      const query2 = queries[key](name, key);
+      checkPrivateQuery(queries[key]);
+      const query2 = queries[key]._init(name, key);
       states[key] = state({
         data: query2.data,
         error: query2.error,

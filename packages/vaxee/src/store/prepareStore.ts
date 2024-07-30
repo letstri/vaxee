@@ -1,9 +1,8 @@
-import { watch } from "vue";
 import type { BaseStore } from "./createStore";
 import { useVaxee } from "../composables/useVaxee";
 import { parseStore } from "./parseStore";
 import type { VaxeeInternalStore } from "../plugin";
-import type { VaxeeQueryState } from "./query";
+import { type VaxeeQueryState, checkPrivateQuery } from "./query";
 import { state } from "./reactivity";
 
 export function prepareStore<Store extends BaseStore>(
@@ -27,7 +26,9 @@ export function prepareStore<Store extends BaseStore>(
   const preparedQueries = {} as Record<string, VaxeeQueryState<any>>;
 
   for (const key in queries) {
-    const query = queries[key](name, key);
+    checkPrivateQuery(queries[key]);
+
+    const query = queries[key]._init(name, key);
 
     states[key] = state({
       data: query.data,
