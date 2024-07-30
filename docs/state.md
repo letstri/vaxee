@@ -46,8 +46,6 @@ interface VaxeeStateOptions {
       };
 }
 
-function state<T>(value: T, options?: VaxeeStateOptions): VaxeeState<T>;
-
 // Example
 const count = state(0, { shallow: true, persist: "count" });
 ```

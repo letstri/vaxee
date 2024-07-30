@@ -25,6 +25,40 @@ export const useUserStore = createStore("user", ({ query }) => {
 
 This small example includes **caching** the data, **error handling** and loading **states**. Now each call of `useUserStore` won't trigger a new request to the server. Instead, it will return the **cached data**.
 
+### Parameters
+
+The `query` function accepts a function that returns a promise. This function provides arguments that can be used to customize the behavior of the query.
+
+- `signal` - an [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) object that allows you to abort the query. You can use it to cancel the query when the component is unmounted.
+
+```ts
+interface VaxeeQueryParams {
+  signal: AbortSignal;
+}
+
+// Example
+const users = query(({ signal }) =>
+  fetch("/users", { signal }).then((res) => res.json())
+);
+```
+
+### Options
+
+You can pass options to the `query` function to customize the behavior.
+
+- `sendManually` - boolean property that determines whether the query should be sent manually. Default is `false`.
+
+```ts
+interface VaxeeQueryOptions {
+  sendManually?: boolean;
+}
+
+// Example
+const users = query(() => fetchUser(), {
+  sendManually: true,
+});
+```
+
 ## Usage
 
 Let's use this query in a component.
