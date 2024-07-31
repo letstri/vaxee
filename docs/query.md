@@ -37,7 +37,7 @@ interface VaxeeQueryParams {
 
 #### `signal`
 
-An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) object that allows you to abort the query. You can use it to cancel the query when the component is unmounted.
+An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) object is used to automatically abort the query when the request is sent multiple times.
 
 ```ts
 const useUsersStore = createStore("users", ({ query }) => {
