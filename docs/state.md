@@ -99,9 +99,9 @@ To update the state outside any **component** or **composable** function, you ca
 
 ```ts
 router.beforeEach(() => {
-  const counterStore = useCounterStore();
+  const { count } = useCounterStore();
 
-  counterStore.count++;
+  count.value++;
 
   return true;
 });

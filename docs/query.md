@@ -75,16 +75,16 @@ const useUserStore = createStore("user", ({ query }) => {
 });
 ```
 
-And then you can call the `refresh` function to send the query manually.
+And then you can call the `execute` function to send the query manually.
 
 ```vue
 <script setup>
 const {
-  user: { refresh },
+  user: { execute },
 } = useUserStore();
 
 onMounted(() => {
-  refresh();
+  execute();
 });
 </script>
 ```
@@ -103,6 +103,7 @@ const {
     data: user,
     status: userStatus,
     error: userError,
+    execute: executeUser,
     refresh: refreshUser,
   },
 } = useUserStore();
@@ -116,6 +117,7 @@ const {
   <div v-if="userStatus === 'fetching'">Loading...</div>
   <div v-else-if="userStatus === 'error'">Error: {{ userError.message }}</div>
   <div v-else>
+    Refreshing: {{ userStatus === "refreshing" }}<br />
     <p>User ID: {{ user.data.id }}</p>
     <p>User Name: {{ user.data.name }}</p>
     <p>User Email: {{ user.data.email }}</p>
@@ -129,7 +131,8 @@ The `query` function returns an object with the following properties:
 
 - `data` - The data returned from the query. It's a `ref` object.
 - `error` - The error returned from the query. It's a `ref` object.
-- `refresh` - A function that refreshes the query.
+- `execute` - A function that sends the query and clears the data.
+- `refresh` - A function that refreshes the query without clearing the data.
 - `status` - The status of the query. It's a `ref` object. It can be one of the following values:
 
 ```ts
