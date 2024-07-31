@@ -61,7 +61,7 @@ interface VaxeeQueryOptions {
 
 #### `sendManually`
 
-`boolean` property that determines whether the query should be sent manually.
+By default, the query is sent automatically when the store is used. You can pass a `boolean` property that determines whether the query should be sent manually.
 
 > Default is `false`.
 
