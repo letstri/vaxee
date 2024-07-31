@@ -22,6 +22,7 @@ export default defineConfig({
       enabled: true,
       provider: "webdriverio",
       headless: true,
+      screenshotFailures: false,
       name: "chrome",
     },
     alias: {

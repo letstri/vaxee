@@ -18,6 +18,7 @@ export interface VaxeeQueryState<T> {
 export interface VaxeeQuery<T> {
     status: VaxeeQueryState<T>["status"];
     data: VaxeeQueryState<T>["data"];
+    error: VaxeeQueryState<T>["error"];
     execute: VaxeeQueryState<T>["execute"];
     refresh: VaxeeQueryState<T>["refresh"];
 }

@@ -36,7 +36,6 @@ export function prepareStore<Store extends BaseStore>(
       status: query.status,
     });
 
-    // TODO: rethink this due to saving the same data from states[key]
     preparedQueries[key] = query;
   }
 

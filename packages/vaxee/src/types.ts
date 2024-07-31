@@ -1,6 +1,4 @@
-import type { VaxeeState, VaxeeGetter } from "./store/reactivity";
-import type { VaxeeQuery } from "./store/query";
-import type { ComputedRef, Ref, UnwrapNestedRefs } from "vue";
+import type { ComputedRef, Ref } from "vue";
 
 export type ReturnTypes<T extends Record<string, (...args: any) => any>> = {
   [K in keyof T]: ReturnType<T[K]>;

@@ -23,6 +23,7 @@ export interface VaxeeQueryState<T> {
 export interface VaxeeQuery<T> {
   status: VaxeeQueryState<T>["status"];
   data: VaxeeQueryState<T>["data"];
+  error: VaxeeQueryState<T>["error"];
   execute: VaxeeQueryState<T>["execute"];
   refresh: VaxeeQueryState<T>["refresh"];
 }
@@ -151,6 +152,7 @@ export function query<T>(
   const returning: VaxeePrivateQuery<T> = {
     status: readonly(q.status),
     data: readonly(q.data) as VaxeeQueryState<T>["data"],
+    error: readonly(q.error),
     execute: q.execute,
     refresh: q.refresh,
     _init,

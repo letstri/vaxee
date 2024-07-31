@@ -176,6 +176,7 @@ function query(callback, options = {}) {
   const returning = {
     status: readonly(q.status),
     data: readonly(q.data),
+    error: readonly(q.error),
     execute: q.execute,
     refresh: q.refresh,
     _init,

@@ -177,6 +177,7 @@ var vaxee = function(exports, vue2) {
     const returning = {
       status: vue2.readonly(q.status),
       data: vue2.readonly(q.data),
+      error: vue2.readonly(q.error),
       execute: q.execute,
       refresh: q.refresh,
       _init,
