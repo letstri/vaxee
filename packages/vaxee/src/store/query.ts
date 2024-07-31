@@ -16,12 +16,14 @@ export interface VaxeeQueryState<T> {
   error: Ref<null | Error>;
   status: Ref<VaxeeQueryStatus>;
   suspense: () => Promise<void>;
+  execute: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
 export interface VaxeeQuery<T> {
   status: VaxeeQueryState<T>["status"];
   data: VaxeeQueryState<T>["data"];
+  execute: VaxeeQueryState<T>["execute"];
   refresh: VaxeeQueryState<T>["refresh"];
 }
 
@@ -65,6 +67,16 @@ export function query<T>(
         : VaxeeQueryStatus.Fetching
     ),
     suspense: () => Promise.resolve(),
+    async execute() {
+      q.data.value = null;
+      q.status.value = VaxeeQueryStatus.Fetching;
+      q.error.value = null;
+      const promise = sendQuery();
+
+      q.suspense = () => promise;
+
+      return promise;
+    },
     async refresh() {
       q.status.value = VaxeeQueryStatus.Refreshing;
       q.error.value = null;
@@ -137,11 +149,10 @@ export function query<T>(
   }
 
   const returning: VaxeePrivateQuery<T> = {
-    ...({
-      status: readonly(q.status),
-      data: readonly(q.data) as VaxeeQueryState<T>["data"],
-      refresh: q.refresh,
-    } satisfies VaxeeQuery<T>),
+    status: readonly(q.status),
+    data: readonly(q.data) as VaxeeQueryState<T>["data"],
+    execute: q.execute,
+    refresh: q.refresh,
     _init,
     QuerySymbol: querySymbol,
   };

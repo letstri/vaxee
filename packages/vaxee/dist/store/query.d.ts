@@ -12,11 +12,13 @@ export interface VaxeeQueryState<T> {
     error: Ref<null | Error>;
     status: Ref<VaxeeQueryStatus>;
     suspense: () => Promise<void>;
+    execute: () => Promise<void>;
     refresh: () => Promise<void>;
 }
 export interface VaxeeQuery<T> {
     status: VaxeeQueryState<T>["status"];
     data: VaxeeQueryState<T>["data"];
+    execute: VaxeeQueryState<T>["execute"];
     refresh: VaxeeQueryState<T>["refresh"];
 }
 interface VaxeePrivateQuery<T> extends VaxeeQuery<T> {

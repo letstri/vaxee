@@ -153,4 +153,28 @@ describe("query", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(q.data.value).toBe(1);
   });
+
+  it("check execute function", async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ query }) => {
+      const q = query(() => {
+        spy();
+        return Promise.resolve(1);
+      });
+      return { q };
+    });
+
+    const { q } = useStore();
+
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    q.execute();
+
+    expect(q.data.value).toBe(null);
+
+    await q.suspense();
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(q.data.value).toBe(1);
+  });
 });

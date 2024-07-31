@@ -114,6 +114,14 @@ function query(callback, options = {}) {
       /* Fetching */
     ),
     suspense: () => Promise.resolve(),
+    async execute() {
+      q.data.value = null;
+      q.status.value = "fetching";
+      q.error.value = null;
+      const promise = sendQuery();
+      q.suspense = () => promise;
+      return promise;
+    },
     async refresh() {
       q.status.value = "refreshing";
       q.error.value = null;
@@ -166,11 +174,10 @@ function query(callback, options = {}) {
     return q;
   }
   const returning = {
-    ...{
-      status: readonly(q.status),
-      data: readonly(q.data),
-      refresh: q.refresh
-    },
+    status: readonly(q.status),
+    data: readonly(q.data),
+    execute: q.execute,
+    refresh: q.refresh,
     _init,
     QuerySymbol: querySymbol
   };

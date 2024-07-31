@@ -115,6 +115,14 @@ var vaxee = function(exports, vue2) {
         /* Fetching */
       ),
       suspense: () => Promise.resolve(),
+      async execute() {
+        q.data.value = null;
+        q.status.value = "fetching";
+        q.error.value = null;
+        const promise = sendQuery();
+        q.suspense = () => promise;
+        return promise;
+      },
       async refresh() {
         q.status.value = "refreshing";
         q.error.value = null;
@@ -167,11 +175,10 @@ var vaxee = function(exports, vue2) {
       return q;
     }
     const returning = {
-      ...{
-        status: vue2.readonly(q.status),
-        data: vue2.readonly(q.data),
-        refresh: q.refresh
-      },
+      status: vue2.readonly(q.status),
+      data: vue2.readonly(q.data),
+      execute: q.execute,
+      refresh: q.refresh,
       _init,
       QuerySymbol: querySymbol
     };
