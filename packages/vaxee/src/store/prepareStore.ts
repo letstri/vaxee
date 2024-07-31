@@ -2,7 +2,7 @@ import type { BaseStore } from "./createStore";
 import { useVaxee } from "../composables/useVaxee";
 import { parseStore } from "./parseStore";
 import type { VaxeeInternalStore } from "../plugin";
-import { type VaxeeQueryState, checkPrivateQuery } from "./query";
+import { type VaxeeQuery, checkPrivateQuery } from "./query";
 import { state } from "./reactivity";
 
 export function prepareStore<Store extends BaseStore>(
@@ -23,7 +23,7 @@ export function prepareStore<Store extends BaseStore>(
     }
   }
 
-  const preparedQueries = {} as Record<string, VaxeeQueryState<any>>;
+  const preparedQueries = {} as Record<string, VaxeeQuery<any>>;
 
   for (const key in queries) {
     checkPrivateQuery(queries[key]);

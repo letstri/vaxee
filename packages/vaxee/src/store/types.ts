@@ -20,17 +20,10 @@ export type VaxeeStoreGetters<T> = UnwrapNestedRefs<
 type VaxeeStoreQueriesNames<T> = {
   [K in keyof T]: T[K] extends VaxeeQuery<any> ? K : never;
 }[keyof T];
-export type VaxeeStoreQueries<T> = ReturnTypes<
-  // @ts-ignore
-  Pick<T, VaxeeStoreQueriesNames<T>>
->;
+export type VaxeeStoreQueries<T> = Pick<T, VaxeeStoreQueriesNames<T>>;
 
 type VaxeeStoreActionsNames<T> = {
-  [K in keyof T]: T[K] extends Function
-    ? T[K] extends VaxeeQuery<any>
-      ? never
-      : K
-    : never;
+  [K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
 export type VaxeeStoreActions<T> = Pick<T, VaxeeStoreActionsNames<T>>;
 

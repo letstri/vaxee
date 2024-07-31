@@ -7,7 +7,7 @@ export declare enum VaxeeQueryStatus {
     Error = "error",
     Success = "success"
 }
-export interface VaxeeQueryState<T> {
+export interface VaxeeQuery<T> {
     data: Ref<null | T>;
     error: Ref<null | Error>;
     status: Ref<VaxeeQueryStatus>;
@@ -15,16 +15,9 @@ export interface VaxeeQueryState<T> {
     execute: () => Promise<void>;
     refresh: () => Promise<void>;
 }
-export interface VaxeeQuery<T> {
-    status: VaxeeQueryState<T>["status"];
-    data: VaxeeQueryState<T>["data"];
-    error: VaxeeQueryState<T>["error"];
-    execute: VaxeeQueryState<T>["execute"];
-    refresh: VaxeeQueryState<T>["refresh"];
-}
 interface VaxeePrivateQuery<T> extends VaxeeQuery<T> {
-    _init(store: string, key: string): VaxeeQueryState<T>;
     QuerySymbol: typeof querySymbol;
+    _init(store: string, key: string): VaxeeQuery<T>;
 }
 export declare function checkPrivateQuery(query: any): asserts query is VaxeePrivateQuery<any>;
 interface VaxeeQueryParams {

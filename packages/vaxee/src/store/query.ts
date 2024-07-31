@@ -11,7 +11,7 @@ export enum VaxeeQueryStatus {
   Success = "success",
 }
 
-export interface VaxeeQueryState<T> {
+export interface VaxeeQuery<T> {
   data: Ref<null | T>;
   error: Ref<null | Error>;
   status: Ref<VaxeeQueryStatus>;
@@ -20,17 +20,9 @@ export interface VaxeeQueryState<T> {
   refresh: () => Promise<void>;
 }
 
-export interface VaxeeQuery<T> {
-  status: VaxeeQueryState<T>["status"];
-  data: VaxeeQueryState<T>["data"];
-  error: VaxeeQueryState<T>["error"];
-  execute: VaxeeQueryState<T>["execute"];
-  refresh: VaxeeQueryState<T>["refresh"];
-}
-
 interface VaxeePrivateQuery<T> extends VaxeeQuery<T> {
-  _init(store: string, key: string): VaxeeQueryState<T>;
   QuerySymbol: typeof querySymbol;
+  _init(store: string, key: string): VaxeeQuery<T>;
 }
 
 export function checkPrivateQuery(
@@ -59,7 +51,7 @@ export function query<T>(
   callback: (params: VaxeeQueryParams) => Promise<T>,
   options: VaxeeQueryOptions = {}
 ): VaxeeQuery<T> {
-  const q: VaxeeQueryState<T> = {
+  const q: VaxeeQuery<T> = {
     data: ref<T | null>(null) as Ref<T | null>,
     error: ref<Error | null>(null),
     status: ref<VaxeeQueryStatus>(
@@ -150,16 +142,15 @@ export function query<T>(
   }
 
   const returning: VaxeePrivateQuery<T> = {
+    ...q,
     status: readonly(q.status),
-    data: readonly(q.data) as VaxeeQueryState<T>["data"],
+    data: readonly(q.data) as VaxeeQuery<T>["data"],
     error: readonly(q.error),
-    execute: q.execute,
-    refresh: q.refresh,
     _init,
     QuerySymbol: querySymbol,
   };
 
-  return returning as VaxeeQuery<T>;
+  return returning;
 }
 
 export const isQuery = (query: any): query is VaxeeQuery<any> =>

@@ -174,11 +174,10 @@ function query(callback, options = {}) {
     return q;
   }
   const returning = {
+    ...q,
     status: readonly(q.status),
     data: readonly(q.data),
     error: readonly(q.error),
-    execute: q.execute,
-    refresh: q.refresh,
     _init,
     QuerySymbol: querySymbol
   };
