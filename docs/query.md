@@ -75,6 +75,8 @@ const useUserStore = createStore("user", ({ query }) => {
 });
 ```
 
+And then you can call the `refresh` function to send the query manually.
+
 ```vue
 <script setup>
 const {
