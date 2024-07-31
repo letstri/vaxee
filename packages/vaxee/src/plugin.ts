@@ -6,7 +6,11 @@ import type {
   VaxeeStoreQueries,
   VaxeeStoreState,
 } from "./store/types";
-import type { BaseStore, VaxeeStore } from "./store/createStore";
+import type {
+  BaseStore,
+  VaxeeReactiveStore,
+  VaxeeStore,
+} from "./store/createStore";
 import { IS_CLIENT, IS_DEV, VAXEE_LOG_START } from "./constants";
 
 export const vaxeeSymbol = Symbol("vaxee");
@@ -14,7 +18,7 @@ export const vaxeeSymbol = Symbol("vaxee");
 export type VaxeeInternalStore<
   Store extends BaseStore,
   Refs extends boolean = true
-> = VaxeeStore<Store, Refs> & {
+> = (Refs extends true ? VaxeeStore<Store> : VaxeeReactiveStore<Store>) & {
   _state: VaxeeStoreState<Store>;
   _actions: VaxeeStoreActions<Store>;
   _getters: VaxeeStoreGetters<Store>;
