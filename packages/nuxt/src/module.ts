@@ -16,6 +16,8 @@ export interface ModuleOptions {
    * directly adding the dirs to the `imports.dirs` option. If you want to
    * also import nested stores, you can use the glob pattern `./stores/**`
    *
+   * Dirs always look for the directories in the `srcDir` folder.
+   *
    * @default `['stores']`
    */
   dirs?: string[];
