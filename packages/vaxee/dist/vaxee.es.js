@@ -73,7 +73,7 @@ function state(value, options) {
   }
   if (_ref._persist) {
     const persisted = _ref._persist.get();
-    if (persisted !== null && persisted !== void 0) _ref.value = persisted;
+    if (persisted !== void 0) _ref.value = persisted;
     watch(
       _ref,
       (value2) => {
