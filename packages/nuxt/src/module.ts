@@ -50,7 +50,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     options.dirs ||= ["stores"];
 
     for (const storeDir of options.dirs) {
-      addImportsDir(resolver.resolve(nuxt.options.rootDir, storeDir));
+      addImportsDir(resolver.resolve(nuxt.options.srcDir, storeDir));
     }
   },
 });
