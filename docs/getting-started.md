@@ -101,6 +101,25 @@ export default defineNuxtConfig({
 });
 ```
 
+#### Nuxt Layers
+
+If you are using Nuxt Layers, you should set the `vaxee` option in the `nuxt.config.ts` file due to the [limitation of the Nuxt Layers](https://nuxt.com/docs/guide/going-further/layers#relative-paths-and-aliases).
+
+```ts
+// nuxt.config.ts of some layer
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
+
+export default defineNuxtConfig({
+  modules: ["@vaxee/nuxt"],
+  vaxee: {
+    dirs: [join(currentDir, "./stores")],
+  },
+});
+```
+
 ## Usage
 
 Let's create a simple store with a counter.
