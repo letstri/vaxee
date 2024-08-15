@@ -101,7 +101,7 @@ export default defineNuxtConfig({
 });
 ```
 
-#### Nuxt Layers
+#### Layers
 
 If you are using Nuxt Layers, you should set the `vaxee` option in the `nuxt.config.ts` file due to the [limitation of the Nuxt Layers](https://nuxt.com/docs/guide/going-further/layers#relative-paths-and-aliases).
 
