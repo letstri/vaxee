@@ -8,6 +8,9 @@ const module = defineNuxtModule({
       nuxt: ">=3.0.0"
     }
   },
+  defaults: {
+    dirs: ["stores"]
+  },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
     nuxt.options.build.transpile.push(resolver.resolve("./runtime"));
