@@ -5,6 +5,9 @@ export default defineConfig({
   title: "Vaxee - State Manager for Vue 3, Pinia alternative",
   description: "State Manager for Vue 3 with cache, query, and more features.",
   themeConfig: {
+    search: {
+      provider: "local",
+    },
     siteTitle: false,
     logo: "/logo.svg",
     nav: [
