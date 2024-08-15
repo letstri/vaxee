@@ -31,6 +31,9 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
       nuxt: ">=3.0.0",
     },
   },
+  defaults: {
+    dirs: ["stores"],
+  },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
 
