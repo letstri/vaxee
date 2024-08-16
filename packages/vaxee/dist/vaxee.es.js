@@ -228,7 +228,6 @@ function prepareStore(name, store) {
     const query2 = queries[key]._init(name, key);
     states[key] = state({
       data: query2.data,
-      error: query2.error,
       status: query2.status
     });
     preparedQueries[key] = query2;

@@ -32,7 +32,6 @@ export function prepareStore<Store extends BaseStore>(
 
     states[key] = state({
       data: query.data,
-      error: query.error,
       status: query.status,
     });
 

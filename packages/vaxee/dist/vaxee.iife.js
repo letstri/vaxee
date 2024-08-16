@@ -229,7 +229,6 @@ var vaxee = function(exports, vue2) {
       const query2 = queries[key]._init(name, key);
       states[key] = state({
         data: query2.data,
-        error: query2.error,
         status: query2.status
       });
       preparedQueries[key] = query2;
