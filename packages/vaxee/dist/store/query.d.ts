@@ -36,6 +36,6 @@ interface VaxeeQueryOptions {
      */
     onError?: <E = unknown>(error: E) => any;
 }
-export declare function query<T>(callback: (params: VaxeeQueryParams) => Promise<T>, options?: VaxeeQueryOptions): VaxeeQuery<T>;
+export declare function query<T>(callback: (params: VaxeeQueryParams) => T | Promise<T>, options?: VaxeeQueryOptions): VaxeeQuery<T>;
 export declare const isQuery: (query: any) => query is VaxeeQuery<any>;
 export {};

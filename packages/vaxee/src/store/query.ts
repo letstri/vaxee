@@ -52,7 +52,7 @@ interface VaxeeQueryOptions {
 }
 
 export function query<T>(
-  callback: (params: VaxeeQueryParams) => Promise<T>,
+  callback: (params: VaxeeQueryParams) => T | Promise<T>,
   options: VaxeeQueryOptions = {}
 ): VaxeeQuery<T> {
   const q: VaxeeQuery<T> = {
