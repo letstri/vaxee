@@ -132,6 +132,7 @@ function query(callback, options = {}) {
   };
   let abortController = null;
   const sendQuery = async () => {
+    var _a;
     let isAborted = false;
     if (abortController) {
       abortController.abort();
@@ -150,6 +151,7 @@ function query(callback, options = {}) {
         q.error.value = error;
         q.status.value = "error";
         abortController = null;
+        (_a = options.onError) == null ? void 0 : _a.call(options, error);
       }
     }
   };

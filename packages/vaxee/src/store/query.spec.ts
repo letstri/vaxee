@@ -177,4 +177,22 @@ describe("query", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(q.data.value).toBe(1);
   });
+
+  it('check "onError" option', async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ query }) => {
+      const q = query(() => Promise.reject(new Error("error")), {
+        onError: spy,
+      });
+      return { q };
+    });
+
+    const { q } = useStore();
+
+    await nextTick();
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(q.error.value!.message).toBe("error");
+  });
 });

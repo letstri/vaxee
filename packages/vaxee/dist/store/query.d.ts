@@ -31,6 +31,10 @@ interface VaxeeQueryOptions {
      * If `true`, the query will not be automatically fetched when the component is mounted.
      */
     sendManually?: boolean;
+    /**
+     * A callback that will be called when an error occurs during the query.
+     */
+    onError?: <E = unknown>(error: E) => any;
 }
 export declare function query<T>(callback: (params: VaxeeQueryParams) => Promise<T>, options?: VaxeeQueryOptions): VaxeeQuery<T>;
 export declare const isQuery: (query: any) => query is VaxeeQuery<any>;

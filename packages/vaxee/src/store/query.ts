@@ -45,6 +45,10 @@ interface VaxeeQueryOptions {
    * If `true`, the query will not be automatically fetched when the component is mounted.
    */
   sendManually?: boolean;
+  /**
+   * A callback that will be called when an error occurs during the query.
+   */
+  onError?: <E = unknown>(error: E) => any;
 }
 
 export function query<T>(
@@ -107,6 +111,7 @@ export function query<T>(
         q.error.value = error as Error;
         q.status.value = VaxeeQueryStatus.Error;
         abortController = null;
+        options.onError?.(error);
       }
     }
   };

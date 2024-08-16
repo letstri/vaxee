@@ -133,6 +133,7 @@ var vaxee = function(exports, vue2) {
     };
     let abortController = null;
     const sendQuery = async () => {
+      var _a;
       let isAborted = false;
       if (abortController) {
         abortController.abort();
@@ -151,6 +152,7 @@ var vaxee = function(exports, vue2) {
           q.error.value = error;
           q.status.value = "error";
           abortController = null;
+          (_a = options.onError) == null ? void 0 : _a.call(options, error);
         }
       }
     };
