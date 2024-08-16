@@ -1,6 +1,6 @@
 {
   "name": "vaxee",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Vaxee is a simple and easy-to-use library for Vue 3 to manage the state of your application.",
   "scripts": {
     "prepublishOnly": "pnpm run test && pnpm run build",
