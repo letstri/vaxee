@@ -173,21 +173,20 @@ const {
   user: { suspense: userSuspense },
 } = useUserStore();
 
+/**
+ * Prefetch the data on the server only when the component is visible on the rendered page.
+ * It won't be fetched on the client side after router navigation.
+ *
+ * @see https://vuejs.org/api/composition-api-lifecycle#onserverprefetch
+ */
 onServerPrefetch(async () => {
   await userSuspense();
 });
-```
 
-### Nuxt
-
-If you are using the Nuxt, you can use the `suspense` function directly in the component.
-
-```ts
-import { useUserStore } from "../stores/user";
-
-const {
-  user: { suspense: userSuspense },
-} = useUserStore();
-
+/**
+ * Prefetch the data every time the component is rendered.
+ *
+ * @see https://vuejs.org/guide/built-ins/suspense.html#async-dependencies
+ */
 await userSuspense();
 ```
