@@ -56,6 +56,7 @@ You can pass options to the `query` function to customize the behavior.
 ```ts
 interface VaxeeQueryOptions {
   sendManually?: boolean;
+  onError?: <E = unknown>(error: E) => any;
 }
 ```
 
@@ -87,6 +88,22 @@ onMounted(() => {
   execute();
 });
 </script>
+```
+
+#### `onError`
+
+You can pass a function that will be called when an error occurs.
+
+```ts
+const useUserStore = createStore("user", ({ query }) => {
+  const user = query(() => fetchUser(), {
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  return { user };
+});
 ```
 
 ## Use a Query
