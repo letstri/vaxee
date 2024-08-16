@@ -116,18 +116,21 @@ import { useUserStore } from "../stores/user";
 
 const {
   // user, userStatus, userError are still reactive
-  user: {
-    data: user,
-    status: userStatus,
-    error: userError,
-    execute: executeUser,
-    refresh: refreshUser,
-  },
-} = useUserStore();
+  data: user,
+  error: userError,
+  status: userStatus,
+  execute: executeUser,
+  refresh: refreshUser,
+  suspense: suspenseUser,
+} = useUserStore("user");
 
 // Or you can use it directly:
 // const store = useUserStore.reactive();
 // store.user.data
+
+onServerPrefetch(async () => {
+  await suspenseUser();
+});
 </script>
 
 <template>
@@ -148,9 +151,10 @@ The `query` function returns an object with the following properties:
 
 - `data` - The data returned from the query. It's a `ref` object.
 - `error` - The error returned from the query. It's a `ref` object.
+- `status` - The status of the query. It's a `ref` object. It can be one of the following values:
 - `execute` - A function that sends the query and clears the data.
 - `refresh` - A function that refreshes the query without clearing the data.
-- `status` - The status of the query. It's a `ref` object. It can be one of the following values:
+- `suspense` - A function that waiting for the promise to resolve. It's useful for server-side rendering (SSR).
 
 ```ts
 enum VaxeeQueryStatus {
@@ -165,6 +169,10 @@ enum VaxeeQueryStatus {
 ## SSR
 
 If you are using some server-side rendering (SSR) framework, you can use the `suspense` function to fetch the data before rendering the component.
+
+::: tip
+`suspense` function won't fetch the data even if you call it multiple times. The sense of this function is to give ability to wait request inside `query` function before rendering the component.
+:::
 
 ```ts
 import { useUserStore } from "../stores/user";
