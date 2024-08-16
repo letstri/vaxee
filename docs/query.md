@@ -182,7 +182,7 @@ const {
 } = useUserStore();
 
 /**
- * Prefetch the data on the server only when the component is visible on the rendered page.
+ * Wait the data resolving on the server only when the component is visible on the rendered page.
  * It won't be fetched on the client side after router navigation.
  *
  * @see https://vuejs.org/api/composition-api-lifecycle#onserverprefetch
@@ -192,7 +192,7 @@ onServerPrefetch(async () => {
 });
 
 /**
- * Prefetch the data every time the component is rendered.
+ * Wait the data resolving every time the component is rendered.
  *
  * @see https://vuejs.org/guide/built-ins/suspense.html#async-dependencies
  */
