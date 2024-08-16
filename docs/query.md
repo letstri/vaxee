@@ -171,7 +171,7 @@ enum VaxeeQueryStatus {
 If you are using some server-side rendering (SSR) framework, you can use the `suspense` function to fetch the data before rendering the component.
 
 ::: tip
-`suspense` function won't fetch the data even if you call it multiple times. The sense of this function is to give ability to wait request inside `query` function before rendering the component.
+The `suspense` function is not responsible for fetching data, even if you call it multiple times. Its purpose is to allow you to wait for the promise inside the `query` function to resolve. To fetch the data, you need to call the `execute` or `refresh` function.
 :::
 
 ```ts
