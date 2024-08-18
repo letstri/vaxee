@@ -56,6 +56,7 @@ You can pass options to the `query` function to customize the behavior.
 ```ts
 interface VaxeeQueryOptions {
   sendManually?: boolean;
+  ssr?: boolean;
   onError?: <E = unknown>(error: E) => any;
 }
 ```
@@ -88,6 +89,22 @@ onMounted(() => {
   execute();
 });
 </script>
+```
+
+#### `ssr`
+
+By default, the query is automatically sent on the server-side if available. You can pass a `boolean` property that determines whether the query should be sent on the server-side rendering. If `false`, the query will be automatically sent only on the client-side.
+
+> Default is `true`.
+
+```ts
+const useUserStore = createStore("user", ({ query }) => {
+  const user = query(() => fetchUser(), {
+    ssr: false,
+  });
+
+  return { user };
+});
 ```
 
 #### `onError`
