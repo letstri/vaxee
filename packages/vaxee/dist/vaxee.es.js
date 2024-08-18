@@ -158,11 +158,7 @@ function query(callback, options = {}) {
   function _init(store, key) {
     var _a;
     const vaxee = useVaxee();
-    const initial = ((_a = vaxee.state.value[store]) == null ? void 0 : _a[key]) && vaxee.state.value[store][key].status !== "fetching" ? {
-      data: vaxee.state.value[store][key].data,
-      status: vaxee.state.value[store][key].status,
-      error: vaxee.state.value[store][key].error
-    } : void 0;
+    const initial = ((_a = vaxee.state.value[store]) == null ? void 0 : _a[key]) && vaxee.state.value[store][key].status !== "fetching" ? vaxee.state.value[store][key] : void 0;
     if (initial) {
       q.data.value = initial.data;
       q.error.value = initial.error;

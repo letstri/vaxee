@@ -159,11 +159,7 @@ var vaxee = function(exports, vue2) {
     function _init(store, key) {
       var _a;
       const vaxee2 = useVaxee();
-      const initial = ((_a = vaxee2.state.value[store]) == null ? void 0 : _a[key]) && vaxee2.state.value[store][key].status !== "fetching" ? {
-        data: vaxee2.state.value[store][key].data,
-        status: vaxee2.state.value[store][key].status,
-        error: vaxee2.state.value[store][key].error
-      } : void 0;
+      const initial = ((_a = vaxee2.state.value[store]) == null ? void 0 : _a[key]) && vaxee2.state.value[store][key].status !== "fetching" ? vaxee2.state.value[store][key] : void 0;
       if (initial) {
         q.data.value = initial.data;
         q.error.value = initial.error;
