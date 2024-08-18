@@ -122,11 +122,7 @@ export function query<T>(
     const initial =
       vaxee.state.value[store]?.[key] &&
       vaxee.state.value[store][key].status !== "fetching"
-        ? {
-            data: vaxee.state.value[store][key].data,
-            status: vaxee.state.value[store][key].status,
-            error: vaxee.state.value[store][key].error,
-          }
+        ? vaxee.state.value[store][key]
         : undefined;
 
     if (initial) {
