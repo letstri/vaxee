@@ -1,5 +1,6 @@
 import { readonly, ref, type Ref } from "vue";
 import { useVaxee } from "../composables/useVaxee";
+import { IS_CLIENT } from "../constants";
 
 const querySymbol = Symbol("vaxee-query");
 
@@ -42,13 +43,17 @@ interface VaxeeQueryParams {
 
 interface VaxeeQueryOptions {
   /**
-   * If `true`, the query will not be automatically fetched when the component is mounted.
+   * If `true`, the query will not be automatically fetched when the component is mounted. Default `false`.
    */
   sendManually?: boolean;
   /**
    * A callback that will be called when an error occurs during the query.
    */
   onError?: <E = unknown>(error: E) => any;
+  /**
+   * If `false`, the query will not be automatically fetched on the server side. Default `true`.
+   */
+  ssr?: boolean;
 }
 
 export function query<T>(
@@ -133,7 +138,7 @@ export function query<T>(
       return q;
     }
 
-    if (!options.sendManually) {
+    if (!options.sendManually && (IS_CLIENT || options.ssr !== false)) {
       const promise = sendQuery();
 
       q.suspense = () => promise;
@@ -144,9 +149,6 @@ export function query<T>(
 
   const returning: VaxeePrivateQuery<T> = {
     ...q,
-    status: readonly(q.status),
-    data: readonly(q.data) as VaxeeQuery<T>["data"],
-    error: readonly(q.error),
     _init,
     QuerySymbol: querySymbol,
   };

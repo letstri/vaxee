@@ -28,13 +28,17 @@ interface VaxeeQueryParams {
 }
 interface VaxeeQueryOptions {
     /**
-     * If `true`, the query will not be automatically fetched when the component is mounted.
+     * If `true`, the query will not be automatically fetched when the component is mounted. Default `false`.
      */
     sendManually?: boolean;
     /**
      * A callback that will be called when an error occurs during the query.
      */
     onError?: <E = unknown>(error: E) => any;
+    /**
+     * If `false`, the query will not be automatically fetched on the server side. Default `true`.
+     */
+    ssr?: boolean;
 }
 export declare function query<T>(callback: (params: VaxeeQueryParams) => T | Promise<T>, options?: VaxeeQueryOptions): VaxeeQuery<T>;
 export declare const isQuery: (query: any) => query is VaxeeQuery<any>;

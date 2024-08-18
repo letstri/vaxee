@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, shallowRef, watch, computed, readonly, unref, reactive } from "vue";
+import { ref, hasInjectionContext, inject, shallowRef, watch, computed, unref, reactive } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -165,7 +165,7 @@ function query(callback, options = {}) {
       q.status.value = initial.status;
       return q;
     }
-    if (!options.sendManually) {
+    if (!options.sendManually && (IS_CLIENT || options.ssr !== false)) {
       const promise = sendQuery();
       q.suspense = () => promise;
     }
@@ -173,9 +173,6 @@ function query(callback, options = {}) {
   }
   const returning = {
     ...q,
-    status: readonly(q.status),
-    data: readonly(q.data),
-    error: readonly(q.error),
     _init,
     QuerySymbol: querySymbol
   };

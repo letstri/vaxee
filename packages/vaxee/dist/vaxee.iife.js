@@ -166,7 +166,7 @@ var vaxee = function(exports, vue2) {
         q.status.value = initial.status;
         return q;
       }
-      if (!options.sendManually) {
+      if (!options.sendManually && (IS_CLIENT || options.ssr !== false)) {
         const promise = sendQuery();
         q.suspense = () => promise;
       }
@@ -174,9 +174,6 @@ var vaxee = function(exports, vue2) {
     }
     const returning = {
       ...q,
-      status: vue2.readonly(q.status),
-      data: vue2.readonly(q.data),
-      error: vue2.readonly(q.error),
       _init,
       QuerySymbol: querySymbol
     };
