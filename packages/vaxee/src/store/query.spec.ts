@@ -195,4 +195,89 @@ describe("query", () => {
     expect(spy).toHaveBeenCalledTimes(1);
     expect(q.error.value!.message).toBe("error");
   });
+
+  it("should watch dependencies", async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ state, query }) => {
+      const count = state(0);
+      const q = query(
+        () => {
+          spy();
+          return 1;
+        },
+        {
+          watch: [count],
+        }
+      );
+      return { count, q };
+    });
+
+    const { count } = useStore();
+
+    await nextTick();
+
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    count.value++;
+
+    await nextTick();
+
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  it('should throw error if "watch" is not valid array', () => {
+    expect(() => {
+      // @ts-expect-error
+      query(() => 1, { watch: [1] });
+    }).toThrow();
+  });
+
+  it('should check "onSuccess" callback', async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ query }) => {
+      const q = query(() => Promise.resolve(1));
+      return { q };
+    });
+
+    const { onSuccess, refresh } = useStore("q");
+
+    await nextTick();
+
+    let res: null | number = null;
+
+    onSuccess((data) => {
+      res = data;
+      spy();
+    });
+
+    expect(res).toBe(1);
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    await refresh();
+
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  it('should check "onError" callback', async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ query }) => {
+      const q = query(() => Promise.reject(new Error("error")));
+      return { q };
+    });
+
+    const { onError, execute } = useStore("q");
+
+    await nextTick();
+
+    onError(spy);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    await execute();
+
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
 });

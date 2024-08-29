@@ -60,6 +60,7 @@ You can pass options to the `query` function to customize the behavior.
 ```ts
 interface VaxeeQueryOptions {
   sendManually?: boolean;
+  watch?: WatchSource[];
   ssr?: boolean;
   onError?: <E = unknown>(error: E) => any;
 }
@@ -93,6 +94,28 @@ onMounted(() => {
   execute();
 });
 </script>
+```
+
+#### `watch`
+
+You can pass an array of `state` objects or `getter` properties or a function that returns a value to watch. If the value changes, the query will be refreshed.
+
+```ts
+const useUserStore = createStore("user", ({ query, state }) => {
+  const token = state("");
+  const user = query(
+    () => {
+      if (!token.value) return null;
+
+      return fetchUser();
+    },
+    {
+      watch: [token],
+    }
+  );
+
+  return { token, user };
+});
 ```
 
 #### `ssr`
@@ -143,7 +166,23 @@ const {
   execute: executeUser,
   refresh: refreshUser,
   suspense: suspenseUser,
+  onSuccess: onUserSuccess,
+  onError: onUserError,
 } = useUserStore("user");
+
+onUserSuccess((user) => {
+  console.log("User fetched successfully", user);
+});
+
+onUserError((error) => {
+  console.error("User fetch failed", error);
+});
+
+onMounted(() => {
+  setInterval(() => {
+    refreshUser();
+  }, 5000);
+});
 
 // Or you can use it directly:
 // const store = useUserStore.reactive();
@@ -159,9 +198,9 @@ onServerPrefetch(async () => {
   <div v-else-if="userStatus === 'error'">Error: {{ userError.message }}</div>
   <div v-else>
     Refreshing: {{ userStatus === "refreshing" }}<br />
-    <p>User ID: {{ user.data.id }}</p>
-    <p>User Name: {{ user.data.name }}</p>
-    <p>User Email: {{ user.data.email }}</p>
+    <p>User ID: {{ user.id }}</p>
+    <p>User Name: {{ user.name }}</p>
+    <p>User Email: {{ user.email }}</p>
   </div>
 </template>
 ```
@@ -176,6 +215,8 @@ The `query` function returns an object with the following properties:
 - `execute` - A function that sends the query and clears the data.
 - `refresh` - A function that refreshes the query without clearing the data.
 - `suspense` - A function that waiting for the promise to resolve. It's useful for server-side rendering (SSR).
+- `onSuccess` - A function that is called when the query is successful.
+- `onError` - A function that is called when the query fails.
 
 ```ts
 enum VaxeeQueryStatus {

@@ -1,6 +1,7 @@
-import { ref, type Ref } from "vue";
+import { ref, watch, type Ref, type WatchSource } from "vue";
 import { useVaxee } from "../composables/useVaxee";
-import { IS_CLIENT } from "../constants";
+import { IS_CLIENT, VAXEE_LOG_START } from "../constants";
+import { isGetter, isState } from "./reactivity";
 
 const querySymbol = Symbol("vaxee-query");
 
@@ -16,9 +17,50 @@ export interface VaxeeQuery<T> {
   data: Ref<null | T>;
   error: Ref<null | Error>;
   status: Ref<VaxeeQueryStatus>;
+  /**
+   * `suspense` gives ability to wait promise resolve without refreshing the data.
+   *
+   * @returns A promise that resolves when the query is done.
+   *
+   * @example
+   *
+   * ```ts
+   * const { suspense } = useStore('products');
+   *
+   * await suspense();
+   * ```
+   */
   suspense: () => Promise<void>;
+  /**
+   * `execute` will fetch the query and clear the data and the error.
+   *
+   * @returns A promise that resolves when the query is done.
+   *
+   * @example
+   *
+   * ```ts
+   * const { execute } = useStore('products');
+   *
+   * await execute();
+   * ```
+   */
   execute: () => Promise<void>;
+  /**
+   * `refresh` will fetch the query without clearing the data and the error.
+   *
+   * @returns A promise that resolves when the query is done.
+   *
+   * @example
+   *
+   * ```ts
+   * const { refresh } = useStore('products');
+   *
+   * await refresh();
+   * ```
+   */
   refresh: () => Promise<void>;
+  onError: <E = unknown>(callback: (error: E) => any) => any;
+  onSuccess: (callback: (data: T) => any) => any;
 }
 
 interface VaxeePrivateQuery<T> extends VaxeeQuery<T> {
@@ -54,6 +96,10 @@ interface VaxeeQueryOptions {
    * If `false`, the query will not be automatically fetched on the server side. Default `true`.
    */
   ssr?: boolean;
+  /**
+   * An array of refs that will be watched to trigger a query `refresh` function.
+   */
+  watch?: WatchSource[];
 }
 
 export function query<T>(
@@ -70,8 +116,8 @@ export function query<T>(
     ),
     suspense: () => Promise.resolve(),
     async execute() {
-      q.data.value = null;
       q.status.value = VaxeeQueryStatus.Fetching;
+      q.data.value = null;
       q.error.value = null;
       const promise = sendQuery();
 
@@ -87,6 +133,32 @@ export function query<T>(
       q.suspense = () => promise;
 
       return promise;
+    },
+    onError(callback) {
+      return watch(
+        q.error,
+        (error) => {
+          if (error) {
+            callback(error as any);
+          }
+        },
+        {
+          immediate: true,
+        }
+      );
+    },
+    onSuccess(callback) {
+      return watch(
+        q.status,
+        (status) => {
+          if (status === VaxeeQueryStatus.Success) {
+            callback(q.data.value!);
+          }
+        },
+        {
+          immediate: true,
+        }
+      );
     },
   };
 
@@ -145,6 +217,20 @@ export function query<T>(
     }
 
     return q;
+  }
+
+  if (options.watch) {
+    if (
+      options.watch.some(
+        (w) => !isState(w) && !isGetter(w) && typeof w !== "function"
+      )
+    ) {
+      throw new Error(
+        VAXEE_LOG_START + "Watch should be an array of refs or computed values"
+      );
+    }
+
+    watch(options.watch, q.refresh);
   }
 
   const returning: VaxeePrivateQuery<T> = {

@@ -108,8 +108,8 @@ function query(callback, options = {}) {
     ),
     suspense: () => Promise.resolve(),
     async execute() {
-      q.data.value = null;
       q.status.value = "fetching";
+      q.data.value = null;
       q.error.value = null;
       const promise = sendQuery();
       q.suspense = () => promise;
@@ -121,6 +121,32 @@ function query(callback, options = {}) {
       const promise = sendQuery();
       q.suspense = () => promise;
       return promise;
+    },
+    onError(callback2) {
+      return watch(
+        q.error,
+        (error) => {
+          if (error) {
+            callback2(error);
+          }
+        },
+        {
+          immediate: true
+        }
+      );
+    },
+    onSuccess(callback2) {
+      return watch(
+        q.status,
+        (status) => {
+          if (status === "success") {
+            callback2(q.data.value);
+          }
+        },
+        {
+          immediate: true
+        }
+      );
     }
   };
   let abortController = null;
@@ -163,6 +189,16 @@ function query(callback, options = {}) {
       q.suspense = () => promise;
     }
     return q;
+  }
+  if (options.watch) {
+    if (options.watch.some(
+      (w) => !isState(w) && !isGetter(w) && typeof w !== "function"
+    )) {
+      throw new Error(
+        VAXEE_LOG_START + "Watch should be an array of refs or computed values"
+      );
+    }
+    watch(options.watch, q.refresh);
   }
   const returning = {
     ...q,

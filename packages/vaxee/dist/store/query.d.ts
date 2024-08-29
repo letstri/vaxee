@@ -1,4 +1,4 @@
-import { type Ref } from "vue";
+import { type Ref, type WatchSource } from "vue";
 declare const querySymbol: unique symbol;
 export declare enum VaxeeQueryStatus {
     NotFetched = "not-fetched",
@@ -11,9 +11,50 @@ export interface VaxeeQuery<T> {
     data: Ref<null | T>;
     error: Ref<null | Error>;
     status: Ref<VaxeeQueryStatus>;
+    /**
+     * `suspense` gives ability to wait promise resolve without refreshing the data.
+     *
+     * @returns A promise that resolves when the query is done.
+     *
+     * @example
+     *
+     * ```ts
+     * const { suspense } = useStore('products');
+     *
+     * await suspense();
+     * ```
+     */
     suspense: () => Promise<void>;
+    /**
+     * `execute` will fetch the query and clear the data and the error.
+     *
+     * @returns A promise that resolves when the query is done.
+     *
+     * @example
+     *
+     * ```ts
+     * const { execute } = useStore('products');
+     *
+     * await execute();
+     * ```
+     */
     execute: () => Promise<void>;
+    /**
+     * `refresh` will fetch the query without clearing the data and the error.
+     *
+     * @returns A promise that resolves when the query is done.
+     *
+     * @example
+     *
+     * ```ts
+     * const { refresh } = useStore('products');
+     *
+     * await refresh();
+     * ```
+     */
     refresh: () => Promise<void>;
+    onError: <E = unknown>(callback: (error: E) => any) => any;
+    onSuccess: (callback: (data: T) => any) => any;
 }
 interface VaxeePrivateQuery<T> extends VaxeeQuery<T> {
     QuerySymbol: typeof querySymbol;
@@ -39,6 +80,10 @@ interface VaxeeQueryOptions {
      * If `false`, the query will not be automatically fetched on the server side. Default `true`.
      */
     ssr?: boolean;
+    /**
+     * An array of refs that will be watched to trigger a query `refresh` function.
+     */
+    watch?: WatchSource[];
 }
 export declare function query<T>(callback: (params: VaxeeQueryParams) => T | Promise<T>, options?: VaxeeQueryOptions): VaxeeQuery<T>;
 export declare const isQuery: (query: any) => query is VaxeeQuery<any>;
