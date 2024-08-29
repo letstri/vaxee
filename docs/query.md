@@ -6,6 +6,10 @@ outline: deep
 
 Vaxee provides a `query` function to fetch data and store it in the store. Also `query` provides a way to cache the data and several options to enhance the data fetching process. **Cache** is stored in the store and is **shared** between all components that use the store. That means if you fetch the data in one component, it will be available in another component without fetching it again.
 
+::: tip
+If you are using server-side rendering (SSR), it is recommended to read the [SSR section](#ssr-1) to avoid hydration errors.
+:::
+
 ## Create a Query
 
 To create a query, use the `query` function from the `createStore` callback.
@@ -187,12 +191,12 @@ enum VaxeeQueryStatus {
 
 If you are using some server-side rendering (SSR) framework, you can use the `suspense` function to fetch the data before rendering the component.
 
-::: tip
-The `suspense` function is **not** responsible for **fetching data**, even if you call it multiple times. Its purpose is to allow you to wait for the promise inside the `query` function to resolve. To fetch the data, you need to call the `execute` or `refresh` function.
+::: warning
+If you are not using `suspense`/`execute`/`refresh` in SSR to wait for the data to resolve, the request will be **send twice** due to the client-side rendering, which can lead to hydration errors. Use these functions to wait to the query promise resolve, so it won't be fetched again on the client-side. If you want to fetch the data only on the **client-side**, you need to [disable](#ssr) the `ssr` option.
 :::
 
-::: warning
-If you are not using `suspense`/`execute`/`refresh` in SSR to wait for the data to resolve, the request will be **send twice** due to the client-side rendering. These functions are waiting to save the data in the store, so it won't be fetched again on the client-side. If you want to fetch the data only on the **client-side**, you need to disable the `ssr` option.
+::: tip
+The `suspense` function is **not** responsible for **fetching data**, even if you call it multiple times. Its purpose is to allow you to wait for the promise inside the `query` function to resolve. To fetch the data, you need to call the `execute` or `refresh` function.
 :::
 
 ```ts
