@@ -1,12 +1,15 @@
 import { beforeEach, describe, it, expect } from "vitest";
 import { createVaxee, createStore, setVaxeeInstance } from "..";
+import { VAXEE_LOG_START } from "../constants";
+
+const STORE_NAME = "main";
 
 describe("useStore", () => {
   beforeEach(() => {
     setVaxeeInstance(createVaxee());
   });
 
-  const useMainStore = createStore("main", ({ state, getter }) => {
+  const useMainStore = createStore(STORE_NAME, ({ state, getter }) => {
     const count = state(0);
 
     const increment = (_count?: number) => {
@@ -74,5 +77,27 @@ describe("useStore", () => {
     expect(store._actions.count).not.toBeDefined();
     // @ts-expect-error
     expect(store._state.increment).not.toBeDefined();
+  });
+
+  it("should throw an error if prop name is not a string", () => {
+    // @ts-expect-error
+    expect(() => useMainStore(true)).toThrowError(
+      new Error(
+        VAXEE_LOG_START +
+          `The prop name must be a string when using the store "${STORE_NAME}"`
+      )
+    );
+  });
+
+  it("should throw an error if prop name doesn't exist in the store", () => {
+    const notExistProp = "not-exist";
+
+    // @ts-expect-error
+    expect(() => useMainStore(notExistProp)).toThrowError(
+      new Error(
+        VAXEE_LOG_START +
+          `The prop name "${notExistProp}" does not exist in the store "${STORE_NAME}"`
+      )
+    );
   });
 });

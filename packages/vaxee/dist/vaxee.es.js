@@ -249,7 +249,17 @@ const createStore = (name, store) => {
     }
   }
   function use(propName) {
+    if (propName !== void 0 && typeof propName !== "string") {
+      throw new Error(
+        VAXEE_LOG_START + `The prop name must be a string when using the store "${name}"`
+      );
+    }
     const _store = prepareStore(name, store({ state, getter, query }));
+    if (propName !== void 0 && !Object.keys(_store).includes(propName)) {
+      throw new Error(
+        VAXEE_LOG_START + `The prop name "${propName}" does not exist in the store "${name}"`
+      );
+    }
     if (propName) {
       if (_store._actions[propName]) {
         return _store._actions[propName];

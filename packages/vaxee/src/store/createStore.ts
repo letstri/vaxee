@@ -64,7 +64,22 @@ export const createStore = <Store extends BaseStore>(
   }
 
   function use(propName?: keyof VaxeeStore<Store>) {
+    if (propName !== undefined && typeof propName !== "string") {
+      throw new Error(
+        VAXEE_LOG_START +
+          `The prop name must be a string when using the store "${name}"`
+      );
+    }
+
     const _store = prepareStore(name, store({ state, getter, query }));
+
+    // error handler if propName not exist inside _store
+    if (propName !== undefined && !Object.keys(_store).includes(propName)) {
+      throw new Error(
+        VAXEE_LOG_START +
+          `The prop name "${propName}" does not exist in the store "${name}"`
+      );
+    }
 
     if (propName) {
       if (_store._actions[propName as keyof Actions]) {
