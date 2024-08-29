@@ -3,13 +3,22 @@ import { defineNuxtPlugin, useCookie } from "#app";
 export default defineNuxtPlugin({
   name: "vaxee",
   setup(nuxtApp) {
+    const cookieMap = /* @__PURE__ */ new Map();
+    const cookie = (key) => {
+      if (!cookieMap.get(key))
+        cookieMap.set(
+          key,
+          useCookie(key, {
+            maxAge: 2147483646,
+            expires: new Date(Date.now() + 1e3 * 60 * 60 * 24 * 365)
+          })
+        );
+      return cookieMap.get(key);
+    };
     const vaxee = createVaxee({
       persist: {
-        get: (key) => useCookie(key, { readonly: true }).value,
-        set: (key, value) => useCookie(key, {
-          expires: new Date(Date.now() + 1e3 * 60 * 60 * 24 * 365),
-          sameSite: "lax"
-        }).value = value
+        get: (key) => cookie(key).value,
+        set: (key, value) => cookie(key).value = value
       }
     });
     nuxtApp.vueApp.use(vaxee);
