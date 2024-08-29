@@ -147,7 +147,7 @@ Now, let's use this store in a component.
 
 ```vue
 <script setup>
-import { useCounterStore } from "../stores/counter";
+import { useCounterStore } from "./stores/counter";
 
 const { count } = useCounterStore();
 </script>
