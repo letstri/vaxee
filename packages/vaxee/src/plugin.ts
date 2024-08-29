@@ -54,7 +54,7 @@ export function createVaxee(options: VaxeeOptions = {}) {
       setVaxeeInstance(vaxee);
       app.provide(vaxeeSymbol, vaxee);
 
-      if (IS_DEV && IS_CLIENT) {
+      if (IS_DEV && IS_CLIENT && !import.meta.env.TEST) {
         console.log(
           VAXEE_LOG_START +
             "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
