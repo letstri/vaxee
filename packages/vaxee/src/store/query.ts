@@ -1,4 +1,4 @@
-import { readonly, ref, type Ref } from "vue";
+import { ref, type Ref } from "vue";
 import { useVaxee } from "../composables/useVaxee";
 import { IS_CLIENT } from "../constants";
 
