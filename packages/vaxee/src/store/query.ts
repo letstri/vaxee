@@ -95,7 +95,7 @@ interface VaxeeQueryOptions {
   /**
    * If `false`, the query will not be automatically fetched on the server side. Default `true`.
    */
-  ssr?: boolean;
+  sendOnServer?: boolean;
   /**
    * An array of refs that will be watched to trigger a query `refresh` function.
    */
@@ -135,30 +135,38 @@ export function query<T>(
       return promise;
     },
     onError(callback) {
-      return watch(
-        q.error,
-        (error) => {
-          if (error) {
-            callback(error as any);
+      if (IS_CLIENT) {
+        return watch(
+          q.error,
+          (error) => {
+            if (error) {
+              callback(error as any);
+            }
+          },
+          {
+            immediate: true,
           }
-        },
-        {
-          immediate: true,
-        }
-      );
+        );
+      }
+
+      return () => {};
     },
     onSuccess(callback) {
-      return watch(
-        q.status,
-        (status) => {
-          if (status === VaxeeQueryStatus.Success) {
-            callback(q.data.value!);
+      if (IS_CLIENT) {
+        return watch(
+          q.status,
+          (status) => {
+            if (status === VaxeeQueryStatus.Success) {
+              callback(q.data.value!);
+            }
+          },
+          {
+            immediate: true,
           }
-        },
-        {
-          immediate: true,
-        }
-      );
+        );
+      }
+
+      return () => {};
     },
   };
 
@@ -210,7 +218,10 @@ export function query<T>(
       return q;
     }
 
-    if (!options.sendManually && (IS_CLIENT || options.ssr !== false)) {
+    if (
+      !options.sendManually &&
+      (IS_CLIENT || options.sendOnServer !== false)
+    ) {
       const promise = sendQuery();
 
       q.suspense = () => promise;

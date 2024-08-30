@@ -1,5 +1,5 @@
 import { createVaxee } from "vaxee";
-import { defineNuxtPlugin, useCookie } from "#app";
+import { defineNuxtPlugin, useCookie } from "#imports";
 export default defineNuxtPlugin({
   name: "vaxee",
   setup(nuxtApp) {

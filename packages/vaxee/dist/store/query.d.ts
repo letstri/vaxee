@@ -79,7 +79,7 @@ interface VaxeeQueryOptions {
     /**
      * If `false`, the query will not be automatically fetched on the server side. Default `true`.
      */
-    ssr?: boolean;
+    sendOnServer?: boolean;
     /**
      * An array of refs that will be watched to trigger a query `refresh` function.
      */

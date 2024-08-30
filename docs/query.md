@@ -61,7 +61,7 @@ You can pass options to the `query` function to customize the behavior.
 interface VaxeeQueryOptions {
   sendManually?: boolean;
   watch?: WatchSource[];
-  ssr?: boolean;
+  sendOnServer?: boolean;
   onError?: <E = unknown>(error: E) => any;
 }
 ```
@@ -118,16 +118,16 @@ const useUserStore = createStore("user", ({ query, state }) => {
 });
 ```
 
-#### `ssr`
+#### `sendOnServer`
 
-By default, the query is automatically sent on the server-side if available. You can pass a `boolean` property that determines whether the query should be sent on the server-side rendering. If `false`, the query will be automatically sent only on the client-side.
+By default, the query is automatically sent on the server-side if available. You can pass a `boolean` property that determines whether the query should be sent on the server-side. If `false`, the query will be automatically sent only on the client-side.
 
 > Default is `true`.
 
 ```ts
 const useUserStore = createStore("user", ({ query }) => {
   const user = query(() => fetchUser(), {
-    ssr: false,
+    sendOnServer: false,
   });
 
   return { user };
@@ -230,10 +230,14 @@ enum VaxeeQueryStatus {
 
 ## SSR
 
-If you are using some server-side rendering (SSR) framework, you can use the `suspense` function to fetch the data before rendering the component.
+If you are using some server-side rendering (SSR) framework, you can use the `suspense` function to wait the data before rendering the component.
 
 ::: warning
-If you are not using `suspense`/`execute`/`refresh` in SSR to wait for the data to resolve, the request will be **send twice** due to the client-side rendering, which can lead to hydration errors. Use these functions to wait to the query promise resolve, so it won't be fetched again on the client-side. If you want to fetch the data only on the **client-side**, you need to [disable](#ssr) the `ssr` option.
+If you are not using `suspense`/`execute`/`refresh` in SSR to wait for the data to resolve, the request will be **send twice** due to the client-side rendering. Use some function to wait to the query promise resolve, it won't be fetched again on the client-side.
+:::
+
+::: tip
+If you want to fetch the data only on the **client-side**, you need to [disable](#sendonserver) the `sendOnServer` option.
 :::
 
 ::: tip

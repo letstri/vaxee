@@ -1,5 +1,5 @@
 import { createVaxee, type Vaxee } from "vaxee";
-import { defineNuxtPlugin, useCookie } from "#app";
+import { defineNuxtPlugin, useCookie } from "#imports";
 import type { Ref } from "vue";
 
 export default defineNuxtPlugin<{ vaxee: Vaxee }>({

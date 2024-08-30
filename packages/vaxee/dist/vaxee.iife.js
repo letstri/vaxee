@@ -124,30 +124,38 @@ var vaxee = function(exports, vue2) {
         return promise;
       },
       onError(callback2) {
-        return vue2.watch(
-          q.error,
-          (error) => {
-            if (error) {
-              callback2(error);
+        if (IS_CLIENT) {
+          return vue2.watch(
+            q.error,
+            (error) => {
+              if (error) {
+                callback2(error);
+              }
+            },
+            {
+              immediate: true
             }
-          },
-          {
-            immediate: true
-          }
-        );
+          );
+        }
+        return () => {
+        };
       },
       onSuccess(callback2) {
-        return vue2.watch(
-          q.status,
-          (status) => {
-            if (status === "success") {
-              callback2(q.data.value);
+        if (IS_CLIENT) {
+          return vue2.watch(
+            q.status,
+            (status) => {
+              if (status === "success") {
+                callback2(q.data.value);
+              }
+            },
+            {
+              immediate: true
             }
-          },
-          {
-            immediate: true
-          }
-        );
+          );
+        }
+        return () => {
+        };
       }
     };
     let abortController = null;
@@ -185,7 +193,7 @@ var vaxee = function(exports, vue2) {
         q.status.value = initial.status;
         return q;
       }
-      if (!options.sendManually && (IS_CLIENT || options.ssr !== false)) {
+      if (!options.sendManually && (IS_CLIENT || options.sendOnServer !== false)) {
         const promise = sendQuery();
         q.suspense = () => promise;
       }
