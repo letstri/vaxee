@@ -18,11 +18,11 @@ type VaxeePrivateState<T> = VaxeeState<T> & {
   StateSymbol: typeof stateSymbol;
   _persist: null | {
     get: () => any;
-    set: (value: any) => any;
+    set: (value: T) => any;
   };
 };
 
-interface VaxeeStateOptions {
+interface VaxeeStateOptions<T> {
   /**
    * If `true`, the state will be shallow and will not be reactive to deep changes.
    */
@@ -35,7 +35,7 @@ interface VaxeeStateOptions {
     | string
     | {
         get: () => any;
-        set: (value: any) => any;
+        set: (value: T) => any;
       };
 }
 
@@ -61,10 +61,13 @@ function getDefaultPersist() {
 }
 
 export function state<T = any>(): VaxeeState<T | undefined>;
-export function state<T>(value: T, options?: VaxeeStateOptions): VaxeeState<T>;
+export function state<T>(
+  value: T,
+  options?: VaxeeStateOptions<T>
+): VaxeeState<T>;
 export function state<T>(
   value?: T,
-  options?: VaxeeStateOptions
+  options?: VaxeeStateOptions<T>
 ): VaxeeState<T> {
   const _ref = (
     options?.shallow ? shallowRef(value) : ref(value)
@@ -92,7 +95,7 @@ export function state<T>(
   if (_ref._persist) {
     const persisted = _ref._persist.get();
 
-    if (persisted !== undefined) _ref.value = persisted;
+    if (persisted !== undefined && persisted !== null) _ref.value = persisted;
 
     watch(
       _ref,
