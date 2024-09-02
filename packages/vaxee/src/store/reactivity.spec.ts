@@ -1,7 +1,10 @@
-import { describe, it, expect, beforeEach, expectTypeOf } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { computed, isShallow, ref } from "vue";
 import { getter, isGetter, isState, state } from "./reactivity";
 import { createVaxee, setVaxeeInstance } from "../plugin";
+import { mount } from "@vue/test-utils";
+import { createStore } from "./createStore";
+import { useVaxee } from "../composables/useVaxee";
 
 describe("reactivity", () => {
   beforeEach(() => {
@@ -31,5 +34,72 @@ describe("reactivity", () => {
 
   it("check shallow state", () => {
     expect(isShallow(state({}, { shallow: true }))).toBe(true);
+  });
+
+  it('check "persist" string', () => {
+    const useStore = createStore("store", ({ state }) => {
+      const count = state(0, { persist: "count" });
+
+      return { count };
+    });
+
+    const comp = mount(
+      {
+        setup() {
+          const { count } = useStore();
+
+          count.value = 1;
+
+          return { count };
+        },
+        template: `<div>{{ count }}</div>`,
+      },
+      {
+        global: {
+          plugins: [useVaxee()],
+        },
+      }
+    );
+
+    expect(comp.text()).toBe("1");
+    expect(window.localStorage.getItem("count")).toBe("1");
+  });
+
+  it('check "persist" object', () => {
+    let persistedCount: number | null = null;
+
+    const useStore = createStore("store", ({ state }) => {
+      const count = state(0, {
+        persist: {
+          get: () => persistedCount,
+          set: (value) => {
+            persistedCount = value;
+          },
+        },
+      });
+
+      return { count };
+    });
+
+    const comp = mount(
+      {
+        setup() {
+          const { count } = useStore();
+
+          count.value = 1;
+
+          return { count };
+        },
+        template: `<div>{{ count }}</div>`,
+      },
+      {
+        global: {
+          plugins: [useVaxee()],
+        },
+      }
+    );
+
+    expect(comp.text()).toBe("1");
+    expect(persistedCount).toBe(1);
   });
 });
