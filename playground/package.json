@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/kit": "^3.13.0",
     "@vaxee/nuxt": "workspace:^",
     "@vueuse/core": "^10.11.0",
     "@vueuse/nuxt": "^10.11.0",
