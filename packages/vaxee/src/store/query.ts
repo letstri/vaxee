@@ -85,21 +85,21 @@ interface VaxeeQueryParams {
 
 interface VaxeeQueryOptions {
   /**
-   * If `true`, the query will not be automatically fetched when the component is mounted. Default `false`.
-   */
-  sendManually?: boolean;
-  /**
-   * A callback that will be called when an error occurs during the query.
-   */
-  onError?: <E = unknown>(error: E) => any;
-  /**
    * If `false`, the query will not be automatically fetched on the server side. Default `true`.
    */
   sendOnServer?: boolean;
   /**
+   * If `true`, the query will not be automatically fetched on both client and server. Default `false`.
+   */
+  sendManually?: boolean;
+  /**
    * An array of refs that will be watched to trigger a query `refresh` function.
    */
   watch?: WatchSource[];
+  /**
+   * A callback that will be called when an error occurs during the query.
+   */
+  onError?: <E = unknown>(error: E) => any;
 }
 
 export function query<T>(
