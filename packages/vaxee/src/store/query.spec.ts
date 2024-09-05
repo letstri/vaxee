@@ -9,6 +9,49 @@ describe("query", () => {
     setVaxeeInstance(createVaxee());
   });
 
+  it("should be the same query", () => {
+    const useStore = createStore("store", ({ query }) => {
+      const q = query(() => Promise.resolve(1));
+      return { q };
+    });
+
+    const store1 = useStore();
+    const store2 = useStore();
+
+    expect(store1.q).toBe(store2.q);
+  });
+
+  it("should reuse promise", async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ query }) => {
+      const q = query(() => {
+        spy();
+        return Promise.resolve(1);
+      });
+      return { q };
+    });
+
+    const store1 = useStore();
+    const store2 = useStore();
+
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    await store1.q.suspense();
+
+    expect(store1.q.data.value).toBe(1);
+    expect(store2.q.data.value).toBe(1);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    await Promise.all([store1.q.suspense(), store2.q.suspense()]);
+
+    expect(store1.q.data.value).toBe(1);
+    expect(store2.q.data.value).toBe(1);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
   it("fetch simple query", async () => {
     const _q = query(() => Promise.resolve(1));
 
@@ -146,9 +189,14 @@ describe("query", () => {
 
     const { q } = useStore();
 
+    await q.suspense();
+
     expect(spy).toHaveBeenCalledTimes(1);
 
-    await q.refresh();
+    q.refresh();
+
+    expect(q.data.value).toBe(1);
+    expect(q.error.value).toBe(null);
 
     expect(spy).toHaveBeenCalledTimes(2);
     expect(q.data.value).toBe(1);
@@ -167,11 +215,14 @@ describe("query", () => {
 
     const { q } = useStore();
 
+    await q.suspense();
+
     expect(spy).toHaveBeenCalledTimes(1);
 
     q.execute();
 
     expect(q.data.value).toBe(null);
+    expect(q.error.value).toBe(null);
 
     await q.suspense();
     expect(spy).toHaveBeenCalledTimes(2);
