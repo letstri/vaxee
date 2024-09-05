@@ -1,5 +1,6 @@
 var vaxee = function(exports, vue2) {
   "use strict";
+  const IS_DEV = process.env.NODE_ENV !== "production";
   const IS_CLIENT = typeof window !== "undefined";
   const VAXEE_LOG_START = "[🌱 vaxee]: ";
   const vaxeeSymbol = Symbol("vaxee");
@@ -13,6 +14,12 @@ var vaxee = function(exports, vue2) {
       install(app) {
         setVaxeeInstance(vaxee2);
         app.provide(vaxeeSymbol, vaxee2);
+        if (IS_DEV && IS_CLIENT && true) {
+          console.log(
+            VAXEE_LOG_START + "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
+          );
+          window.$vaxee = vaxee2.state;
+        }
       },
       state: vue2.ref({}),
       _stores: {},
@@ -287,7 +294,11 @@ var vaxee = function(exports, vue2) {
   const createStore = (name, store) => {
     var _a;
     if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
-      {
+      if (IS_DEV) {
+        console.warn(
+          VAXEE_LOG_START + `The store with name ${name} already exists.`
+        );
+      } else {
         throw new Error(
           VAXEE_LOG_START + `The store with name ${name} already exists.`
         );

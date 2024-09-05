@@ -1,4 +1,5 @@
 import { ref, hasInjectionContext, inject, shallowRef, watch, computed, unref, reactive } from "vue";
+const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
 const vaxeeSymbol = Symbol("vaxee");
@@ -12,6 +13,12 @@ function createVaxee(options = {}) {
     install(app) {
       setVaxeeInstance(vaxee);
       app.provide(vaxeeSymbol, vaxee);
+      if (IS_DEV && IS_CLIENT && true) {
+        console.log(
+          VAXEE_LOG_START + "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
+        );
+        window.$vaxee = vaxee.state;
+      }
     },
     state: ref({}),
     _stores: {},
@@ -286,7 +293,11 @@ function prepareStore(name, store) {
 const createStore = (name, store) => {
   var _a;
   if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
-    {
+    if (IS_DEV) {
+      console.warn(
+        VAXEE_LOG_START + `The store with name ${name} already exists.`
+      );
+    } else {
       throw new Error(
         VAXEE_LOG_START + `The store with name ${name} already exists.`
       );
