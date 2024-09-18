@@ -210,7 +210,7 @@ function request(callback, options = {}) {
       (w) => !isState(w) && !isGetter(w) && typeof w !== "function"
     )) {
       throw new Error(
-        VAXEE_LOG_START + "Watch should be an array of refs or computed values"
+        VAXEE_LOG_START + "Watch should be an array of `state` or `getter` or `function` that returns a value"
       );
     }
     watch(options.watch, q.refresh);

@@ -211,7 +211,7 @@ var vaxee = function(exports, vue2) {
         (w) => !isState(w) && !isGetter(w) && typeof w !== "function"
       )) {
         throw new Error(
-          VAXEE_LOG_START + "Watch should be an array of refs or computed values"
+          VAXEE_LOG_START + "Watch should be an array of `state` or `getter` or `function` that returns a value"
         );
       }
       vue2.watch(options.watch, q.refresh);
