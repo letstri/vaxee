@@ -1,4 +1,4 @@
-import { ref, type App, type Ref } from "vue";
+import { reactive, ref, type App, type Ref } from "vue";
 import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
@@ -57,10 +57,11 @@ export function createVaxee(options: VaxeeOptions = {}) {
       if (IS_DEV && IS_CLIENT && !import.meta.env.TEST) {
         console.log(
           VAXEE_LOG_START +
-            "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
+            "Store successfully installed. Enjoy! Also you can check current Vaxee state by calling a `$vaxee()` method in the `window`."
         );
         // @ts-ignore
-        window.$vaxee = vaxee.state;
+        window.$vaxee = () =>
+          JSON.parse(JSON.stringify(reactive(vaxee.state)))._value;
       }
     },
     state: ref({}),

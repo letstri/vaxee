@@ -16,9 +16,9 @@ var vaxee = function(exports, vue2) {
         app.provide(vaxeeSymbol, vaxee2);
         if (IS_DEV && IS_CLIENT && true) {
           console.log(
-            VAXEE_LOG_START + "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
+            VAXEE_LOG_START + "Store successfully installed. Enjoy! Also you can check current Vaxee state by calling a `$vaxee()` method in the `window`."
           );
-          window.$vaxee = vaxee2.state;
+          window.$vaxee = () => JSON.parse(JSON.stringify(vue2.reactive(vaxee2.state)))._value;
         }
       },
       state: vue2.ref({}),

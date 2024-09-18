@@ -1,4 +1,4 @@
-import { ref, hasInjectionContext, inject, shallowRef, watch, computed, unref, reactive } from "vue";
+import { reactive, ref, hasInjectionContext, inject, shallowRef, watch, computed, unref } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -15,9 +15,9 @@ function createVaxee(options = {}) {
       app.provide(vaxeeSymbol, vaxee);
       if (IS_DEV && IS_CLIENT && true) {
         console.log(
-          VAXEE_LOG_START + "Store successfully installed. Enjoy! Also you can check current Vaxee state by using a `$vaxee` property in the `window`."
+          VAXEE_LOG_START + "Store successfully installed. Enjoy! Also you can check current Vaxee state by calling a `$vaxee()` method in the `window`."
         );
-        window.$vaxee = vaxee.state;
+        window.$vaxee = () => JSON.parse(JSON.stringify(reactive(vaxee.state)))._value;
       }
     },
     state: ref({}),
