@@ -25,6 +25,7 @@
     "pinia",
     "state",
     "query",
+    "request",
     "shallow"
   ],
   "license": "MIT",

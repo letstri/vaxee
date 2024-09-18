@@ -2,7 +2,7 @@ import type { BaseStore } from "./createStore";
 import { useVaxee } from "../composables/useVaxee";
 import { parseStore } from "./parseStore";
 import type { VaxeeInternalStore } from "../plugin";
-import { type VaxeeQuery, checkPrivateQuery } from "./query";
+import { type VaxeeRequest, checkPrivateRequest } from "./request";
 import { state } from "./reactivity";
 
 export function prepareStore<Store extends BaseStore>(
@@ -15,7 +15,7 @@ export function prepareStore<Store extends BaseStore>(
     return vaxee._stores[name] as VaxeeInternalStore<Store>;
   }
 
-  const { states, actions, getters, queries, other } = parseStore(store);
+  const { states, actions, getters, requests, other } = parseStore(store);
 
   if (vaxee.state.value[name]) {
     for (const key in states) {
@@ -23,19 +23,19 @@ export function prepareStore<Store extends BaseStore>(
     }
   }
 
-  const preparedQueries = {} as Record<string, VaxeeQuery<any>>;
+  const preparedQueries = {} as Record<string, VaxeeRequest<any>>;
 
-  for (const key in queries) {
-    checkPrivateQuery(queries[key]);
+  for (const key in requests) {
+    checkPrivateRequest(requests[key]);
 
-    const query = queries[key]._init(name, key);
+    const request = requests[key]._init(name, key);
 
     states[key] = state({
-      data: query.data,
-      status: query.status,
+      data: request.data,
+      status: request.status,
     });
 
-    preparedQueries[key] = query;
+    preparedQueries[key] = request;
   }
 
   vaxee.state.value[name] = states;

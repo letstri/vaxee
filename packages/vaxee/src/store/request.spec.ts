@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { nextTick } from "vue";
-import { checkPrivateQuery, isQuery, query } from "./query";
+import { checkPrivateRequest, isRequest, request } from "./request";
 import { createStore } from "./createStore";
 import { createVaxee, setVaxeeInstance } from "../plugin";
 
-describe("query", () => {
+describe("request", () => {
   beforeEach(() => {
     setVaxeeInstance(createVaxee());
   });
 
-  it("should be the same query", () => {
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => Promise.resolve(1));
+  it("should be the same request", () => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.resolve(1));
       return { q };
     });
 
@@ -24,8 +24,8 @@ describe("query", () => {
   it("should reuse promise", async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => {
         spy();
         return Promise.resolve(1);
       });
@@ -52,10 +52,10 @@ describe("query", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("fetch simple query", async () => {
-    const _q = query(() => Promise.resolve(1));
+  it("fetch simple request", async () => {
+    const _q = request(() => Promise.resolve(1));
 
-    checkPrivateQuery(_q);
+    checkPrivateRequest(_q);
 
     const q = _q._init("", "");
 
@@ -67,10 +67,10 @@ describe("query", () => {
     expect(q.data.value).toBe(1);
   });
 
-  it("fetch error query", async () => {
-    const _q = query(() => Promise.reject(new Error("error")));
+  it("fetch error request", async () => {
+    const _q = request(() => Promise.reject(new Error("error")));
 
-    checkPrivateQuery(_q);
+    checkPrivateRequest(_q);
 
     const q = _q._init("", "");
 
@@ -82,19 +82,19 @@ describe("query", () => {
     expect(q.error.value!.message).toBe("error");
   });
 
-  it("check is a query", () => {
-    const q = query(() => Promise.resolve(1));
+  it("check is a request", () => {
+    const q = request(() => Promise.resolve(1));
 
-    expect(isQuery(q)).toBe(true);
+    expect(isRequest(q)).toBe(true);
 
-    checkPrivateQuery(q);
+    checkPrivateRequest(q);
 
     expect(q._init("", "").status.value).toBe("fetching");
   });
 
-  it("check query in store", async () => {
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => Promise.resolve(1));
+  it("check request in store", async () => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.resolve(1));
       return { q };
     });
 
@@ -112,11 +112,11 @@ describe("query", () => {
     expect(flatStore.q.status).toBe("success");
   });
 
-  it("check query send once", async () => {
+  it("check request send once", async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => {
         spy();
         return Promise.resolve(1);
       });
@@ -132,8 +132,8 @@ describe("query", () => {
   });
 
   it("should wait suspense", async () => {
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => Promise.resolve(1));
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.resolve(1));
       return { q };
     });
 
@@ -147,8 +147,8 @@ describe("query", () => {
   it("should work with destructuring", async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => {
         spy();
         return Promise.resolve(1);
       });
@@ -176,11 +176,11 @@ describe("query", () => {
     expect(store.q.data).toBe(1);
   });
 
-  it("check refresh query", async () => {
+  it("check refresh request", async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => {
         spy();
         return Promise.resolve(1);
       });
@@ -205,8 +205,8 @@ describe("query", () => {
   it("check execute function", async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => {
         spy();
         return Promise.resolve(1);
       });
@@ -232,8 +232,8 @@ describe("query", () => {
   it('check "onError" option', async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => Promise.reject(new Error("error")), {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.reject(new Error("error")), {
         onError: spy,
       });
       return { q };
@@ -250,9 +250,9 @@ describe("query", () => {
   it("should watch dependencies", async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ state, query }) => {
+    const useStore = createStore("store", ({ state, request }) => {
       const count = state(0);
-      const q = query(
+      const q = request(
         () => {
           spy();
           return 1;
@@ -280,15 +280,15 @@ describe("query", () => {
   it('should throw error if "watch" is not valid array', () => {
     expect(() => {
       // @ts-expect-error
-      query(() => 1, { watch: [1] });
+      request(() => 1, { watch: [1] });
     }).toThrow();
   });
 
   it('should check "onSuccess" callback', async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => Promise.resolve(1));
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.resolve(1));
       return { q };
     });
 
@@ -314,8 +314,8 @@ describe("query", () => {
   it('should check "onError" callback', async () => {
     const spy = vi.fn();
 
-    const useStore = createStore("store", ({ query }) => {
-      const q = query(() => Promise.reject(new Error("error")));
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.reject(new Error("error")));
       return { q };
     });
 

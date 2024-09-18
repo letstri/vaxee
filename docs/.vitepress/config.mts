@@ -3,7 +3,8 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Vaxee - State Manager for Vue 3, Pinia alternative",
-  description: "State Manager for Vue 3 with cache, query, and more features.",
+  description:
+    "State Manager for Vue 3 with cache, request, and more features.",
   themeConfig: {
     search: {
       provider: "local",
@@ -33,7 +34,7 @@ export default defineConfig({
           { text: "Store", link: "/store" },
           { text: "State", link: "/state" },
           { text: "Getters", link: "/getters" },
-          { text: "Query", link: "/query" },
+          { text: "Request", link: "/request" },
         ],
       },
     ],

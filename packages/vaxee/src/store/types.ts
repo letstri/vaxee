@@ -1,7 +1,6 @@
 import type { UnwrapNestedRefs } from "vue";
 import type { VaxeeGetter, VaxeeState } from "./reactivity";
-import type { VaxeeQuery } from "./query";
-import type { ReturnTypes } from "../types";
+import type { VaxeeRequest } from "./request";
 
 type VaxeeStoreStateNames<T> = {
   [K in keyof T]: T[K] extends VaxeeState<any> ? K : never;
@@ -18,7 +17,7 @@ export type VaxeeStoreGetters<T> = UnwrapNestedRefs<
 >;
 
 type VaxeeStoreQueriesNames<T> = {
-  [K in keyof T]: T[K] extends VaxeeQuery<any> ? K : never;
+  [K in keyof T]: T[K] extends VaxeeRequest<any> ? K : never;
 }[keyof T];
 export type VaxeeStoreQueries<T> = Pick<T, VaxeeStoreQueriesNames<T>>;
 

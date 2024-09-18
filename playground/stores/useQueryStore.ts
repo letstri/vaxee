@@ -5,8 +5,8 @@ interface User {
   email: string;
 }
 
-export const useQueryStore = createStore("query", ({ query }) => {
-  const users = query<User[]>(async ({ signal }) => {
+export const useRequestStore = createStore("request", ({ request }) => {
+  const users = request<User[]>(async ({ signal }) => {
     return fetch("https://jsonplaceholder.typicode.com/users", {
       signal,
     }).then((res) => res.json());

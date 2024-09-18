@@ -1,7 +1,7 @@
 import { type ToRefs, type UnwrapNestedRefs } from "vue";
 import type { VaxeeStoreState, VaxeeStoreActions, VaxeeStoreGetters, VaxeeStoreOther, VaxeeStoreQueries } from "./types";
 import { getter, state } from "./reactivity";
-import { query } from "./query";
+import { request } from "./request";
 import type { ToComputedRefs } from "../types";
 export type BaseStore = Record<string, any>;
 export type VaxeeStore<Store extends BaseStore> = ToRefs<VaxeeStoreState<Store>> & ToComputedRefs<VaxeeStoreGetters<Store>> & VaxeeStoreQueries<Store> & VaxeeStoreActions<Store> & VaxeeStoreOther<Store>;
@@ -15,6 +15,10 @@ interface UseVaxeeStore<Store extends BaseStore> {
 export declare const createStore: <Store extends BaseStore>(name: string, store: (options: {
     state: typeof state;
     getter: typeof getter;
-    query: typeof query;
+    /**
+     * @deprecated Use `request` instead.
+     */
+    query: typeof request;
+    request: typeof request;
 }) => Store) => UseVaxeeStore<Store>;
 export {};

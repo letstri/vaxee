@@ -6,7 +6,7 @@ import {
   type VaxeeGetter,
   type VaxeeState,
 } from "./reactivity";
-import { isQuery, type VaxeeQuery } from "./query";
+import { isRequest, type VaxeeRequest } from "./request";
 
 export function parseStore<Store extends BaseStore>(store: Store) {
   return Object.entries(store).reduce(
@@ -15,8 +15,8 @@ export function parseStore<Store extends BaseStore>(store: Store) {
         acc.states[key] = value;
       } else if (isGetter(value)) {
         acc.getters[key] = value;
-      } else if (isQuery(value)) {
-        acc.queries[key] = value;
+      } else if (isRequest(value)) {
+        acc.requests[key] = value;
       } else if (typeof value === "function") {
         acc.actions[key] = value;
       } else {
@@ -28,7 +28,7 @@ export function parseStore<Store extends BaseStore>(store: Store) {
       states: {} as Record<string, VaxeeState<any>>,
       actions: {} as Record<string, (...args: any) => any>,
       getters: {} as Record<string, VaxeeGetter<any>>,
-      queries: {} as Record<string, VaxeeQuery<any>>,
+      requests: {} as Record<string, VaxeeRequest<any>>,
       other: {} as Record<string, any>,
     }
   );

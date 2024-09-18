@@ -6,6 +6,10 @@ export {
   state,
   getter,
 } from "./store/reactivity";
-export { VaxeeQueryStatus, type VaxeeQuery, query } from "./store/query";
+export {
+  VaxeeRequestStatus,
+  type VaxeeRequest,
+  request,
+} from "./store/request";
 export { createStore } from "./store/createStore";
 export { useVaxee } from "./composables/useVaxee";

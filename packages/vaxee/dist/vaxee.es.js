@@ -91,21 +91,21 @@ function getter(fn) {
   return ref2;
 }
 const isGetter = (ref2) => (ref2 == null ? void 0 : ref2.GetterSymbol) === getterSymbol;
-const querySymbol = Symbol("vaxee-query");
-var VaxeeQueryStatus = /* @__PURE__ */ ((VaxeeQueryStatus2) => {
-  VaxeeQueryStatus2["NotFetched"] = "not-fetched";
-  VaxeeQueryStatus2["Fetching"] = "fetching";
-  VaxeeQueryStatus2["Refreshing"] = "refreshing";
-  VaxeeQueryStatus2["Error"] = "error";
-  VaxeeQueryStatus2["Success"] = "success";
-  return VaxeeQueryStatus2;
-})(VaxeeQueryStatus || {});
-function checkPrivateQuery(query2) {
-  if ((query2 == null ? void 0 : query2.QuerySymbol) !== querySymbol) {
-    throw new Error("This is not a private query");
+const requestSymbol = Symbol("vaxee-request");
+var VaxeeRequestStatus = /* @__PURE__ */ ((VaxeeRequestStatus2) => {
+  VaxeeRequestStatus2["NotFetched"] = "not-fetched";
+  VaxeeRequestStatus2["Fetching"] = "fetching";
+  VaxeeRequestStatus2["Refreshing"] = "refreshing";
+  VaxeeRequestStatus2["Error"] = "error";
+  VaxeeRequestStatus2["Success"] = "success";
+  return VaxeeRequestStatus2;
+})(VaxeeRequestStatus || {});
+function checkPrivateRequest(request2) {
+  if ((request2 == null ? void 0 : request2.RequestSymbol) !== requestSymbol) {
+    throw new Error("This is not a private request");
   }
 }
-function query(callback, options = {}) {
+function request(callback, options = {}) {
   const q = {
     data: ref(null),
     error: ref(null),
@@ -118,14 +118,14 @@ function query(callback, options = {}) {
       q.status.value = "fetching";
       q.data.value = null;
       q.error.value = null;
-      const promise = sendQuery();
+      const promise = sendRequest();
       q.suspense = () => promise;
       return promise;
     },
     async refresh() {
       q.status.value = "refreshing";
       q.error.value = null;
-      const promise = sendQuery();
+      const promise = sendRequest();
       q.suspense = () => promise;
       return promise;
     },
@@ -165,7 +165,7 @@ function query(callback, options = {}) {
     }
   };
   let abortController = null;
-  const sendQuery = async () => {
+  const sendRequest = async () => {
     var _a;
     let isAborted = false;
     if (abortController) {
@@ -200,7 +200,7 @@ function query(callback, options = {}) {
       return q;
     }
     if (!options.sendManually && (IS_CLIENT || options.sendOnServer !== false)) {
-      const promise = sendQuery();
+      const promise = sendRequest();
       q.suspense = () => promise;
     }
     return q;
@@ -218,11 +218,11 @@ function query(callback, options = {}) {
   const returning = {
     ...q,
     _init,
-    QuerySymbol: querySymbol
+    RequestSymbol: requestSymbol
   };
   return returning;
 }
-const isQuery = (query2) => (query2 == null ? void 0 : query2.QuerySymbol) === querySymbol;
+const isRequest = (request2) => (request2 == null ? void 0 : request2.RequestSymbol) === requestSymbol;
 function parseStore(store) {
   return Object.entries(store).reduce(
     (acc, [key, value]) => {
@@ -230,8 +230,8 @@ function parseStore(store) {
         acc.states[key] = value;
       } else if (isGetter(value)) {
         acc.getters[key] = value;
-      } else if (isQuery(value)) {
-        acc.queries[key] = value;
+      } else if (isRequest(value)) {
+        acc.requests[key] = value;
       } else if (typeof value === "function") {
         acc.actions[key] = value;
       } else {
@@ -243,7 +243,7 @@ function parseStore(store) {
       states: {},
       actions: {},
       getters: {},
-      queries: {},
+      requests: {},
       other: {}
     }
   );
@@ -253,21 +253,21 @@ function prepareStore(name, store) {
   if (vaxee._stores[name]) {
     return vaxee._stores[name];
   }
-  const { states, actions, getters, queries, other } = parseStore(store);
+  const { states, actions, getters, requests, other } = parseStore(store);
   if (vaxee.state.value[name]) {
     for (const key in states) {
       states[key].value = vaxee.state.value[name][key];
     }
   }
   const preparedQueries = {};
-  for (const key in queries) {
-    checkPrivateQuery(queries[key]);
-    const query2 = queries[key]._init(name, key);
+  for (const key in requests) {
+    checkPrivateRequest(requests[key]);
+    const request2 = requests[key]._init(name, key);
     states[key] = state({
-      data: query2.data,
-      status: query2.status
+      data: request2.data,
+      status: request2.status
     });
-    preparedQueries[key] = query2;
+    preparedQueries[key] = request2;
   }
   vaxee.state.value[name] = states;
   vaxee._stores[name] = {
@@ -309,7 +309,10 @@ const createStore = (name, store) => {
         VAXEE_LOG_START + `The prop name must be a string when using the store "${name}"`
       );
     }
-    const _store = prepareStore(name, store({ state, getter, query }));
+    const _store = prepareStore(
+      name,
+      store({ state, getter, request, query: request })
+    );
     if (propName !== void 0 && !Object.keys(_store).includes(propName)) {
       throw new Error(
         VAXEE_LOG_START + `The prop name "${propName}" does not exist in the store "${name}"`
@@ -342,11 +345,11 @@ const createStore = (name, store) => {
   return use;
 };
 export {
-  VaxeeQueryStatus,
+  VaxeeRequestStatus,
   createStore,
   createVaxee,
   getter,
-  query,
+  request,
   setVaxeeInstance,
   state,
   useVaxee

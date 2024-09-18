@@ -10,7 +10,7 @@ import type {
 import { IS_DEV, VAXEE_LOG_START } from "../constants";
 import { prepareStore } from "./prepareStore";
 import { getter, state } from "./reactivity";
-import { query } from "./query";
+import { request } from "./request";
 import type { ToComputedRefs } from "../types";
 
 export type BaseStore = Record<string, any>;
@@ -42,7 +42,11 @@ export const createStore = <Store extends BaseStore>(
   store: (options: {
     state: typeof state;
     getter: typeof getter;
-    query: typeof query;
+    /**
+     * @deprecated Use `request` instead.
+     */
+    query: typeof request;
+    request: typeof request;
   }) => Store
 ): UseVaxeeStore<Store> => {
   type State = VaxeeStoreState<Store>;
@@ -71,7 +75,10 @@ export const createStore = <Store extends BaseStore>(
       );
     }
 
-    const _store = prepareStore(name, store({ state, getter, query }));
+    const _store = prepareStore(
+      name,
+      store({ state, getter, request, query: request })
+    );
 
     // error handler if propName not exist inside _store
     if (propName !== undefined && !Object.keys(_store).includes(propName)) {

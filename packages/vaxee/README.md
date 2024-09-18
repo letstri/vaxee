@@ -17,7 +17,7 @@ Vaxee is a simple and easy-to-use library for Vue 3 to manage the state of your 
 
 - ✨ Simple and intuitive API.
 - 💪 Incredible TypeScript support.
-- 🤯 Includes a `query` function.
+- 🤯 Includes a `request` function.
 - 🫡 Improved DX with reactivity.
 
 ## Documentation
@@ -32,32 +32,35 @@ Let's create a huge demo store with a user and auth logic.
 import { createStore } from "vaxee";
 import { fetchUser, signIn, parseJwt } from "~/user";
 
-export const useUserStore = createStore("user", ({ state, getter, query }) => {
-  const tokens = state(
-    {
-      access: "",
-      refresh: "",
-    },
-    {
-      persist: "user.tokens",
-    }
-  );
-  const isAuthorized = getter(
-    () => tokens.value.access && tokens.value.refresh
-  );
-  const userId = getter(() => parseJwt(tokens.value.access).sub);
+export const useUserStore = createStore(
+  "user",
+  ({ state, getter, request }) => {
+    const tokens = state(
+      {
+        access: "",
+        refresh: "",
+      },
+      {
+        persist: "user.tokens",
+      }
+    );
+    const isAuthorized = getter(
+      () => tokens.value.access && tokens.value.refresh
+    );
+    const userId = getter(() => parseJwt(tokens.value.access).sub);
 
-  const signIn = async (email: string, password: string) => {
-    tokens.value = await signIn(email, password);
-  };
+    const signIn = async (email: string, password: string) => {
+      tokens.value = await signIn(email, password);
+    };
 
-  const user = query(() => fetchUser(userId.value));
+    const user = request(() => fetchUser(userId.value));
 
-  return {
-    user,
-    isAuthorized,
-  };
-});
+    return {
+      user,
+      isAuthorized,
+    };
+  }
+);
 ```
 
 Now, let's use this store in a component.

@@ -3,9 +3,9 @@ import { useVaxee } from "../composables/useVaxee";
 import { IS_CLIENT, VAXEE_LOG_START } from "../constants";
 import { isGetter, isState } from "./reactivity";
 
-const querySymbol = Symbol("vaxee-query");
+const requestSymbol = Symbol("vaxee-request");
 
-export enum VaxeeQueryStatus {
+export enum VaxeeRequestStatus {
   NotFetched = "not-fetched",
   Fetching = "fetching",
   Refreshing = "refreshing",
@@ -13,14 +13,14 @@ export enum VaxeeQueryStatus {
   Success = "success",
 }
 
-export interface VaxeeQuery<T> {
+export interface VaxeeRequest<T> {
   data: Ref<null | T>;
   error: Ref<null | Error>;
-  status: Ref<VaxeeQueryStatus>;
+  status: Ref<VaxeeRequestStatus>;
   /**
    * `suspense` gives ability to wait promise resolve without refreshing the data.
    *
-   * @returns A promise that resolves when the query is done.
+   * @returns A promise that resolves when the request is done.
    *
    * @example
    *
@@ -32,9 +32,9 @@ export interface VaxeeQuery<T> {
    */
   suspense: () => Promise<void>;
   /**
-   * `execute` will fetch the query and clear the data and the error.
+   * `execute` will fetch the request and clear the data and the error.
    *
-   * @returns A promise that resolves when the query is done.
+   * @returns A promise that resolves when the request is done.
    *
    * @example
    *
@@ -46,9 +46,9 @@ export interface VaxeeQuery<T> {
    */
   execute: () => Promise<void>;
   /**
-   * `refresh` will fetch the query without clearing the data and the error.
+   * `refresh` will fetch the request without clearing the data and the error.
    *
-   * @returns A promise that resolves when the query is done.
+   * @returns A promise that resolves when the request is done.
    *
    * @example
    *
@@ -63,72 +63,72 @@ export interface VaxeeQuery<T> {
   onSuccess: (callback: (data: T) => any) => any;
 }
 
-interface VaxeePrivateQuery<T> extends VaxeeQuery<T> {
-  QuerySymbol: typeof querySymbol;
-  _init(store: string, key: string): VaxeeQuery<T>;
+interface VaxeePrivateRequest<T> extends VaxeeRequest<T> {
+  RequestSymbol: typeof requestSymbol;
+  _init(store: string, key: string): VaxeeRequest<T>;
 }
 
-export function checkPrivateQuery(
-  query: any
-): asserts query is VaxeePrivateQuery<any> {
-  if (query?.QuerySymbol !== querySymbol) {
-    throw new Error("This is not a private query");
+export function checkPrivateRequest(
+  request: any
+): asserts request is VaxeePrivateRequest<any> {
+  if (request?.RequestSymbol !== requestSymbol) {
+    throw new Error("This is not a private request");
   }
 }
 
-interface VaxeeQueryParams {
+interface VaxeeRequestParams {
   /**
-   * The signal to use for the query.
+   * The signal to use for the request.
    */
   signal: AbortSignal;
 }
 
-interface VaxeeQueryOptions {
+interface VaxeeRequestOptions {
   /**
-   * If `false`, the query will not be automatically fetched on the server side. Default `true`.
+   * If `false`, the request will not be automatically fetched on the server side. Default `true`.
    */
   sendOnServer?: boolean;
   /**
-   * If `true`, the query will not be automatically fetched on both client and server. Default `false`.
+   * If `true`, the request will not be automatically fetched on both client and server. Default `false`.
    */
   sendManually?: boolean;
   /**
-   * An array of refs that will be watched to trigger a query `refresh` function.
+   * An array of refs that will be watched to trigger a request `refresh` function.
    */
   watch?: WatchSource[];
   /**
-   * A callback that will be called when an error occurs during the query.
+   * A callback that will be called when an error occurs during the request.
    */
   onError?: <E = unknown>(error: E) => any;
 }
 
-export function query<T>(
-  callback: (params: VaxeeQueryParams) => T | Promise<T>,
-  options: VaxeeQueryOptions = {}
-): VaxeeQuery<T> {
-  const q: VaxeeQuery<T> = {
+export function request<T>(
+  callback: (params: VaxeeRequestParams) => T | Promise<T>,
+  options: VaxeeRequestOptions = {}
+): VaxeeRequest<T> {
+  const q: VaxeeRequest<T> = {
     data: ref<T | null>(null) as Ref<T | null>,
     error: ref<Error | null>(null),
-    status: ref<VaxeeQueryStatus>(
+    status: ref<VaxeeRequestStatus>(
       options.sendManually
-        ? VaxeeQueryStatus.NotFetched
-        : VaxeeQueryStatus.Fetching
+        ? VaxeeRequestStatus.NotFetched
+        : VaxeeRequestStatus.Fetching
     ),
     suspense: () => Promise.resolve(),
     async execute() {
-      q.status.value = VaxeeQueryStatus.Fetching;
+      q.status.value = VaxeeRequestStatus.Fetching;
       q.data.value = null;
       q.error.value = null;
-      const promise = sendQuery();
+      const promise = sendRequest();
 
       q.suspense = () => promise;
 
       return promise;
     },
     async refresh() {
-      q.status.value = VaxeeQueryStatus.Refreshing;
+      q.status.value = VaxeeRequestStatus.Refreshing;
       q.error.value = null;
-      const promise = sendQuery();
+      const promise = sendRequest();
 
       q.suspense = () => promise;
 
@@ -156,7 +156,7 @@ export function query<T>(
         return watch(
           q.status,
           (status) => {
-            if (status === VaxeeQueryStatus.Success) {
+            if (status === VaxeeRequestStatus.Success) {
               callback(q.data.value!);
             }
           },
@@ -172,7 +172,7 @@ export function query<T>(
 
   let abortController: AbortController | null = null;
 
-  const sendQuery = async () => {
+  const sendRequest = async () => {
     let isAborted = false;
 
     if (abortController) {
@@ -189,12 +189,12 @@ export function query<T>(
       const data = await callback({ signal: abortController.signal });
 
       q.data.value = data;
-      q.status.value = VaxeeQueryStatus.Success;
+      q.status.value = VaxeeRequestStatus.Success;
       abortController = null;
     } catch (error) {
       if (!isAborted) {
         q.error.value = error as Error;
-        q.status.value = VaxeeQueryStatus.Error;
+        q.status.value = VaxeeRequestStatus.Error;
         abortController = null;
         options.onError?.(error);
       }
@@ -222,7 +222,7 @@ export function query<T>(
       !options.sendManually &&
       (IS_CLIENT || options.sendOnServer !== false)
     ) {
-      const promise = sendQuery();
+      const promise = sendRequest();
 
       q.suspense = () => promise;
     }
@@ -237,21 +237,22 @@ export function query<T>(
       )
     ) {
       throw new Error(
-        VAXEE_LOG_START + "Watch should be an array of refs or computed values"
+        VAXEE_LOG_START +
+          "Watch should be an array of `state` or `getter` or `function` that returns a value"
       );
     }
 
     watch(options.watch, q.refresh);
   }
 
-  const returning: VaxeePrivateQuery<T> = {
+  const returning: VaxeePrivateRequest<T> = {
     ...q,
     _init,
-    QuerySymbol: querySymbol,
+    RequestSymbol: requestSymbol,
   };
 
   return returning;
 }
 
-export const isQuery = (query: any): query is VaxeeQuery<any> =>
-  query?.QuerySymbol === querySymbol;
+export const isRequest = (request: any): request is VaxeeRequest<any> =>
+  request?.RequestSymbol === requestSymbol;

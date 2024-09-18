@@ -1,11 +1,11 @@
 <script setup lang="ts">
 const {
   users: { data: users, refresh, suspense, status },
-} = useQueryStore();
+} = useRequestStore();
 
 await suspense();
 
-const store = useQueryStore.reactive();
+const store = useRequestStore.reactive();
 </script>
 
 <template>
