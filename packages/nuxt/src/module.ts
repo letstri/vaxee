@@ -28,7 +28,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     name: "vaxee",
     configKey: "vaxee",
     compatibility: {
-      nuxt: ">=3.0.0",
+      nuxt: ">=3.5.0",
     },
   },
   defaults: {

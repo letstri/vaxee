@@ -2,9 +2,9 @@
   "name": "vaxee",
   "configKey": "vaxee",
   "compatibility": {
-    "nuxt": ">=3.0.0"
+    "nuxt": ">=3.5.0"
   },
-  "version": "0.8.4",
+  "version": "0.9.0",
   "builder": {
     "@nuxt/module-builder": "0.8.3",
     "unbuild": "unknown"
