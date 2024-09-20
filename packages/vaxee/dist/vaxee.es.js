@@ -294,7 +294,7 @@ const createStore = (name, store) => {
   var _a;
   if ((_a = getVaxeeInstance()) == null ? void 0 : _a._stores[name]) {
     if (IS_DEV) {
-      console.error(
+      console.warn(
         VAXEE_LOG_START + `The store with name "${name}" already exists. In production, this will throw an error.`
       );
     } else {
