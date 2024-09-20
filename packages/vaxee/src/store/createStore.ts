@@ -57,12 +57,13 @@ export const createStore = <Store extends BaseStore>(
 
   if (getVaxeeInstance()?._stores[name]) {
     if (IS_DEV) {
-      console.warn(
-        VAXEE_LOG_START + `The store with name ${name} already exists.`
+      console.error(
+        VAXEE_LOG_START +
+          `The store with name "${name}" already exists. In production, this will throw an error.`
       );
     } else {
       throw new Error(
-        VAXEE_LOG_START + `The store with name ${name} already exists.`
+        VAXEE_LOG_START + `The store with name "${name}" already exists.`
       );
     }
   }
