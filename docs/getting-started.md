@@ -51,19 +51,19 @@ If you are using [Nuxt 3](https://nuxt.com/) or higher, you **don't need** to in
 ::: code-group
 
 ```bash [npm]
-npm i @vaxee/nuxt
+npm i vaxee @vaxee/nuxt
 ```
 
 ```bash [yarn]
-yarn add @vaxee/nuxt
+yarn add vaxee @vaxee/nuxt
 ```
 
 ```bash [pnpm]
-pnpm add @vaxee/nuxt
+pnpm i vaxee @vaxee/nuxt
 ```
 
 ```bash [bun]
-bun i @vaxee/nuxt
+bun i vaxee @vaxee/nuxt
 ```
 
 :::
