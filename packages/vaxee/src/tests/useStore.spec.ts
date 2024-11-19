@@ -1,6 +1,5 @@
 import { beforeEach, describe, it, expect } from "vitest";
 import { createVaxee, createStore, setVaxeeInstance } from "..";
-import { VAXEE_LOG_START } from "../constants";
 
 const STORE_NAME = "main";
 
