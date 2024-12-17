@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://vaxee.letstri.dev" target="_blank" rel="noopener noreferrer">
-<img height="70" src="https://vaxee.letstri.dev/logo.svg"  alt="Nixle logo">
+<img height="70" src="https://vaxee.letstri.dev/logo.svg"  alt="Vaxee logo">
 </a>
 </p>
 <p  align="center">
