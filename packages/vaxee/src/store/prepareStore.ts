@@ -23,7 +23,7 @@ export function prepareStore<Store extends BaseStore>(
     }
   }
 
-  const preparedQueries = {} as Record<string, VaxeeRequest<any>>;
+  const preparedRequests = {} as Record<string, VaxeeRequest<any>>;
 
   for (const key in requests) {
     checkPrivateRequest(requests[key]);
@@ -35,7 +35,7 @@ export function prepareStore<Store extends BaseStore>(
       status: request.status,
     });
 
-    preparedQueries[key] = request;
+    preparedRequests[key] = request;
   }
 
   vaxee.state.value[name] = states;
@@ -44,14 +44,14 @@ export function prepareStore<Store extends BaseStore>(
     ...states,
     ...actions,
     ...getters,
-    ...preparedQueries,
+    ...preparedRequests,
     ...(other as any),
     _state: states,
     _actions: actions,
     _getters: getters,
-    _queries: preparedQueries,
+    _requests: preparedRequests,
     _other: other,
-  } satisfies VaxeeInternalStore<Store>;
+  } satisfies VaxeeInternalStore<Store, false>;
 
   // To use the state directly by _state = { ... }
   Object.defineProperty(vaxee._stores[name], "_state", {

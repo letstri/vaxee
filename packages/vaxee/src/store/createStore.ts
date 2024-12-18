@@ -5,9 +5,9 @@ import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
   VaxeeStoreOther,
-  VaxeeStoreQueries,
+  VaxeeStoreRequests,
 } from "./types";
-import { IS_CLIENT, IS_DEV, VAXEE_LOG_START } from "../constants";
+import { IS_DEV, VAXEE_LOG_START } from "../constants";
 import { prepareStore } from "./prepareStore";
 import { getter, state } from "./reactivity";
 import { request, type VaxeeRequest } from "./request";
@@ -19,14 +19,14 @@ export type VaxeeStore<Store extends BaseStore> = ToRefs<
   VaxeeStoreState<Store>
 > &
   ToComputedRefs<VaxeeStoreGetters<Store>> &
-  VaxeeStoreQueries<Store> &
+  VaxeeStoreRequests<Store> &
   VaxeeStoreActions<Store> &
   VaxeeStoreOther<Store>;
 
 export type VaxeeReactiveStore<Store extends BaseStore> =
   VaxeeStoreState<Store> &
     VaxeeStoreGetters<Store> &
-    UnwrapNestedRefs<VaxeeStoreQueries<Store>> &
+    UnwrapNestedRefs<VaxeeStoreRequests<Store>> &
     VaxeeStoreActions<Store> &
     VaxeeStoreOther<Store>;
 
@@ -52,7 +52,7 @@ export const createStore = <Store extends BaseStore>(
   type State = VaxeeStoreState<Store>;
   type Actions = VaxeeStoreActions<Store>;
   type Getters = VaxeeStoreGetters<Store>;
-  type Queries = VaxeeStoreQueries<Store>;
+  type Requests = VaxeeStoreRequests<Store>;
   type Other = VaxeeStoreOther<Store>;
 
   if (getVaxeeInstance()?._stores[name]) {
@@ -95,15 +95,15 @@ export const createStore = <Store extends BaseStore>(
         return _store._getters[propName as keyof Getters];
       }
 
-      if (_store._queries[propName as keyof Queries]) {
-        const query = _store._queries[propName as keyof Queries];
-        const queryPromise = Promise.resolve(query.suspense()).then(
-          () => query
+      if (_store._requests[propName as keyof Requests]) {
+        const request = _store._requests[propName as keyof Requests];
+        const requestPromise = Promise.resolve(request.suspense()).then(
+          () => request
         );
 
-        Object.assign(queryPromise, query);
+        Object.assign(requestPromise, request);
 
-        return queryPromise;
+        return requestPromise;
       }
 
       if (_store._other[propName as keyof Other]) {

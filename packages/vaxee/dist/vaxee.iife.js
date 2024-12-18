@@ -266,7 +266,7 @@ var vaxee = function(exports, vue2) {
         states[key].value = vaxee2.state.value[name][key];
       }
     }
-    const preparedQueries = {};
+    const preparedRequests = {};
     for (const key in requests) {
       checkPrivateRequest(requests[key]);
       const request2 = requests[key]._init(name, key);
@@ -274,19 +274,19 @@ var vaxee = function(exports, vue2) {
         data: request2.data,
         status: request2.status
       });
-      preparedQueries[key] = request2;
+      preparedRequests[key] = request2;
     }
     vaxee2.state.value[name] = states;
     vaxee2._stores[name] = {
       ...states,
       ...actions,
       ...getters,
-      ...preparedQueries,
+      ...preparedRequests,
       ...other,
       _state: states,
       _actions: actions,
       _getters: getters,
-      _queries: preparedQueries,
+      _requests: preparedRequests,
       _other: other
     };
     Object.defineProperty(vaxee2._stores[name], "_state", {
@@ -329,13 +329,13 @@ var vaxee = function(exports, vue2) {
         if (_store._getters[propName]) {
           return _store._getters[propName];
         }
-        if (_store._queries[propName]) {
-          const query = _store._queries[propName];
-          const queryPromise = Promise.resolve(query.suspense()).then(
-            () => query
+        if (_store._requests[propName]) {
+          const request2 = _store._requests[propName];
+          const requestPromise = Promise.resolve(request2.suspense()).then(
+            () => request2
           );
-          Object.assign(queryPromise, query);
-          return queryPromise;
+          Object.assign(requestPromise, request2);
+          return requestPromise;
         }
         if (_store._other[propName]) {
           return _store._other[propName];

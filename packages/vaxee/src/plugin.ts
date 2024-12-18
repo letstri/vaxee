@@ -3,7 +3,7 @@ import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
   VaxeeStoreOther,
-  VaxeeStoreQueries,
+  VaxeeStoreRequests,
   VaxeeStoreState,
 } from "./store/types";
 import type {
@@ -22,7 +22,7 @@ export type VaxeeInternalStore<
   _state: VaxeeStoreState<Store>;
   _actions: VaxeeStoreActions<Store>;
   _getters: VaxeeStoreGetters<Store>;
-  _queries: VaxeeStoreQueries<Store>;
+  _requests: VaxeeStoreRequests<Store>;
   _other: VaxeeStoreOther<Store>;
 };
 

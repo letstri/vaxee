@@ -24,7 +24,6 @@
     "store",
     "pinia",
     "state",
-    "query",
     "request",
     "shallow"
   ],

@@ -1,12 +1,12 @@
 import { type App, type Ref } from "vue";
-import type { VaxeeStoreActions, VaxeeStoreGetters, VaxeeStoreOther, VaxeeStoreQueries, VaxeeStoreState } from "./store/types";
+import type { VaxeeStoreActions, VaxeeStoreGetters, VaxeeStoreOther, VaxeeStoreRequests, VaxeeStoreState } from "./store/types";
 import type { BaseStore, VaxeeReactiveStore, VaxeeStore } from "./store/createStore";
 export declare const vaxeeSymbol: unique symbol;
 export type VaxeeInternalStore<Store extends BaseStore, Refs extends boolean = true> = (Refs extends true ? VaxeeStore<Store> : VaxeeReactiveStore<Store>) & {
     _state: VaxeeStoreState<Store>;
     _actions: VaxeeStoreActions<Store>;
     _getters: VaxeeStoreGetters<Store>;
-    _queries: VaxeeStoreQueries<Store>;
+    _requests: VaxeeStoreRequests<Store>;
     _other: VaxeeStoreOther<Store>;
 };
 export interface Vaxee {

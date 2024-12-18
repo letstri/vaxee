@@ -9,13 +9,13 @@ type VaxeeStoreGettersNames<T> = {
     [K in keyof T]: T[K] extends VaxeeGetter<any> ? K : never;
 }[keyof T];
 export type VaxeeStoreGetters<T> = UnwrapNestedRefs<Pick<T, VaxeeStoreGettersNames<T>>>;
-type VaxeeStoreQueriesNames<T> = {
+type VaxeeStoreRequestsNames<T> = {
     [K in keyof T]: T[K] extends VaxeeRequest<any> ? K : never;
 }[keyof T];
-export type VaxeeStoreQueries<T> = Pick<T, VaxeeStoreQueriesNames<T>>;
+export type VaxeeStoreRequests<T> = Pick<T, VaxeeStoreRequestsNames<T>>;
 type VaxeeStoreActionsNames<T> = {
     [K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
 export type VaxeeStoreActions<T> = Pick<T, VaxeeStoreActionsNames<T>>;
-export type VaxeeStoreOther<T> = UnwrapNestedRefs<Omit<T, VaxeeStoreStateNames<T> | VaxeeStoreGettersNames<T> | VaxeeStoreQueriesNames<T> | VaxeeStoreActionsNames<T>>>;
+export type VaxeeStoreOther<T> = UnwrapNestedRefs<Omit<T, VaxeeStoreStateNames<T> | VaxeeStoreGettersNames<T> | VaxeeStoreRequestsNames<T> | VaxeeStoreActionsNames<T>>>;
 export {};
