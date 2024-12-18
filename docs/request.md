@@ -7,7 +7,7 @@ outline: deep
 Vaxee provides a `request` function to fetch data and store it in the store. Also `request` provides a way to cache the data and several options to enhance the data fetching process. **Cache** is stored in the store and is **shared** between all components that use the store. That means if you fetch the data in one component, it will be available in another component without fetching it again.
 
 ::: tip
-If you are using server-side rendering (SSR), it is recommended to read the [SSR section](#ssr-1) to avoid hydration errors.
+If you are using server-side rendering (SSR), it is recommended to read the [SSR section](#ssr) to avoid hydration errors.
 :::
 
 ## Create a Request
