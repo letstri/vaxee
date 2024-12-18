@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "^3.14.1592",
-    "@vaxee/nuxt": "workspace:^",
+    "@vaxee/nuxt": "workspace:*",
     "@vueuse/core": "^12.0.0",
     "@vueuse/nuxt": "^12.0.0",
     "nuxt": "^3.12.4",
