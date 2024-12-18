@@ -7,11 +7,11 @@ import type {
   VaxeeStoreOther,
   VaxeeStoreQueries,
 } from "./types";
-import { IS_DEV, VAXEE_LOG_START } from "../constants";
+import { IS_CLIENT, IS_DEV, VAXEE_LOG_START } from "../constants";
 import { prepareStore } from "./prepareStore";
 import { getter, state } from "./reactivity";
-import { request } from "./request";
-import type { ToComputedRefs } from "../types";
+import { request, type VaxeeRequest } from "./request";
+import type { Promiseable, ToComputedRefs } from "../types";
 
 export type BaseStore = Record<string, any>;
 
@@ -32,7 +32,11 @@ export type VaxeeReactiveStore<Store extends BaseStore> =
 
 interface UseVaxeeStore<Store extends BaseStore> {
   (): VaxeeStore<Store>;
-  <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name];
+  <Name extends keyof VaxeeStore<Store>>(
+    name: Name
+  ): VaxeeStore<Store>[Name] extends VaxeeRequest<infer T>
+    ? Promiseable<VaxeeRequest<T>>
+    : VaxeeStore<Store>[Name];
   $inferState: VaxeeStoreState<Store>;
   reactive: () => VaxeeReactiveStore<Store>;
 }
@@ -42,10 +46,6 @@ export const createStore = <Store extends BaseStore>(
   store: (options: {
     state: typeof state;
     getter: typeof getter;
-    /**
-     * @deprecated Use `request` instead.
-     */
-    query: typeof request;
     request: typeof request;
   }) => Store
 ): UseVaxeeStore<Store> => {
@@ -76,10 +76,7 @@ export const createStore = <Store extends BaseStore>(
       );
     }
 
-    const _store = prepareStore(
-      name,
-      store({ state, getter, request, query: request })
-    );
+    const _store = prepareStore(name, store({ state, getter, request }));
 
     // error handler if propName not exist inside _store
     if (propName !== undefined && !Object.keys(_store).includes(propName)) {
@@ -99,7 +96,14 @@ export const createStore = <Store extends BaseStore>(
       }
 
       if (_store._queries[propName as keyof Queries]) {
-        return _store._queries[propName as keyof Queries];
+        const query = _store._queries[propName as keyof Queries];
+        const queryPromise = Promise.resolve(query.suspense()).then(
+          () => query
+        );
+
+        Object.assign(queryPromise, query);
+
+        return queryPromise;
       }
 
       if (_store._other[propName as keyof Other]) {

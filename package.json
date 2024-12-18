@@ -10,10 +10,10 @@
     "docs:build": "pnpm -r --filter='./docs' run docs:build",
     "docs:preview": "pnpm -r --filter='./docs' run docs:previews"
   },
-  "packageManager": "pnpm@9.13.2",
+  "packageManager": "pnpm@9.15.0",
   "devDependencies": {
-    "@commitlint/config-conventional": "^19.5.0",
-    "commitlint": "^19.5.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "commitlint": "^19.6.1",
     "husky": "^9.1.7"
   }
 }

@@ -6,3 +6,4 @@ export type ToComputed<T> = T extends Ref ? T : ComputedRef<T>;
 export type ToComputedRefs<T> = {
     [K in keyof T]: ToComputed<T[K]>;
 };
+export type Promiseable<T> = T & Promise<T>;

@@ -331,4 +331,29 @@ describe("request", () => {
 
     expect(spy).toHaveBeenCalledTimes(2);
   });
+
+  it("should work with await", async () => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.resolve(1));
+      return { q };
+    });
+
+    const q = await useStore("q");
+
+    expect(q.data.value).toBe(1);
+    expect(q).not.toBeInstanceOf(Promise);
+  });
+
+  it("should work without await", async () => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(() => Promise.resolve(1));
+      return { q };
+    });
+
+    const q = useStore("q");
+
+    expect(q).toBeInstanceOf(Promise);
+    await q.suspense();
+    expect(q.data.value).toBe(1);
+  });
 });

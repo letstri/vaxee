@@ -121,7 +121,9 @@ export function request<T>(
       q.error.value = null;
       const promise = sendRequest();
 
-      q.suspense = () => promise;
+      q.suspense = async () => {
+        await promise;
+      };
 
       return promise;
     },
@@ -130,7 +132,9 @@ export function request<T>(
       q.error.value = null;
       const promise = sendRequest();
 
-      q.suspense = () => promise;
+      q.suspense = async () => {
+        await promise;
+      };
 
       return promise;
     },
@@ -224,7 +228,13 @@ export function request<T>(
     ) {
       const promise = sendRequest();
 
-      q.suspense = () => promise;
+      // if (!IS_CLIENT && options.serverPrefetch) {
+      //   onServerPrefetch(() => promise);
+      // }
+
+      q.suspense = async () => {
+        await promise;
+      };
     }
 
     return q;

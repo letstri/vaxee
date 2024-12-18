@@ -119,14 +119,18 @@ function request(callback, options = {}) {
       q.data.value = null;
       q.error.value = null;
       const promise = sendRequest();
-      q.suspense = () => promise;
+      q.suspense = async () => {
+        await promise;
+      };
       return promise;
     },
     async refresh() {
       q.status.value = "refreshing";
       q.error.value = null;
       const promise = sendRequest();
-      q.suspense = () => promise;
+      q.suspense = async () => {
+        await promise;
+      };
       return promise;
     },
     onError(callback2) {
@@ -201,7 +205,9 @@ function request(callback, options = {}) {
     }
     if (!options.sendManually && (IS_CLIENT || options.sendOnServer !== false)) {
       const promise = sendRequest();
-      q.suspense = () => promise;
+      q.suspense = async () => {
+        await promise;
+      };
     }
     return q;
   }
@@ -309,10 +315,7 @@ const createStore = (name, store) => {
         VAXEE_LOG_START + `The prop name must be a string when using the store "${name}"`
       );
     }
-    const _store = prepareStore(
-      name,
-      store({ state, getter, request, query: request })
-    );
+    const _store = prepareStore(name, store({ state, getter, request }));
     if (propName !== void 0 && !Object.keys(_store).includes(propName)) {
       throw new Error(
         VAXEE_LOG_START + `The prop name "${propName}" does not exist in the store "${name}"`
@@ -326,7 +329,12 @@ const createStore = (name, store) => {
         return _store._getters[propName];
       }
       if (_store._queries[propName]) {
-        return _store._queries[propName];
+        const query = _store._queries[propName];
+        const queryPromise = Promise.resolve(query.suspense()).then(
+          () => query
+        );
+        Object.assign(queryPromise, query);
+        return queryPromise;
       }
       if (_store._other[propName]) {
         return _store._other[propName];

@@ -10,12 +10,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.13.0",
+    "@nuxt/kit": "^3.14.1592",
     "@vaxee/nuxt": "workspace:^",
-    "@vueuse/core": "^10.11.0",
-    "@vueuse/nuxt": "^10.11.0",
+    "@vueuse/core": "^12.0.0",
+    "@vueuse/nuxt": "^12.0.0",
     "nuxt": "^3.12.4",
-    "vue": "^3.4.33",
-    "vue-router": "^4.4.0"
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   }
 }

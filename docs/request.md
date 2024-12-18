@@ -168,7 +168,7 @@ const {
   suspense: suspenseUser,
   onSuccess: onUserSuccess,
   onError: onUserError,
-} = useUserStore("user");
+} = await useUserStore("user");
 
 onUserSuccess((user) => {
   console.log("User fetched successfully", user);
@@ -207,7 +207,7 @@ onServerPrefetch(async () => {
 
 ### Properties
 
-The `request` function returns an object with the following properties:
+The `request` function returns an promiseable object with the following properties:
 
 - `data` - The data returned from the request. It's a `ref` object.
 - `error` - The error returned from the request. It's a `ref` object.
@@ -230,10 +230,10 @@ enum VaxeeRequestStatus {
 
 ## SSR
 
-If you are using some server-side rendering (SSR) framework, you can use the `suspense` function to wait the data before rendering the component.
+If you are using some server-side rendering (SSR) framework, you can use the `await` syntax to wait the data before rendering the component.
 
 ::: warning
-If you are not using `suspense`/`execute`/`refresh` in SSR to wait for the data to resolve, the request will be **send twice** due to the client-side rendering. Use some function to wait to the request promise resolve, it won't be fetched again on the client-side.
+If you are not using `suspense`/`execute`/`refresh` or `await` in SSR to wait for the data to resolve, the request will be **send twice** due to the client-side rendering. Use some function to wait to the request promise resolve, it won't be fetched again on the client-side.
 :::
 
 ::: tip
@@ -247,12 +247,12 @@ The `suspense` function is **not** responsible for **fetching data**, even if yo
 ```ts
 import { useUserStore } from "../stores/user";
 
-const {
-  user: { suspense: userSuspense },
-} = useUserStore();
+const { suspense: userSuspense } = await useUserStore("user");
 
 /**
- * Wait the data resolving on the server only when the component is visible on the rendered page.
+ * Instead of `await` before the `useUserStore`,
+ * you can use `onServerPrefetch` to wait the data resolving on the server
+ * only when the component is visible on the rendered page.
  * It won't be fetched on the client side after router navigation.
  *
  * @see https://vuejs.org/api/composition-api-lifecycle#onserverprefetch
@@ -262,7 +262,8 @@ onServerPrefetch(async () => {
 });
 
 /**
- * Wait the data resolving every time the component is rendered.
+ * Also you can use `suspense` directly in the component
+ * to wait the data resolving every time the component is rendered.
  *
  * @see https://vuejs.org/guide/built-ins/suspense.html#async-dependencies
  */

@@ -1,6 +1,6 @@
 {
   "name": "@vaxee/nuxt",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "Nuxt Module for Vaxee",
   "keywords": [
     "vaxee",
@@ -45,15 +45,15 @@
     "test:types": "pnpm dev:prepare && nuxi typecheck"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.14.159",
+    "@nuxt/kit": "^3.14.1592",
     "vaxee": "workspace:*"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.14.159",
-    "@nuxt/test-utils": "^3.14.4",
+    "@nuxt/schema": "^3.14.1592",
+    "@nuxt/test-utils": "^3.15.1",
     "nuxt": "^3.14.159",
-    "typescript": "^5.6.3",
+    "typescript": "^5.7.2",
     "vue-tsc": "^2.1.10"
   },
   "peerDependencies": {
