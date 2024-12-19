@@ -1,4 +1,11 @@
-import { onServerPrefetch, ref, watch, type Ref, type WatchSource } from "vue";
+import {
+  getCurrentInstance,
+  onServerPrefetch,
+  ref,
+  watch,
+  type Ref,
+  type WatchSource,
+} from "vue";
 import { useVaxee } from "../composables/useVaxee";
 import { IS_CLIENT, VAXEE_LOG_START } from "../constants";
 import { isGetter, isState } from "./reactivity";
@@ -253,7 +260,7 @@ export function request<T>(
           ? sendRequest()
           : Promise.resolve();
 
-      if (options.mode === "auto") {
+      if (options.mode === "auto" && getCurrentInstance()) {
         onServerPrefetch(() => promise);
       }
 
