@@ -1,4 +1,5 @@
 import { reactive, ref, type App, type Ref } from "vue";
+import * as devalue from "devalue";
 import type {
   VaxeeStoreActions,
   VaxeeStoreGetters,
@@ -61,7 +62,7 @@ export function createVaxee(options: VaxeeOptions = {}) {
         );
         // @ts-ignore
         window.$vaxee = () =>
-          JSON.parse(JSON.stringify(reactive(vaxee.state)))._value;
+          devalue.parse(devalue.stringify(reactive(vaxee.state)))._value;
       }
     },
     state: ref({}),

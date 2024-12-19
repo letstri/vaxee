@@ -49,5 +49,8 @@
   },
   "peerDependencies": {
     "vue": ">3.0.0"
+  },
+  "dependencies": {
+    "devalue": "^5.1.1"
   }
 }

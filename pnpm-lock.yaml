@@ -64,6 +64,9 @@ importers:
 
   packages/vaxee:
     dependencies:
+      devalue:
+        specifier: ^5.1.1
+        version: 5.1.1
       vue:
         specifier: '>3.0.0'
         version: 3.5.13(typescript@5.7.2)
@@ -6441,28 +6444,6 @@ snapshots:
       vite: 5.4.11(@types/node@22.10.2)(terser@5.37.0)
       vue: 3.5.13(typescript@5.7.2)
 
-  '@vitest/browser@2.1.8(@types/node@22.10.2)(typescript@5.7.2)(vite@5.4.11(@types/node@22.10.2)(terser@5.37.0))(vitest@2.1.8)(webdriverio@9.4.5)':
-    dependencies:
-      '@testing-library/dom': 10.4.0
-      '@testing-library/user-event': 14.5.2(@testing-library/dom@10.4.0)
-      '@vitest/mocker': 2.1.8(msw@2.7.0(@types/node@22.10.2)(typescript@5.7.2))(vite@5.4.11(@types/node@22.10.2)(terser@5.37.0))
-      '@vitest/utils': 2.1.8
-      magic-string: 0.30.17
-      msw: 2.7.0(@types/node@22.10.2)(typescript@5.7.2)
-      sirv: 3.0.0
-      tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@22.10.2)(@vitest/browser@2.1.8)(msw@2.7.0(@types/node@22.10.2)(typescript@5.7.2))(terser@5.37.0)
-      ws: 8.18.0
-    optionalDependencies:
-      webdriverio: 9.4.5
-    transitivePeerDependencies:
-      - '@types/node'
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - vite
-    optional: true
-
   '@vitest/browser@2.1.8(@types/node@22.10.2)(typescript@5.7.2)(vite@6.0.4(@types/node@22.10.2)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1))(vitest@2.1.8)(webdriverio@9.4.5)':
     dependencies:
       '@testing-library/dom': 10.4.0
@@ -10066,7 +10047,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.10.2
-      '@vitest/browser': 2.1.8(@types/node@22.10.2)(typescript@5.7.2)(vite@5.4.11(@types/node@22.10.2)(terser@5.37.0))(vitest@2.1.8)(webdriverio@9.4.5)
+      '@vitest/browser': 2.1.8(@types/node@22.10.2)(typescript@5.7.2)(vite@6.0.4(@types/node@22.10.2)(jiti@2.4.2)(terser@5.37.0)(yaml@2.6.1))(vitest@2.1.8)(webdriverio@9.4.5)
     transitivePeerDependencies:
       - less
       - lightningcss
