@@ -161,37 +161,3 @@ const { count } = useCounterStore();
 ```
 
 Try it on [StackBlitz](https://stackblitz.com/edit/vaxee-counter-playground?file=src%2Fstores%2Fcounter.ts,src%2FApp.vue&terminal=dev).
-
-## Server-Side Rendering
-
-::: warning
-If you are using the Nuxt package, you can skip this section. The code below is already included in the Nuxt package.
-:::
-
-To use Vaxee with server-side rendering (SSR), you need to use **save** your data before sending it to the client and then restore it on the client side. You can do it by inserting your data into the HTML response.
-
-::: tip
-When inserting data into the HTML response, make sure to properly escape it. You can use the [devalue](https://github.com/nuxt-contrib/devalue) package for this purpose.
-:::
-
-To restore same data on the client side, you can use the following code.
-
-```ts{8-12}
-import { createApp } from "vue";
-import App from "./App.vue";
-import { createVaxee } from "vaxee";
-
-const vaxee = createVaxee();
-const app = createApp(App);
-
-if (typeof window !== "undefined") {
-  vaxee.state.value = JSON.parse(
-    document.getElementById("__vaxee__").textContent
-  );
-}
-
-app.use(vaxee);
-app.$mount("#app");
-```
-
-The main point is to set the `vaxee.state.value` with the data **before using any store**.

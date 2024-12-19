@@ -26,6 +26,7 @@ export default defineConfig({
         items: [
           { text: "Why Vaxee?", link: "/why" },
           { text: "Getting Started", link: "/getting-started" },
+          { text: "Server-Side Rendering", link: "/ssr" },
         ],
       },
       {

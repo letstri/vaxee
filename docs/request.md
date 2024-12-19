@@ -59,42 +59,19 @@ You can pass options to the `request` function to customize the behavior.
 
 ```ts
 interface VaxeeRequestOptions {
-  sendManually?: boolean;
+  mode?: "auto" | "lazy" | "manual";
   watch?: WatchSource[];
-  sendOnServer?: boolean;
   onError?: <E = unknown>(error: E) => any;
 }
 ```
 
-#### `sendManually`
+#### `mode`
 
-By default, the request is sent automatically when the store is used. You can pass a `boolean` property that determines whether the request should be sent manually.
+- `auto` - The request will be sent automatically on **server-side**, if available, with `onServerPrefetch` hook. Also the request will be sent automatically on the client-side if did not send on the server-side.
+- `client` - The request will be sent automatically **only** on the **client-side**.
+- `manual` - If you want control the request **manually**, you can set the `mode` to `manual` and request won't be sent automatically.
 
-> Default is `false`.
-
-```ts
-const useUserStore = createStore("user", ({ request }) => {
-  const user = request(() => fetchUser(), {
-    sendManually: true,
-  });
-
-  return { user };
-});
-```
-
-And then you can call the `execute` function to send the request manually.
-
-```vue
-<script setup>
-const {
-  user: { execute },
-} = useUserStore();
-
-onMounted(() => {
-  execute();
-});
-</script>
-```
+> Default: `auto`
 
 #### `watch`
 
@@ -115,22 +92,6 @@ const useUserStore = createStore("user", ({ request, state }) => {
   );
 
   return { token, user };
-});
-```
-
-#### `sendOnServer`
-
-By default, the request is automatically sent on the server-side if available. You can pass a `boolean` property that determines whether the request should be sent on the server-side. If `false`, the request will be automatically sent only on the client-side.
-
-> Default is `true`.
-
-```ts
-const useUserStore = createStore("user", ({ request }) => {
-  const user = request(() => fetchUser(), {
-    sendOnServer: false,
-  });
-
-  return { user };
 });
 ```
 
@@ -188,6 +149,7 @@ onMounted(() => {
 // const store = useUserStore.reactive();
 // store.user.data
 
+// ❌ it will work but you'll get the same if mode is "auto"
 onServerPrefetch(async () => {
   await suspenseUser();
 });
@@ -226,46 +188,4 @@ enum VaxeeRequestStatus {
   Error = "error",
   Success = "success",
 }
-```
-
-## SSR
-
-If you are using some server-side rendering (SSR) framework, you can use the `await` syntax to wait the data before rendering the component.
-
-::: warning
-If you are not using `suspense`/`execute`/`refresh` or `await` in SSR to wait for the data to resolve, the request will be **send twice** due to the client-side rendering. Use some function to wait to the request promise resolve, it won't be fetched again on the client-side.
-:::
-
-::: tip
-If you want to fetch the data only on the **client-side**, you need to [disable](#sendonserver) the `sendOnServer` option.
-:::
-
-::: tip
-The `suspense` function is **not** responsible for **fetching data**, even if you call it multiple times. Its purpose is to allow you to wait for the promise inside the `request` function to resolve. To fetch the data, you need to call the `execute` or `refresh` function.
-:::
-
-```ts
-import { useUserStore } from "../stores/user";
-
-const { suspense: userSuspense } = await useUserStore("user");
-
-/**
- * Instead of `await` before the `useUserStore`,
- * you can use `onServerPrefetch` to wait the data resolving on the server
- * only when the component is visible on the rendered page.
- * It won't be fetched on the client side after router navigation.
- *
- * @see https://vuejs.org/api/composition-api-lifecycle#onserverprefetch
- */
-onServerPrefetch(async () => {
-  await userSuspense();
-});
-
-/**
- * Also you can use `suspense` directly in the component
- * to wait the data resolving every time the component is rendered.
- *
- * @see https://vuejs.org/guide/built-ins/suspense.html#async-dependencies
- */
-await userSuspense();
 ```

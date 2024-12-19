@@ -6,7 +6,7 @@ outline: deep
 
 Having worked on **many** projects and frameworks, I've developed my **own vision** of the perfect state manager for **Vue 3**. After googling for a while and **not finding** anything similar, I decided to create _my own_. By establishing the basic functionality in `Vaxee`, the features that were missing in other state managers will gradually be added.
 
-## Why Do You Need Vaxee?
+## Why do you need Vaxee?
 
 If you use **Vue 3** and want to store your _data_ and use it across different _components_ without dealing with _prop drilling_ or _event bus_ issues, then you need _Vaxee_.
 
@@ -18,7 +18,7 @@ To **use** the data, we offer many different options that are fully supported by
 
 We have moved away from using regular `ref` and `computed` inside the stores because we **want** to give you more **control** over the variables, like `persist` or `log`. We will keep adding more functionality **over time**.
 
-## Why Not Pinia?
+## Why not Pinia?
 
 You can use **Pinia** in two ways, Options API and Composition API. The Options API will be familiar to Vue 2 users, while the Composition API is for Vue 3 users.
 
@@ -61,3 +61,27 @@ const store = useStore.reactive();
 ```
 
 By calling `reactive()` from the store function, we remove unnecessary `ref` in nested variables, and the behavior becomes like in Pinia.
+
+#### Async
+
+Vaxee also offers a way to handle async data. You can use the `request` function to send a request and get the data.
+
+```ts
+const useUserStore = createStore("user", ({ request }) => {
+  const user = request(() => fetchUser());
+
+  return { user };
+});
+```
+
+```vue
+<script setup>
+// Or
+const { data: user } = await useUserStore("user");
+
+// Or
+const { user, suspense } = useUserStore();
+
+await suspense();
+</script>
+```
