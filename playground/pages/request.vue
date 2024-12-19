@@ -1,9 +1,7 @@
 <script setup lang="ts">
 const {
-  users: { data: users, refresh, suspense, status },
+  users: { data: users, refresh, status },
 } = useRequestStore();
-
-await suspense();
 
 const store = useRequestStore.reactive();
 </script>

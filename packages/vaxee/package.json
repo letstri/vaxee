@@ -1,6 +1,6 @@
 {
   "name": "vaxee",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Vaxee is a simple and easy-to-use library for Vue 3 to manage the state of your application.",
   "scripts": {
     "prepublishOnly": "pnpm run test && pnpm run build",
@@ -43,9 +43,9 @@
     "@vitest/browser": "^2.1.8",
     "@vue/test-utils": "^2.4.6",
     "typescript": "^5.7.2",
-    "vite": "^6.0.3",
+    "vite": "^6.0.4",
     "vitest": "^2.1.8",
-    "webdriverio": "^9.4.3"
+    "webdriverio": "^9.4.5"
   },
   "peerDependencies": {
     "vue": ">3.0.0"

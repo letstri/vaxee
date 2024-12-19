@@ -1,4 +1,4 @@
-import { reactive, ref, hasInjectionContext, inject, shallowRef, watch, computed, unref } from "vue";
+import { reactive, ref, hasInjectionContext, inject, shallowRef, watch, computed, onServerPrefetch, unref } from "vue";
 const IS_DEV = process.env.NODE_ENV !== "production";
 const IS_CLIENT = typeof window !== "undefined";
 const VAXEE_LOG_START = "[🌱 vaxee]: ";
@@ -93,7 +93,7 @@ function getter(fn) {
 const isGetter = (ref2) => (ref2 == null ? void 0 : ref2.GetterSymbol) === getterSymbol;
 const requestSymbol = Symbol("vaxee-request");
 var VaxeeRequestStatus = /* @__PURE__ */ ((VaxeeRequestStatus2) => {
-  VaxeeRequestStatus2["NotFetched"] = "not-fetched";
+  VaxeeRequestStatus2["Idle"] = "idle";
   VaxeeRequestStatus2["Fetching"] = "fetching";
   VaxeeRequestStatus2["Refreshing"] = "refreshing";
   VaxeeRequestStatus2["Error"] = "error";
@@ -106,11 +106,25 @@ function checkPrivateRequest(request2) {
   }
 }
 function request(callback, options = {}) {
+  if (!options.mode) {
+    if (options.sendManually) {
+      console.warn(
+        VAXEE_LOG_START + "`sendManually` is deprecated. Use `mode: 'manual'` instead."
+      );
+      options.mode = "manual";
+    } else if (options.sendOnServer) {
+      console.warn(
+        VAXEE_LOG_START + "`sendOnServer` is deprecated. Use `mode: 'client'` instead."
+      );
+      options.mode = "client";
+    }
+  }
+  options.mode || (options.mode = "auto");
   const q = {
     data: ref(null),
     error: ref(null),
     status: ref(
-      options.sendManually ? "not-fetched" : "fetching"
+      options.mode === "manual" ? "idle" : "fetching"
       /* Fetching */
     ),
     suspense: () => Promise.resolve(),
@@ -203,8 +217,11 @@ function request(callback, options = {}) {
       q.status.value = initial.status;
       return q;
     }
-    if (!options.sendManually && (IS_CLIENT || options.sendOnServer !== false)) {
-      const promise = sendRequest();
+    if (options.mode === "auto" || options.mode === "client") {
+      const promise = options.mode === "auto" || IS_CLIENT && options.mode === "client" ? sendRequest() : Promise.resolve();
+      if (options.mode === "auto") {
+        onServerPrefetch(() => promise);
+      }
       q.suspense = async () => {
         await promise;
       };
@@ -219,7 +236,9 @@ function request(callback, options = {}) {
         VAXEE_LOG_START + "Watch should be an array of `state` or `getter` or `function` that returns a value"
       );
     }
-    watch(options.watch, q.refresh);
+    if (IS_CLIENT) {
+      watch(options.watch, q.refresh);
+    }
   }
   const returning = {
     ...q,

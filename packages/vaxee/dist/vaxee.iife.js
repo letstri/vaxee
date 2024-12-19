@@ -94,7 +94,7 @@ var vaxee = function(exports, vue2) {
   const isGetter = (ref2) => (ref2 == null ? void 0 : ref2.GetterSymbol) === getterSymbol;
   const requestSymbol = Symbol("vaxee-request");
   var VaxeeRequestStatus = /* @__PURE__ */ ((VaxeeRequestStatus2) => {
-    VaxeeRequestStatus2["NotFetched"] = "not-fetched";
+    VaxeeRequestStatus2["Idle"] = "idle";
     VaxeeRequestStatus2["Fetching"] = "fetching";
     VaxeeRequestStatus2["Refreshing"] = "refreshing";
     VaxeeRequestStatus2["Error"] = "error";
@@ -107,11 +107,25 @@ var vaxee = function(exports, vue2) {
     }
   }
   function request(callback, options = {}) {
+    if (!options.mode) {
+      if (options.sendManually) {
+        console.warn(
+          VAXEE_LOG_START + "`sendManually` is deprecated. Use `mode: 'manual'` instead."
+        );
+        options.mode = "manual";
+      } else if (options.sendOnServer) {
+        console.warn(
+          VAXEE_LOG_START + "`sendOnServer` is deprecated. Use `mode: 'client'` instead."
+        );
+        options.mode = "client";
+      }
+    }
+    options.mode || (options.mode = "auto");
     const q = {
       data: vue2.ref(null),
       error: vue2.ref(null),
       status: vue2.ref(
-        options.sendManually ? "not-fetched" : "fetching"
+        options.mode === "manual" ? "idle" : "fetching"
         /* Fetching */
       ),
       suspense: () => Promise.resolve(),
@@ -204,8 +218,11 @@ var vaxee = function(exports, vue2) {
         q.status.value = initial.status;
         return q;
       }
-      if (!options.sendManually && (IS_CLIENT || options.sendOnServer !== false)) {
-        const promise = sendRequest();
+      if (options.mode === "auto" || options.mode === "client") {
+        const promise = options.mode === "auto" || IS_CLIENT && options.mode === "client" ? sendRequest() : Promise.resolve();
+        if (options.mode === "auto") {
+          vue2.onServerPrefetch(() => promise);
+        }
         q.suspense = async () => {
           await promise;
         };
@@ -220,7 +237,9 @@ var vaxee = function(exports, vue2) {
           VAXEE_LOG_START + "Watch should be an array of `state` or `getter` or `function` that returns a value"
         );
       }
-      vue2.watch(options.watch, q.refresh);
+      if (IS_CLIENT) {
+        vue2.watch(options.watch, q.refresh);
+      }
     }
     const returning = {
       ...q,

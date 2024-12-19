@@ -70,10 +70,8 @@ Now, let's use this store in a component.
 import { watch } from "vue";
 import { useUserStore } from "../stores/user";
 
-const {
-  isAuthorized,
-  user: { data: user, refresh: refreshUser },
-} = useUserStore();
+const { isAuthorized } = useUserStore();
+const { data: user, refresh: refreshUser } = await useUserStore("user");
 
 watch(isAuthorized, (isAuthorized) => {
   if (isAuthorized) {

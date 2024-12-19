@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { nextTick } from "vue";
-import { checkPrivateRequest, isRequest, request } from "./request";
+import {
+  checkPrivateRequest,
+  isRequest,
+  request,
+  VaxeeRequestStatus,
+} from "./request";
 import { createStore } from "./createStore";
 import { createVaxee, setVaxeeInstance } from "../plugin";
 
@@ -355,5 +360,30 @@ describe("request", () => {
     expect(q).toBeInstanceOf(Promise);
     await q.suspense();
     expect(q.data.value).toBe(1);
+  });
+
+  it('shoudn\'t send request if mode "manual"', async () => {
+    const spy = vi.fn();
+
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(
+        () => {
+          spy();
+          return Promise.resolve(1);
+        },
+        {
+          mode: "manual",
+        }
+      );
+      return { q };
+    });
+
+    const { q } = useStore();
+
+    await nextTick();
+
+    expect(spy).toHaveBeenCalledTimes(0);
+    expect(q.data.value).toBe(null);
+    expect(q.status.value).toBe(VaxeeRequestStatus.Idle);
   });
 });

@@ -1,4 +1,11 @@
-import { ref, watch, type Ref, type WatchSource } from "vue";
+import {
+  getCurrentInstance,
+  onServerPrefetch,
+  ref,
+  watch,
+  type Ref,
+  type WatchSource,
+} from "vue";
 import { useVaxee } from "../composables/useVaxee";
 import { IS_CLIENT, VAXEE_LOG_START } from "../constants";
 import { isGetter, isState } from "./reactivity";
@@ -6,7 +13,7 @@ import { isGetter, isState } from "./reactivity";
 const requestSymbol = Symbol("vaxee-request");
 
 export enum VaxeeRequestStatus {
-  NotFetched = "not-fetched",
+  Idle = "idle",
   Fetching = "fetching",
   Refreshing = "refreshing",
   Error = "error",
@@ -85,11 +92,17 @@ interface VaxeeRequestParams {
 
 interface VaxeeRequestOptions {
   /**
-   * If `false`, the request will not be automatically fetched on the server side. Default `true`.
+   * The mode of the request.
+   *
+   * @default 'auto'
+   */
+  mode?: "auto" | "manual" | "client";
+  /**
+   * @deprecated use `mode: 'client'` instead
    */
   sendOnServer?: boolean;
   /**
-   * If `true`, the request will not be automatically fetched on both client and server. Default `false`.
+   * @deprecated use `mode: 'manual'` instead
    */
   sendManually?: boolean;
   /**
@@ -106,12 +119,31 @@ export function request<T>(
   callback: (params: VaxeeRequestParams) => T | Promise<T>,
   options: VaxeeRequestOptions = {}
 ): VaxeeRequest<T> {
+  // TODO: remove after v1.0.0
+  if (!options.mode) {
+    if (options.sendManually) {
+      console.warn(
+        VAXEE_LOG_START +
+          "`sendManually` is deprecated. Use `mode: 'manual'` instead."
+      );
+      options.mode = "manual";
+    } else if (options.sendOnServer) {
+      console.warn(
+        VAXEE_LOG_START +
+          "`sendOnServer` is deprecated. Use `mode: 'client'` instead."
+      );
+      options.mode = "client";
+    }
+  }
+
+  options.mode ||= "auto";
+
   const q: VaxeeRequest<T> = {
     data: ref<T | null>(null) as Ref<T | null>,
     error: ref<Error | null>(null),
     status: ref<VaxeeRequestStatus>(
-      options.sendManually
-        ? VaxeeRequestStatus.NotFetched
+      options.mode === "manual"
+        ? VaxeeRequestStatus.Idle
         : VaxeeRequestStatus.Fetching
     ),
     suspense: () => Promise.resolve(),
@@ -222,15 +254,15 @@ export function request<T>(
       return q;
     }
 
-    if (
-      !options.sendManually &&
-      (IS_CLIENT || options.sendOnServer !== false)
-    ) {
-      const promise = sendRequest();
+    if (options.mode === "auto" || options.mode === "client") {
+      const promise =
+        options.mode === "auto" || (IS_CLIENT && options.mode === "client")
+          ? sendRequest()
+          : Promise.resolve();
 
-      // if (!IS_CLIENT && options.serverPrefetch) {
-      //   onServerPrefetch(() => promise);
-      // }
+      if (options.mode === "auto") {
+        onServerPrefetch(() => promise);
+      }
 
       q.suspense = async () => {
         await promise;
@@ -252,7 +284,9 @@ export function request<T>(
       );
     }
 
-    watch(options.watch, q.refresh);
+    if (IS_CLIENT) {
+      watch(options.watch, q.refresh);
+    }
   }
 
   const returning: VaxeePrivateRequest<T> = {

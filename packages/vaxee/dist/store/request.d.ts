@@ -1,7 +1,7 @@
 import { type Ref, type WatchSource } from "vue";
 declare const requestSymbol: unique symbol;
 export declare enum VaxeeRequestStatus {
-    NotFetched = "not-fetched",
+    Idle = "idle",
     Fetching = "fetching",
     Refreshing = "refreshing",
     Error = "error",
@@ -69,11 +69,17 @@ interface VaxeeRequestParams {
 }
 interface VaxeeRequestOptions {
     /**
-     * If `false`, the request will not be automatically fetched on the server side. Default `true`.
+     * The mode of the request.
+     *
+     * @default 'auto'
+     */
+    mode?: "auto" | "manual" | "client";
+    /**
+     * @deprecated use `mode: 'client'` instead
      */
     sendOnServer?: boolean;
     /**
-     * If `true`, the request will not be automatically fetched on both client and server. Default `false`.
+     * @deprecated use `mode: 'manual'` instead
      */
     sendManually?: boolean;
     /**
