@@ -1,11 +1,4 @@
-import {
-  getCurrentInstance,
-  onServerPrefetch,
-  ref,
-  watch,
-  type Ref,
-  type WatchSource,
-} from "vue";
+import { onServerPrefetch, ref, watch, type Ref, type WatchSource } from "vue";
 import { useVaxee } from "../composables/useVaxee";
 import { IS_CLIENT, VAXEE_LOG_START } from "../constants";
 import { isGetter, isState } from "./reactivity";
