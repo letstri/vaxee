@@ -630,7 +630,7 @@ var vaxee = function(exports, vue2) {
       }
       if (options.mode === "auto" || options.mode === "client") {
         const promise = options.mode === "auto" || IS_CLIENT && options.mode === "client" ? sendRequest() : Promise.resolve();
-        if (options.mode === "auto") {
+        if (options.mode === "auto" && vue2.getCurrentInstance()) {
           vue2.onServerPrefetch(() => promise);
         }
         q.suspense = async () => {

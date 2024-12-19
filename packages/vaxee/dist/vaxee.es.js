@@ -1,4 +1,4 @@
-import { reactive, ref, hasInjectionContext, inject, shallowRef, watch, computed, onServerPrefetch, unref } from "vue";
+import { reactive, ref, hasInjectionContext, inject, shallowRef, watch, computed, getCurrentInstance, onServerPrefetch, unref } from "vue";
 class DevalueError extends Error {
   /**
    * @param {string} message
@@ -629,7 +629,7 @@ function request(callback, options = {}) {
     }
     if (options.mode === "auto" || options.mode === "client") {
       const promise = options.mode === "auto" || IS_CLIENT && options.mode === "client" ? sendRequest() : Promise.resolve();
-      if (options.mode === "auto") {
+      if (options.mode === "auto" && getCurrentInstance()) {
         onServerPrefetch(() => promise);
       }
       q.suspense = async () => {
