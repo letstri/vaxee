@@ -122,7 +122,7 @@ export default defineNuxtConfig({
 
 ## Usage
 
-Let's create a simple store with a counter.
+Let's create a simple store with a counter and a user.
 
 ```ts
 import { createStore } from "vaxee";
