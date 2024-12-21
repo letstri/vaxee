@@ -79,6 +79,18 @@ onMounted(() => {
 </script>
 ```
 
+To add a default parameter, you can pass it to the `request` function with destructuring.
+
+```ts
+const useUserStore = createStore("user", ({ request }) => {
+  const user = request(({ param = 1 }: { param: number }) =>
+    fetch(`/users/${param}`).then((res) => res.json())
+  );
+
+  return { user };
+});
+```
+
 ### Options
 
 You can pass options to the `request` function to customize the behavior.
