@@ -127,20 +127,27 @@ Let's create a simple store with a counter.
 ```ts
 import { createStore } from "vaxee";
 
-export const useCounterStore = createStore("counter", ({ state, getter }) => {
-  const count = state(0);
-  const double = getter(() => count.value * 2);
+export const useCounterStore = createStore(
+  "counter",
+  ({ state, getter, request }) => {
+    const count = state(0);
+    const double = getter(() => count.value * 2);
+    const user = request(({ param }: { param: number }) =>
+      fetch(`/users/${param}`).then((res) => res.json())
+    );
 
-  const increment = () => {
-    count.value++;
-  };
+    const increment = () => {
+      count.value++;
+    };
 
-  return {
-    count,
-    double,
-    increment,
-  };
-});
+    return {
+      count,
+      double,
+      increment,
+      user,
+    };
+  }
+);
 ```
 
 Now, let's use this store in a component.
@@ -150,12 +157,18 @@ Now, let's use this store in a component.
 import { useCounterStore } from "./stores/counter";
 
 const { count } = useCounterStore();
+const { data: user, execute: executeUser } = await useCounterStore("user");
+
+function updateUser(id: number) {
+  executeUser(id);
+}
 </script>
 
 <template>
   <div>
     <p>{{ count }}</p>
     <button @click="count++">Increment</button>
+    <button @click="updateUser(1)">Update User</button>
   </div>
 </template>
 ```
