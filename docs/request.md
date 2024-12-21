@@ -34,8 +34,9 @@ This small example includes **caching** the data, **error handling** and loading
 The `request` function accepts a function that returns a promise. This function provides arguments that can be used to customize the behavior of the request.
 
 ```ts
-interface VaxeeRequestParams {
+interface VaxeeRequestParams<P> {
   signal: AbortSignal;
+  param: P;
 }
 ```
 
@@ -51,6 +52,31 @@ const useUsersStore = createStore("users", ({ request }) => {
 
   return { users };
 });
+```
+
+#### `param`
+
+You can pass a parameter to the request. This parameter will be passed to the request function. Each call of `execute` will override the previous parameter. `refresh` will use the last parameter.
+
+```ts
+const useUserStore = createStore("user", ({ request }) => {
+  // You can type the param as you want or use `VaxeeRequestParams<number>` type
+  const user = request(({ param }: { param: number }) =>
+    fetch(`/users/${param}`).then((res) => res.json())
+  );
+
+  return { user };
+});
+```
+
+```vue
+<script setup>
+const { data: user, execute: executeUser } = useUserStore("user");
+
+onMounted(() => {
+  executeUser(1);
+});
+</script>
 ```
 
 ### Options
