@@ -28,7 +28,7 @@ export function parseStore<Store extends BaseStore>(store: Store) {
       states: {} as Record<string, VaxeeState<any>>,
       actions: {} as Record<string, (...args: any) => any>,
       getters: {} as Record<string, VaxeeGetter<any>>,
-      requests: {} as Record<string, VaxeeRequest<any>>,
+      requests: {} as Record<string, VaxeeRequest<any, any>>,
       other: {} as Record<string, any>,
     }
   );

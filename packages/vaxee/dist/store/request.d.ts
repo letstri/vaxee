@@ -7,7 +7,7 @@ export declare enum VaxeeRequestStatus {
     Error = "error",
     Success = "success"
 }
-export interface VaxeeRequest<T> {
+export interface VaxeeRequest<T, P extends any = void> {
     data: Ref<null | T>;
     error: Ref<null | Error>;
     status: Ref<VaxeeRequestStatus>;
@@ -38,7 +38,7 @@ export interface VaxeeRequest<T> {
      * await execute();
      * ```
      */
-    execute: () => Promise<void>;
+    execute: (params: P) => Promise<void>;
     /**
      * `refresh` will fetch the request without clearing the data and the error.
      *
@@ -56,16 +56,20 @@ export interface VaxeeRequest<T> {
     onError: <E = unknown>(callback: (error: E) => any) => any;
     onSuccess: (callback: (data: T) => any) => any;
 }
-interface VaxeePrivateRequest<T> extends VaxeeRequest<T> {
+interface VaxeePrivateRequest<T, P extends any = void> extends VaxeeRequest<T, P> {
     RequestSymbol: typeof requestSymbol;
-    _init(store: string, key: string): VaxeeRequest<T>;
+    _init(store: string, key: string): VaxeeRequest<T, P>;
 }
-export declare function checkPrivateRequest(request: any): asserts request is VaxeePrivateRequest<any>;
-interface VaxeeRequestParams {
+export declare function checkPrivateRequest(request: any): asserts request is VaxeePrivateRequest<any, any>;
+export interface VaxeeRequestParams<P extends any = void> {
     /**
      * The signal to use for the request.
      */
     signal: AbortSignal;
+    /**
+     * The param to use for the request.
+     */
+    param: P;
 }
 interface VaxeeRequestOptions {
     /**
@@ -91,6 +95,6 @@ interface VaxeeRequestOptions {
      */
     onError?: <E = unknown>(error: E) => any;
 }
-export declare function request<T>(callback: (params: VaxeeRequestParams) => T | Promise<T>, options?: VaxeeRequestOptions): VaxeeRequest<T>;
+export declare function request<T, P extends any = void>(callback: (params: VaxeeRequestParams<P>) => T | Promise<T>, options?: VaxeeRequestOptions): VaxeeRequest<T, P>;
 export declare const isRequest: (request: any) => request is VaxeeRequest<any>;
 export {};

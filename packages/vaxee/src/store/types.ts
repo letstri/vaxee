@@ -17,7 +17,7 @@ export type VaxeeStoreGetters<T> = UnwrapNestedRefs<
 >;
 
 type VaxeeStoreRequestsNames<T> = {
-  [K in keyof T]: T[K] extends VaxeeRequest<any> ? K : never;
+  [K in keyof T]: T[K] extends VaxeeRequest<any, any> ? K : never;
 }[keyof T];
 export type VaxeeStoreRequests<T> = Pick<T, VaxeeStoreRequestsNames<T>>;
 

@@ -34,8 +34,8 @@ interface UseVaxeeStore<Store extends BaseStore> {
   (): VaxeeStore<Store>;
   <Name extends keyof VaxeeStore<Store>>(
     name: Name
-  ): VaxeeStore<Store>[Name] extends VaxeeRequest<infer T>
-    ? Promiseable<VaxeeRequest<T>>
+  ): VaxeeStore<Store>[Name] extends VaxeeRequest<infer T, infer P>
+    ? Promiseable<VaxeeRequest<T, P>>
     : VaxeeStore<Store>[Name];
   $inferState: VaxeeStoreState<Store>;
   reactive: () => VaxeeReactiveStore<Store>;

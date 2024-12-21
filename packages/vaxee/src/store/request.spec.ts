@@ -386,4 +386,63 @@ describe("request", () => {
     expect(q.data.value).toBe(null);
     expect(q.status.value).toBe(VaxeeRequestStatus.Idle);
   });
+
+  it("should work with param", async () => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(({ param }: { param: number }) => {
+        return Promise.resolve(param);
+      });
+      return { q };
+    });
+
+    const { q } = useStore();
+
+    expect(q.data.value).toBe(null);
+
+    await q.execute(1);
+
+    expect(q.data.value).toBe(1);
+  });
+
+  it("should work with default param", async () => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(({ param = 1 }: { param: number }) => {
+        return Promise.resolve(param);
+      });
+      return { q };
+    });
+
+    const { data, execute } = await useStore("q");
+
+    expect(data.value).toBe(1);
+
+    await execute(2);
+
+    expect(data.value).toBe(2);
+  });
+
+  it("should save param when refresh", async () => {
+    const useStore = createStore("store", ({ request }) => {
+      const q = request(({ param = 1 }: { param: number }) => {
+        return Promise.resolve(param);
+      });
+      return { q };
+    });
+
+    const { data, refresh, execute } = await useStore("q");
+
+    expect(data.value).toBe(1);
+
+    await refresh();
+
+    expect(data.value).toBe(1);
+
+    await execute(2);
+
+    expect(data.value).toBe(2);
+
+    await refresh();
+
+    expect(data.value).toBe(2);
+  });
 });

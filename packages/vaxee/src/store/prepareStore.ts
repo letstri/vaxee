@@ -23,7 +23,7 @@ export function prepareStore<Store extends BaseStore>(
     }
   }
 
-  const preparedRequests = {} as Record<string, VaxeeRequest<any>>;
+  const preparedRequests = {} as Record<string, VaxeeRequest<any, any>>;
 
   for (const key in requests) {
     checkPrivateRequest(requests[key]);

@@ -531,6 +531,7 @@ var vaxee = function(exports, vue2) {
       }
     }
     options.mode || (options.mode = "auto");
+    const _param = vue2.ref();
     const q = {
       data: vue2.ref(null),
       error: vue2.ref(null),
@@ -539,7 +540,10 @@ var vaxee = function(exports, vue2) {
         /* Fetching */
       ),
       suspense: () => Promise.resolve(),
-      async execute() {
+      async execute(param) {
+        if (param) {
+          _param.value = param;
+        }
         q.status.value = "fetching";
         q.data.value = null;
         q.error.value = null;
@@ -605,7 +609,10 @@ var vaxee = function(exports, vue2) {
         isAborted = true;
       };
       try {
-        const data = await callback({ signal: abortController.signal });
+        const data = await callback({
+          signal: abortController.signal,
+          param: _param.value
+        });
         q.data.value = data;
         q.status.value = "success";
         abortController = null;
@@ -630,8 +637,9 @@ var vaxee = function(exports, vue2) {
       }
       if (options.mode === "auto" || options.mode === "client") {
         const promise = options.mode === "auto" || IS_CLIENT && options.mode === "client" ? sendRequest() : Promise.resolve();
-        if (options.mode === "auto" && vue2.getCurrentInstance()) {
-          vue2.onServerPrefetch(() => promise);
+        const instance = vue2.getCurrentInstance();
+        if (options.mode === "auto" && instance) {
+          vue2.onServerPrefetch(() => promise, instance);
         }
         q.suspense = async () => {
           await promise;

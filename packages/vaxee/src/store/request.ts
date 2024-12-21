@@ -20,9 +20,9 @@ export enum VaxeeRequestStatus {
   Success = "success",
 }
 
-export interface VaxeeRequest<T> {
-  data: Ref<null | T>;
-  error: Ref<null | Error>;
+export interface VaxeeRequest<T, P extends any = void> {
+  data: Ref<T | null>;
+  error: Ref<Error | null>;
   status: Ref<VaxeeRequestStatus>;
   /**
    * `suspense` gives ability to wait promise resolve without refreshing the data.
@@ -51,7 +51,7 @@ export interface VaxeeRequest<T> {
    * await execute();
    * ```
    */
-  execute: () => Promise<void>;
+  execute: (params: P) => Promise<void>;
   /**
    * `refresh` will fetch the request without clearing the data and the error.
    *
@@ -70,24 +70,29 @@ export interface VaxeeRequest<T> {
   onSuccess: (callback: (data: T) => any) => any;
 }
 
-interface VaxeePrivateRequest<T> extends VaxeeRequest<T> {
+interface VaxeePrivateRequest<T, P extends any = void>
+  extends VaxeeRequest<T, P> {
   RequestSymbol: typeof requestSymbol;
-  _init(store: string, key: string): VaxeeRequest<T>;
+  _init(store: string, key: string): VaxeeRequest<T, P>;
 }
 
 export function checkPrivateRequest(
   request: any
-): asserts request is VaxeePrivateRequest<any> {
+): asserts request is VaxeePrivateRequest<any, any> {
   if (request?.RequestSymbol !== requestSymbol) {
     throw new Error("This is not a private request");
   }
 }
 
-interface VaxeeRequestParams {
+export interface VaxeeRequestParams<P extends any = void> {
   /**
    * The signal to use for the request.
    */
   signal: AbortSignal;
+  /**
+   * The param to use for the request.
+   */
+  param: P;
 }
 
 interface VaxeeRequestOptions {
@@ -115,10 +120,10 @@ interface VaxeeRequestOptions {
   onError?: <E = unknown>(error: E) => any;
 }
 
-export function request<T>(
-  callback: (params: VaxeeRequestParams) => T | Promise<T>,
+export function request<T, P extends any = void>(
+  callback: (params: VaxeeRequestParams<P>) => T | Promise<T>,
   options: VaxeeRequestOptions = {}
-): VaxeeRequest<T> {
+): VaxeeRequest<T, P> {
   // TODO: remove after v1.0.0
   if (!options.mode) {
     if (options.sendManually) {
@@ -138,7 +143,8 @@ export function request<T>(
 
   options.mode ||= "auto";
 
-  const q: VaxeeRequest<T> = {
+  const _param = ref<P | undefined>(undefined);
+  const q: VaxeeRequest<T, P> = {
     data: ref<T | null>(null) as Ref<T | null>,
     error: ref<Error | null>(null),
     status: ref<VaxeeRequestStatus>(
@@ -147,7 +153,10 @@ export function request<T>(
         : VaxeeRequestStatus.Fetching
     ),
     suspense: () => Promise.resolve(),
-    async execute() {
+    async execute(param: P) {
+      if (param) {
+        _param.value = param;
+      }
       q.status.value = VaxeeRequestStatus.Fetching;
       q.data.value = null;
       q.error.value = null;
@@ -222,7 +231,10 @@ export function request<T>(
     };
 
     try {
-      const data = await callback({ signal: abortController.signal });
+      const data = await callback({
+        signal: abortController.signal,
+        param: _param.value,
+      });
 
       q.data.value = data;
       q.status.value = VaxeeRequestStatus.Success;
@@ -260,8 +272,10 @@ export function request<T>(
           ? sendRequest()
           : Promise.resolve();
 
-      if (options.mode === "auto" && getCurrentInstance()) {
-        onServerPrefetch(() => promise);
+      const instance = getCurrentInstance();
+
+      if (options.mode === "auto" && instance) {
+        onServerPrefetch(() => promise, instance);
       }
 
       q.suspense = async () => {
@@ -289,7 +303,7 @@ export function request<T>(
     }
   }
 
-  const returning: VaxeePrivateRequest<T> = {
+  const returning: VaxeePrivateRequest<T, P> = {
     ...q,
     _init,
     RequestSymbol: requestSymbol,
@@ -298,5 +312,5 @@ export function request<T>(
   return returning;
 }
 
-export const isRequest = (request: any): request is VaxeeRequest<any> =>
+export const isRequest = (request: any): request is VaxeeRequest<any, any> =>
   request?.RequestSymbol === requestSymbol;

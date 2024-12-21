@@ -530,6 +530,7 @@ function request(callback, options = {}) {
     }
   }
   options.mode || (options.mode = "auto");
+  const _param = ref();
   const q = {
     data: ref(null),
     error: ref(null),
@@ -538,7 +539,10 @@ function request(callback, options = {}) {
       /* Fetching */
     ),
     suspense: () => Promise.resolve(),
-    async execute() {
+    async execute(param) {
+      if (param) {
+        _param.value = param;
+      }
       q.status.value = "fetching";
       q.data.value = null;
       q.error.value = null;
@@ -604,7 +608,10 @@ function request(callback, options = {}) {
       isAborted = true;
     };
     try {
-      const data = await callback({ signal: abortController.signal });
+      const data = await callback({
+        signal: abortController.signal,
+        param: _param.value
+      });
       q.data.value = data;
       q.status.value = "success";
       abortController = null;
@@ -629,8 +636,9 @@ function request(callback, options = {}) {
     }
     if (options.mode === "auto" || options.mode === "client") {
       const promise = options.mode === "auto" || IS_CLIENT && options.mode === "client" ? sendRequest() : Promise.resolve();
-      if (options.mode === "auto" && getCurrentInstance()) {
-        onServerPrefetch(() => promise);
+      const instance = getCurrentInstance();
+      if (options.mode === "auto" && instance) {
+        onServerPrefetch(() => promise, instance);
       }
       q.suspense = async () => {
         await promise;
