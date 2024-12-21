@@ -531,7 +531,7 @@ var vaxee = function(exports, vue2) {
       }
     }
     options.mode || (options.mode = "auto");
-    const _param = vue2.ref();
+    const _param = vue2.ref(void 0);
     const q = {
       data: vue2.ref(null),
       error: vue2.ref(null),

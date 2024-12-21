@@ -8,8 +8,8 @@ export declare enum VaxeeRequestStatus {
     Success = "success"
 }
 export interface VaxeeRequest<T, P extends any = void> {
-    data: Ref<null | T>;
-    error: Ref<null | Error>;
+    data: Ref<T | null>;
+    error: Ref<Error | null>;
     status: Ref<VaxeeRequestStatus>;
     /**
      * `suspense` gives ability to wait promise resolve without refreshing the data.
@@ -96,5 +96,5 @@ interface VaxeeRequestOptions {
     onError?: <E = unknown>(error: E) => any;
 }
 export declare function request<T, P extends any = void>(callback: (params: VaxeeRequestParams<P>) => T | Promise<T>, options?: VaxeeRequestOptions): VaxeeRequest<T, P>;
-export declare const isRequest: (request: any) => request is VaxeeRequest<any>;
+export declare const isRequest: (request: any) => request is VaxeeRequest<any, any>;
 export {};

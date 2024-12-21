@@ -8,6 +8,7 @@ export {
 } from "./store/reactivity";
 export {
   VaxeeRequestStatus,
+  type VaxeeRequestParams,
   type VaxeeRequest,
   request,
 } from "./store/request";

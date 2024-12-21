@@ -8,7 +8,7 @@ export type VaxeeStore<Store extends BaseStore> = ToRefs<VaxeeStoreState<Store>>
 export type VaxeeReactiveStore<Store extends BaseStore> = VaxeeStoreState<Store> & VaxeeStoreGetters<Store> & UnwrapNestedRefs<VaxeeStoreRequests<Store>> & VaxeeStoreActions<Store> & VaxeeStoreOther<Store>;
 interface UseVaxeeStore<Store extends BaseStore> {
     (): VaxeeStore<Store>;
-    <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name] extends VaxeeRequest<infer T> ? Promiseable<VaxeeRequest<T>> : VaxeeStore<Store>[Name];
+    <Name extends keyof VaxeeStore<Store>>(name: Name): VaxeeStore<Store>[Name] extends VaxeeRequest<infer T, infer P> ? Promiseable<VaxeeRequest<T, P>> : VaxeeStore<Store>[Name];
     $inferState: VaxeeStoreState<Store>;
     reactive: () => VaxeeReactiveStore<Store>;
 }

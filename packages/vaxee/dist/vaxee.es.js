@@ -530,7 +530,7 @@ function request(callback, options = {}) {
     }
   }
   options.mode || (options.mode = "auto");
-  const _param = ref();
+  const _param = ref(void 0);
   const q = {
     data: ref(null),
     error: ref(null),
